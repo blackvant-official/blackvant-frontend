@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Withdraw Earnings - BlackVant</title>
+
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- ✅ Correct Clerk Script (same as working deposit page) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/style.css">
+    <script 
+        async 
+        crossorigin="anonymous"
+        data-clerk-publishable-key="pk_test_Y29taWMta2FuZ2Fyb28tMjMuY2xlcmsuYWNjb3VudHMuZGV2JA"
+        src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js">
+    </script>
+
+    <style>
+        .cl-user-button {
+            background: transparent !important;
+            border: none !important;
+        }
+        .cl-user-button-avatar {
+            background: var(--accent-blue) !important;
+        }
+    </style>
+</head>
+
+<body class="dashboard-page">
+<div class="container">
+
+    <!-- Header -->
+    <header class="header">
+        <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+        <a href="dashboard.html" class="logo"><span>BlackVant</span></a>
+        <div class="user-menu">
+            <div id="clerk-user-button"></div>
+            <div class="user-avatar" id="fallbackAvatar" style="display:none;">JD</div>
+        </div>
+    </header>
+
+    <div class="main-content">
+
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <a href="dashboard.html" class="nav-item"><span>📊</span> Dashboard</a>
+            <a href="deposit.html" class="nav-item"><span>💰</span> Deposit Funds</a>
+            <a href="withdraw.html" class="nav-item active"><span>💸</span> Withdraw Earnings</a>
+            <a href="transaction-history.html" class="nav-item"><span>📋</span> Transactions History</a>
+            <a href="profile-settings.html" class="nav-item"><span>👤</span> Profile Settings</a>
+            <a href="support.html" class="nav-item"><span>🆘</span> Support</a>
+            <a href="javascript:void(0)" class="nav-item" id="logoutBtn"><span>🚪</span> Logout</a>
+        </nav>
+
+        <!-- Withdraw Content -->
+        <main class="withdraw-content">
+
+            <div class="page-header">
+                <h1>Withdraw Earnings</h1>
+                <p>Withdraw your available profits</p>
+            </div>
+
+            <!-- Rules -->
+            <div class="rules-card">
+                <div class="rules-grid">
+                    <div class="rule-item"><div class="rule-icon">🔄</div><div class="rule-text">Once per week</div></div>
+                    <div class="rule-item"><div class="rule-icon">💰</div><div class="rule-text">Minimum: $10</div></div>
+                    <div class="rule-item"><div class="rule-icon">⏰</div><div class="rule-text">24–48 hours</div></div>
+                    <div class="rule-item"><div class="rule-icon">📊</div><div class="rule-text">Fee: 0.5%</div></div>
+                </div>
+                <div class="available-balance">
+                    <div class="balance-label">Available Balance</div>
+                    <div class="balance-amount" id="availableBalance">$784.50</div>
+                </div>
+            </div>
+
+            <!-- Payment Method (Crypto only) -->
+            <div class="payment-methods">
+                <div class="methods-grid">
+                    <label class="method-option selected">
+                        <input type="radio" checked>
+                        <div class="method-icon">₿</div>
+                        <div class="method-info">
+                            <h3>Crypto (TRC20)</h3>
+                            <p>USDT to your wallet</p>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="method-forms">
+                    <div class="method-form active">
+                        <div class="form-group">
+                            <label class="form-label">TRC20 Wallet Address</label>
+                            <input type="text" id="walletAddress" class="form-input" placeholder="Enter TRC20 wallet">
+                            <div class="error-message" id="walletAddressError">Valid TRC20 address required</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Network</label>
+                            <input type="text" class="form-input" value="TRC20" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Coin</label>
+                            <input type="text" class="form-input" value="USDT" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Amount Section -->
+            <div class="amount-section">
+                <div class="form-group">
+                    <label class="form-label">Withdrawal Amount (USD)</label>
+                    <input type="number" id="withdrawAmount" class="form-input" placeholder="10.00" min="10" step="0.01">
+                    <div class="error-message" id="amountError">Minimum withdrawal is $10</div>
+                </div>
+
+                <div class="amount-display">
+                    <div class="amount-item"><div class="amount-label">Available Balance</div><div class="amount-value" id="displayBalance">$784.50</div></div>
+                    <div class="amount-item"><div class="amount-label">Fee (0.5%)</div><div class="amount-value fee" id="feeAmount">$0.00</div></div>
+                    <div class="amount-item"><div class="amount-label">You Will Receive</div><div class="amount-value net" id="netAmount">$0.00</div></div>
+                </div>
+
+                <button class="btn-primary" id="submitBtn" disabled>Request Withdrawal</button>
+            </div>
+
+            <!-- Recent Withdrawals -->
+            <div class="recent-withdrawals">
+                <div class="section-header">
+                    <h2 class="section-title">Recent Withdrawals</h2>
+                </div>
+
+                <table class="withdrawals-table">
+                    <thead>
+                        <tr><th>Date</th><th>Method</th><th>Amount</th><th>Status</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Dec 10, 2024</td><td>TRC20</td><td>$200.00</td><td><span class="status-badge status-completed">Completed</span></td></tr>
+                        <tr><td>Dec 03, 2024</td><td>TRC20</td><td>$50.00</td><td><span class="status-badge status-completed">Completed</span></td></tr>
+                        <tr><td>Nov 26, 2024</td><td>TRC20</td><td>$100.00</td><td><span class="status-badge status-processing">Processing</span></td></tr>
+                        <tr><td>Nov 19, 2024</td><td>TRC20</td><td>$150.00</td><td><span class="status-badge status-failed">Failed</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="assets/js/dashboard.js"></script>
+<script src="assets/js/transactions.js"></script>
+
+<!-- ✅ Clerk Auth Protection -->
+<script>
+window.addEventListener("load", async () => {
+    try {
+        await Clerk.load();
+
+        if (!Clerk.user) {
+            window.location.href = "login.html";
+            return;
+        }
+
+        Clerk.mountUserButton(document.getElementById("clerk-user-button"), {
+            afterSignOutUrl: "login.html",
+            userProfileUrl: "profile-settings.html"
+        });
+
+        document.getElementById("fallbackAvatar").style.display = "none";
+
+        document.getElementById("logoutBtn").onclick = async () => {
+            await Clerk.signOut();
+            window.location.href = "login.html";
+        };
+
+    } catch (err) {
+        console.error("Clerk error:", err);
+
+        document.getElementById("fallbackAvatar").style.display = "flex";
+        document.getElementById("clerk-user-button").style.display = "none";
+
+        document.getElementById("logoutBtn").onclick = () => {
+            window.location.href = "login.html";
+        };
+    }
+});
+</script>
+
+</body>
+</html>
