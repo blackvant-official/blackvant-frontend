@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" class="app-loading">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard — BlackVant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Main Styles -->
+  <link rel="stylesheet" href="assets/css/style.css">
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Clerk Styles -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/style.css">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Clerk Script -->
+  <script
+    async
+    crossorigin="anonymous"
+    data-clerk-publishable-key="pk_test_Y29taWMta2FuZ2Fyb28tMjMuY2xlcmsuYWNjb3VudHMuZGV2JA"
+    src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js">
+  </script>
+
+  <style>
+    .cl-userButtonTrigger {
+      border: none !important;
+      background: transparent !important;
+    }
+  </style>
+</head>
+
+<body class="dashboard-page">
+
+  <div class="container">
+
+    <!-- Header -->
+    <header class="header">
+      <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+      <a href="dashboard.html" class="logo">BlackVant</a>
+
+      <div class="user-menu">
+        <span id="userEmail" style="margin-right:10px;color:#94a3b8;font-size:.9rem;"></span>
+        <div id="clerk-user-button"></div>
+      </div>
+    </header>
+
+    <!-- Main -->
+    <div class="main-content">
+
+      <!-- Sidebar -->
+      <nav class="sidebar" id="sidebar">
+        <a href="dashboard.html" class="nav-item active">📊 Dashboard</a>
+        <a href="deposit.html" class="nav-item">💰 Deposit Funds</a>
+        <a href="withdraw.html" class="nav-item">💸 Withdraw Earnings</a>
+        <a href="transaction-history.html" class="nav-item">📋 Transactions History</a>
+        <a href="profile-settings.html" class="nav-item">👤 Profile Settings</a>
+        <a href="support.html" class="nav-item">🆘 Support</a>
+
+        <a href="javascript:void(0)" class="nav-item" id="logoutBtn">🚪 Logout</a>
+      </nav>
+
+      <!-- Dashboard Content -->
+      <main class="dashboard-content">
+
+        <!-- Welcome -->
+        <div class="welcome-section">
+          <h1 id="welcomeTitle">Welcome back!</h1>
+          <p>Here's your investment portfolio overview</p>
+        </div>
+
+        <!-- Balance Cards -->
+        <div class="cards-grid balance-cards">
+          <div class="card"><div class="card-title">Total Balance</div><div class="card-value">$5,284.50</div></div>
+          <div class="card"><div class="card-title">Active Investment</div><div class="card-value">$4,500.00</div></div>
+          <div class="card"><div class="card-title">Available Balance</div><div class="card-value">$784.50</div></div>
+          <div class="card"><div class="card-title">Locked Capital</div><div class="card-value">$3,800.00</div></div>
+        </div>
+
+        <!-- Profit Cards -->
+        <div class="cards-grid profit-cards">
+          <div class="card"><div class="card-title">Today's Profit</div><div class="card-value profit-positive">+$45.00</div></div>
+          <div class="card"><div class="card-title">Total Profit</div><div class="card-value profit-positive">+$784.50</div></div>
+        </div>
+
+        <!-- Chart -->
+        <div class="chart-section">
+          <h2 class="chart-title">Portfolio Performance</h2>
+          <div class="chart-wrapper">
+            <canvas id="performanceChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Transactions -->
+        <div class="transactions-section">
+          <h2>Recent Transactions</h2>
+          <table class="transactions-table">
+            <thead>
+              <tr>
+                <th>Date</th><th>Type</th><th>Amount</th><th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Dec 15</td><td>Profit</td><td>+$45</td><td>Completed</td></tr>
+              <tr><td>Dec 10</td><td>Withdraw</td><td>-$200</td><td>Completed</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/dashboard.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      requireAuth({
+        redirectTo: "login.html",
+        onReady: (user, clerk) => {
+          // Mount Clerk user button
+          const userBtnEl = document.getElementById("clerk-user-button");
+          if (userBtnEl) {
+            clerk.mountUserButton(userBtnEl, {
+              afterSignOutUrl: "login.html",
+            });
+          }
+
+          // Welcome text + email
+          const welcomeTitle = document.getElementById("welcomeTitle");
+          const userEmail = document.getElementById("userEmail");
+
+          if (user && user.firstName && welcomeTitle) {
+            welcomeTitle.textContent = `Welcome back, ${user.firstName}!`;
+          }
+
+          if (user && user.primaryEmailAddress && userEmail) {
+            userEmail.textContent = user.primaryEmailAddress.emailAddress;
+          }
+
+          // Logout
+          const logoutBtn = document.getElementById("logoutBtn");
+          if (logoutBtn) {
+            logoutBtn.addEventListener("click", async () => {
+              await signOutAndRedirect("login.html");
+            });
+          }
+        },
+      });
+    });
+  </script>
+
+</body>
+</html>

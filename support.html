@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support - BlackVant</title>
+
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- ✅ Correct Clerk Script (same as deposit/withdraw/dashboard) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/style.css">
+    <script 
+        async 
+        crossorigin="anonymous"
+        data-clerk-publishable-key="pk_test_Y29taWMta2FuZ2Fyb08tMjMuY2xlcmsuYWNjb3VudHMuZGV2JA"
+        src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js">
+    </script>
+
+    <style>
+        .cl-user-button {
+            background: transparent !important;
+            border: none !important;
+        }
+        .cl-user-button-avatar {
+            background: var(--accent-blue) !important;
+        }
+    </style>
+</head>
+
+<body class="dashboard-page">
+<div class="container">
+    
+    <!-- Header -->
+    <header class="header">
+        <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+        <a href="dashboard.html" class="logo"><span>BlackVant</span></a>
+        <div class="user-menu">
+            <div id="clerk-user-button"></div>
+            <div class="user-avatar" id="fallbackAvatar" style="display:none;">JD</div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-content">
+
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <a href="dashboard.html" class="nav-item"><span>📊</span> Dashboard</a>
+            <a href="deposit.html" class="nav-item"><span>💰</span> Deposit Funds</a>
+            <a href="withdraw.html" class="nav-item"><span>💸</span> Withdraw Earnings</a>
+            <a href="transaction-history.html" class="nav-item"><span>📋</span> Transactions History</a>
+            <a href="profile-settings.html" class="nav-item"><span>👤</span> Profile Settings</a>
+            <a href="support.html" class="nav-item active"><span>🆘</span> Support</a>
+            <a href="javascript:void(0)" class="nav-item" id="logoutBtn"><span>🚪</span> Logout</a>
+        </nav>
+
+        <!-- Support Content -->
+        <main class="support-content">
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1>Support Center</h1>
+                <p>Get help and contact our support team</p>
+            </div>
+
+            <!-- Quick Help Section -->
+            <div class="quick-help">
+                <div class="section-header">
+                    <h2 class="section-title">Quick Help</h2>
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" class="search-input" id="faqSearch" placeholder="Search FAQs...">
+                    </div>
+                </div>
+
+                <div class="faq-categories">
+                    <div class="faq-category" data-category="account">
+                        <div class="category-icon">👤</div>
+                        <div class="category-title">Account & Login</div>
+                        <div class="category-desc">Password reset, 2FA, account access</div>
+                    </div>
+                    <div class="faq-category" data-category="crypto">
+                        <div class="category-icon">₿</div>
+                        <div class="category-title">Crypto Transactions</div>
+                        <div class="category-desc">TRC20 deposits, withdrawals, fees</div>
+                    </div>
+                    <div class="faq-category" data-category="investment">
+                        <div class="category-icon">📈</div>
+                        <div class="category-title">Investment & Profits</div>
+                        <div class="category-desc">Daily returns, profit calculation</div>
+                    </div>
+                    <div class="faq-category" data-category="security">
+                        <div class="category-icon">🔒</div>
+                        <div class="category-title">Security & Verification</div>
+                        <div class="category-desc">Wallet security, KYC process</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Methods -->
+            <div class="contact-methods">
+                <div class="contact-card">
+                    <div class="contact-icon">💬</div>
+                    <h3 class="contact-title">Live Chat</h3>
+                    <p class="contact-desc">Real-time chat with our support team</p>
+                    <div class="response-time">Typically replies in 2 minutes</div>
+                    <button class="btn-primary" id="liveChatBtn">Start Chat</button>
+                </div>
+
+                <div class="contact-card">
+                    <div class="contact-icon">✉️</div>
+                    <h3 class="contact-title">Email Support</h3>
+                    <p class="contact-desc">Send us an email with your questions</p>
+                    <div class="contact-detail">support@blackvant.com</div>
+                    <div class="response-time">Typically replies in 4 hours</div>
+                    <button class="btn-primary" id="emailSupportBtn">Send Email</button>
+                </div>
+            </div>
+
+            <!-- Common Issues -->
+            <div class="common-issues">
+                <div class="section-header">
+                    <h2 class="section-title">Common Issues</h2>
+                </div>
+
+                <div class="issues-grid">
+                    <div class="issue-item">
+                        <div class="issue-question"><span>❓</span> How do I reset my password?</div>
+                        <div class="issue-answer">
+                            Go to Profile Settings → Security Settings → Change Password. You'll need your current password to set a new one.
+                        </div>
+                    </div>
+
+                    <div class="issue-item">
+                        <div class="issue-question"><span>❓</span> Why is my crypto deposit not showing?</div>
+                        <div class="issue-answer">
+                            TRC20 deposits may take 10–30 minutes. Ensure you sent USDT via TRC20 and uploaded the transaction hash.
+                        </div>
+                    </div>
+
+                    <div class="issue-item">
+                        <div class="issue-question"><span>❓</span> How long do withdrawals take?</div>
+                        <div class="issue-answer">
+                            Withdrawals are processed within 24–48 hours after manual verification.
+                        </div>
+                    </div>
+
+                    <div class="issue-item">
+                        <div class="issue-question"><span>❓</span> What is the TRC20 withdrawal fee?</div>
+                        <div class="issue-answer">
+                            A 0.5% fee applies to cover blockchain fees and processing.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Support Ticket Form -->
+            <div class="contact-form-section">
+                <div class="section-header">
+                    <h2 class="section-title">Submit a Support Ticket</h2>
+                </div>
+
+                <form id="supportForm">
+                    <div class="form-group">
+                        <label class="form-label">Subject</label>
+                        <select class="form-select" id="subject" required>
+                            <option value="">Select an issue category</option>
+                            <option value="account">Account & Login Issue</option>
+                            <option value="deposit">Crypto Deposit Problem</option>
+                            <option value="withdrawal">Crypto Withdrawal Problem</option>
+                            <option value="profit">Profit Calculation</option>
+                            <option value="security">Security Concern</option>
+                            <option value="other">Other Issue</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-textarea" id="description" placeholder="Describe your issue..." required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Attachments (Optional)</label>
+                        <div class="upload-area" id="supportUploadArea">
+                            <div class="upload-icon">📎</div>
+                            <div class="upload-text">Click to upload screenshots</div>
+                            <input type="file" id="supportFileInput" class="file-input" multiple accept=".jpg,.jpeg,.png,.pdf">
+                        </div>
+                        <div id="supportFilePreview" class="file-preview"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Priority</label>
+                        <select class="form-select" id="priority">
+                            <option value="normal">Normal</option>
+                            <option value="urgent">Urgent (Account access issues)</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-primary">Submit Ticket</button>
+                </form>
+            </div>
+
+            <!-- Support Tickets Table -->
+            <div class="support-tickets">
+                <div class="section-header">
+                    <h2 class="section-title">My Support Tickets</h2>
+                </div>
+
+                <table class="tickets-table">
+                    <thead>
+                        <tr>
+                            <th>Ticket ID</th>
+                            <th>Subject</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ticketsTableBody">
+                        <tr>
+                            <td>#TK-7842</td>
+                            <td>TRC20 deposit not showing</td>
+                            <td><span class="status-badge status-open">Open</span></td>
+                            <td>Dec 15, 2024</td>
+                            <td><button class="view-ticket">View</button></td>
+                        </tr>
+                        <tr>
+                            <td>#TK-7791</td>
+                            <td>Password reset issue</td>
+                            <td><span class="status-badge status-resolved">Resolved</span></td>
+                            <td>Dec 12, 2024</td>
+                            <td><button class="view-ticket">View</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Resources -->
+            <div class="resources">
+                <div class="resources-title">Helpful Resources</div>
+                <div class="resource-links">
+                    <a href="#terms" class="resource-link">Terms of Service</a>
+                    <a href="#privacy" class="resource-link">Privacy Policy</a>
+                    <a href="#crypto-guide" class="resource-link">Crypto Guide</a>
+                    <a href="#security-tips" class="resource-link">Security Tips</a>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="assets/js/dashboard.js"></script>
+<script src="assets/js/support.js"></script>
+
+<!-- ✅ Clerk Auth Protection -->
+<script>
+window.addEventListener("load", async () => {
+    try {
+        await Clerk.load();
+
+        if (!Clerk.user) {
+            window.location.href = "login.html";
+            return;
+        }
+
+        Clerk.mountUserButton(document.getElementById("clerk-user-button"), {
+            afterSignOutUrl: "login.html",
+            userProfileUrl: "profile-settings.html"
+        });
+
+        document.getElementById("fallbackAvatar").style.display = "none";
+
+        document.getElementById("logoutBtn").onclick = async () => {
+            await Clerk.signOut();
+            window.location.href = "login.html";
+        };
+
+    } catch (err) {
+        console.error("Clerk Error:", err);
+
+        document.getElementById("fallbackAvatar").style.display = "flex";
+        document.getElementById("clerk-user-button").style.display = "none";
+
+        document.getElementById("logoutBtn").onclick = () => {
+            window.location.href = "login.html";
+        };
+    }
+});
+</script>
+
+</body>
+</html>

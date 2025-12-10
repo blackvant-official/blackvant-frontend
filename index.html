@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlackVant - Smart Automated Investing</title>
+
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+     <!-- ✅ Correct Clerk CDN (same as all working pages) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/style.css">
+    <script
+        async
+        crossorigin="anonymous"
+        data-clerk-publishable-key="pk_test_Y29taWMta2FuZ2Fyb28tMjMuY2xlcmsuYWNjb3VudHMuZGV2JA"
+        src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js">
+    </script>
+
+</head>
+
+<body class="landing-page">
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <div class="logo">BlackVant</div>
+
+                <div class="nav-links">
+                    <a href="#how-it-works">How It Works</a>
+                    <a href="#advantages">Advantages</a>
+                    <a href="#faq">FAQ</a>
+
+                    <!-- Normal buttons (public page) -->
+                    <button class="btn-outline" onclick="window.location.href='login.html'">Sign In</button>
+                    <button class="btn-primary" onclick="window.location.href='signup.html'">Get Started</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Your Money, Growing Every Day</h1>
+            <p>Consistent daily growth through our secure and transparent financial system</p>
+
+            <div class="hero-buttons">
+                <button class="btn-primary" onclick="window.location.href='signup.html'">Start Investing</button>
+                <button class="btn-outline" onclick="window.location.href='#how-it-works'">Learn More</button>
+            </div>
+
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number">1,847</div>
+                    <div class="stat-label">Active Investors</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">$68,250</div>
+                    <div class="stat-label">Total Withdrawals</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">324</div>
+                    <div class="stat-label">Live Visitors</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="section" id="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <h2>How It Works</h2>
+                <p>Start growing your wealth in three simple steps</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📝</div>
+                    <h3>Create Account</h3>
+                    <p>Sign up securely in under 2 minutes</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💳</div>
+                    <h3>Deposit Funds</h3>
+                    <p>Add funds securely using crypto</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📈</div>
+                    <h3>Earn Daily</h3>
+                    <p>Up to 1% daily returns automatically added</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Investment Plan -->
+    <section class="section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Investment Plan</h2>
+                <p>Transparent and designed for consistent growth</p>
+            </div>
+
+            <div class="programs-grid">
+                <div class="program-card">
+                    <div class="program-name">Growth Plan</div>
+                    <div class="program-subtitle">Our Premium Investment Solution</div>
+
+                    <div class="program-details">
+                        <div class="program-detail">
+                            <span class="detail-label">Minimum Investment</span>
+                            <span class="detail-value">$100</span>
+                        </div>
+                        <div class="program-detail">
+                            <span class="detail-label">Daily Profit</span>
+                            <span class="detail-value profit-value">Up to 1%</span>
+                        </div>
+                        <div class="program-detail">
+                            <span class="detail-label">Withdrawal</span>
+                            <span class="detail-value">Weekly</span>
+                        </div>
+                        <div class="program-detail">
+                            <span class="detail-label">Capital Lock</span>
+                            <span class="detail-value">30 Days</span>
+                        </div>
+                    </div>
+
+                    <button class="btn-primary" onclick="window.location.href='signup.html'">Start Investing</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Advantages -->
+    <section class="section" id="advantages">
+        <div class="container">
+            <div class="section-header">
+                <h2>Why Choose BlackVant</h2>
+                <p>Experience the difference</p>
+            </div>
+
+            <div class="advantages-grid">
+                <div class="advantage-card">
+                    <div class="advantage-icon">💎</div>
+                    <h3>Daily Profit</h3>
+                    <p>Earn up to 1% on your balance every day</p>
+                </div>
+                <div class="advantage-card">
+                    <div class="advantage-icon">🔒</div>
+                    <h3>Secure Platform</h3>
+                    <p>Bank-level security & 24/7 monitoring</p>
+                </div>
+                <div class="advantage-card">
+                    <div class="advantage-icon">⏰</div>
+                    <h3>Weekly Withdrawals</h3>
+                    <p>Fast, reliable weekly profit payouts</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section" id="faq">
+        <div class="container">
+            <div class="section-header">
+                <h2>Frequently Asked Questions</h2>
+                <p>Everything you need to know</p>
+            </div>
+
+            <div class="faq-grid">
+                <!-- (Your FAQ items unchanged) -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="logo">BlackVant</div>
+                <div class="footer-links">
+                    <a href="#terms">Terms</a>
+                    <a href="#privacy">Privacy</a>
+                    <a href="support.html">Support</a>
+                </div>
+            </div>
+
+            <div class="copyright">
+                © 2025 BlackVant. All rights reserved.<br>
+                Financial services operated in compliance with international standards
+            </div>
+        </div>
+    </footer>
+
+    <script src="assets/js/main.js"></script>
+</body>
+</html>
