@@ -150,9 +150,7 @@ function setupDashboardEventListeners() {
 // ====== BACKEND INTEGRATION: LOAD LIVE USER BALANCE ======
 
 async function loadUserBalances() {
-    if (!window.Clerk || !window.API_BASE_URL) return;
-
-    const token = await window.Clerk.session.getToken({ template: "backend" });
+    const token = await Clerk.session.getToken({ template: "backend" });
 
     const res = await fetch(`${window.API_BASE_URL}/api/v1/me`, {
         headers: { Authorization: `Bearer ${token}` }
@@ -160,26 +158,32 @@ async function loadUserBalances() {
 
     const data = await res.json();
 
-    // Update UI (these IDs must exist in your HTML)
     if (document.getElementById("investmentBalance"))
-        document.getElementById("investmentBalance").innerText = `$${data.investmentBalance}`;
+        document.getElementById("investmentBalance").innerText =
+            `$${data.investmentBalance ?? 0}`;
 
     if (document.getElementById("profitBalance"))
-        document.getElementById("profitBalance").innerText = `$${data.profitBalance}`;
+        document.getElementById("profitBalance").innerText =
+            `$${data.profitBalance ?? 0}`;
 }
 
-// Initialize dashboard when page loads
-document.addEventListener('DOMContentLoaded', async function() {
-    setupSidebarClose();
-    setupDashboardEventListeners();
-    
-    // Check if we're on dashboard page (has chart)
-    if (document.getElementById('performanceChart')) {
-        initializeChart();
-        setupChartFilters();
-        setupChartResize();
-    }
+// ======================
+// SAFE INITIALIZATION
+// ======================
+document.addEventListener('DOMContentLoaded', function() {
+    requireAuth({
+        onReady: async () => {
+            setupSidebarClose();
+            setupDashboardEventListeners();
+            
+            if (document.getElementById('performanceChart')) {
+                initializeChart();
+                setupChartFilters();
+                setupChartResize();
+            }
 
-    // Load live data from backend
-    await loadUserBalances();
+            // 🔥 ONLY CHANGE: backend call AFTER Clerk is ready
+            await loadUserBalances();
+        }
+    });
 });
