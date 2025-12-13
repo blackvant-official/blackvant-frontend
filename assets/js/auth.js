@@ -5,7 +5,9 @@ window.CLERK_PUBLISHABLE_KEY =
   window.CLERK_PUBLISHABLE_KEY ||
   "pk_test_Y29taWMta2FuZ2Fyb28tMjMuY2xlcmsuYWNjb3VudHMuZGV2JA";
 
-// Wait until Clerk is available and fully loaded
+// -------------------------------------------------
+// WAIT FOR CLERK (HARD SAFE)
+// -------------------------------------------------
 async function waitForClerk() {
   if (!window.Clerk) {
     await new Promise((resolve) => {
@@ -17,17 +19,13 @@ async function waitForClerk() {
     });
   }
 
-  try {
-    await window.Clerk.load();
-  } catch (e) {
-    console.error("Error loading Clerk:", e);
-    throw e;
-  }
-
+  await window.Clerk.load();
   return window.Clerk;
 }
 
-// UI lock/unlock to avoid flashing between states
+// -------------------------------------------------
+// UI LOCK
+// -------------------------------------------------
 function lockUI() {
   document.documentElement.classList.add("app-loading");
 }
@@ -36,24 +34,25 @@ function unlockUI() {
   document.documentElement.classList.remove("app-loading");
 }
 
-/* -------------------------------------------------
-   🔥 NEW FUNCTION (IMPORTANT FOR BACKEND CALLS)
----------------------------------------------------*/
+// -------------------------------------------------
+// TOKEN HELPER (USED BY DASHBOARD / OTHER FILES)
+// -------------------------------------------------
 async function getAuthToken() {
   const clerk = await waitForClerk();
   const session = clerk.session;
-
   if (!session) return null;
 
-  // Get valid JWT for backend
-  return await session.getToken({ template: "backend" }).catch(() => null);
+  return await session
+    .getToken({ template: "backend" })
+    .catch(() => null);
 }
 
-/* -------------------------------------------------
-   PAGE GUARDS
----------------------------------------------------*/
+// -------------------------------------------------
+// PAGE GUARDS
+// -------------------------------------------------
 async function requireGuest({ redirectTo = "dashboard.html", onReady } = {}) {
   lockUI();
+
   const clerk = await waitForClerk();
   const user = clerk.user;
 
@@ -68,16 +67,22 @@ async function requireGuest({ redirectTo = "dashboard.html", onReady } = {}) {
 
 async function requireAuth({ redirectTo = "login.html", onReady } = {}) {
   lockUI();
+
   const clerk = await waitForClerk();
   const user = clerk.user;
+  const session = clerk.session;
 
-  if (!user) {
+  if (!user || !session) {
     window.location.href = redirectTo;
     return;
   }
 
+  // 🔒 AUTH IS FULLY READY HERE
   unlockUI();
-  if (typeof onReady === "function") onReady(user, clerk);
+
+  if (typeof onReady === "function") {
+    await onReady(user, clerk);
+  }
 }
 
 async function requireAdmin({
@@ -86,6 +91,7 @@ async function requireAdmin({
   onReady,
 } = {}) {
   lockUI();
+
   const clerk = await waitForClerk();
   const user = clerk.user;
 
@@ -104,20 +110,21 @@ async function requireAdmin({
   if (typeof onReady === "function") onReady(user, clerk);
 }
 
-/* -------------------------------------------------
-   SIGN OUT
----------------------------------------------------*/
+// -------------------------------------------------
+// SIGN OUT
+// -------------------------------------------------
 async function signOutAndRedirect(redirectTo = "login.html") {
   const clerk = await waitForClerk();
   await clerk.signOut();
   window.location.href = redirectTo;
 }
 
-// Expose globally
+// -------------------------------------------------
+// GLOBAL EXPORTS
+// -------------------------------------------------
 window.waitForClerk = waitForClerk;
 window.requireGuest = requireGuest;
 window.requireAuth = requireAuth;
 window.requireAdmin = requireAdmin;
 window.signOutAndRedirect = signOutAndRedirect;
-window.getAuthToken = getAuthToken; // <-- IMPORTANT
-
+window.getAuthToken = getAuthToken;
