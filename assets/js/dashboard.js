@@ -3,15 +3,17 @@
 // Mobile sidebar toggle
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
-    if (sidebar) sidebar.classList.toggle('mobile-open');
+    if (sidebar) {
+        sidebar.classList.toggle('mobile-open');
+    }
 }
 
 // Close sidebar when clicking outside on mobile
 function setupSidebarClose() {
-    document.addEventListener('click', function (event) {
+    document.addEventListener('click', function(event) {
         const sidebar = document.getElementById('sidebar');
         const mobileBtn = document.getElementById('mobileMenuBtn');
-
+        
         if (
             window.innerWidth <= 768 &&
             sidebar &&
@@ -25,7 +27,7 @@ function setupSidebarClose() {
     });
 }
 
-// ===== CHART DATA =====
+// Chart Data for different time periods
 const chartDataSets = {
     '7d': {
         labels: ['Dec 9', 'Dec 10', 'Dec 11', 'Dec 12', 'Dec 13', 'Dec 14', 'Dec 15'],
@@ -45,6 +47,7 @@ const chartDataSets = {
     }
 };
 
+// Initialize Chart.js
 let performanceChart = null;
 
 function initializeChart() {
@@ -56,62 +59,140 @@ function initializeChart() {
         data: {
             labels: chartDataSets['7d'].labels,
             datasets: [{
+                label: 'Portfolio Value',
                 data: chartDataSets['7d'].data,
                 borderColor: '#2d9cff',
-                backgroundColor: 'rgba(45,156,255,.1)',
+                backgroundColor: 'rgba(45, 156, 255, 0.1)',
                 borderWidth: 2,
                 fill: true,
-                tension: .4
+                tension: 0.4,
+                pointBackgroundColor: '#2d9cff',
+                pointBorderColor: '#ffffff',
+                pointBorderWidth: 2,
+                pointRadius: 4,
+                pointHoverRadius: 6
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { display: false } }
+            animation: false,
+            resizeDelay: 200,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(30, 34, 48, 0.9)',
+                    titleColor: '#94a3b8',
+                    bodyColor: '#ffffff',
+                    borderColor: '#2d3748',
+                    borderWidth: 1,
+                    cornerRadius: 8,
+                    displayColors: false,
+                    callbacks: {
+                        label: function(context) {
+                            return `$${context.parsed.y.toFixed(2)}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: 'rgba(45, 55, 72, 0.3)', borderColor: '#2d3748' },
+                    ticks: { color: '#94a3b8' }
+                },
+                y: {
+                    grid: { color: 'rgba(45, 55, 72, 0.3)', borderColor: '#2d3748' },
+                    ticks: {
+                        color: '#94a3b8',
+                        callback: function(value) { return '$' + value; }
+                    }
+                }
+            },
+            interaction: { intersect: false, mode: 'index' }
         }
     });
 }
 
-// ===== BACKEND INTEGRATION (FINAL FIX) =====
-async function loadUserBalances(retry = true) {
-    try {
-        const token = await getAuthToken();
-        if (!token) return;
+// Chart filter functionality
+function setupChartFilters() {
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
 
-        const res = await fetch(`${window.API_BASE_URL}/api/v1/me`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                Accept: "application/json"
+            const period = this.getAttribute('data-period');
+
+            if (performanceChart) {
+                performanceChart.data.labels = chartDataSets[period].labels;
+                performanceChart.data.datasets[0].data = chartDataSets[period].data;
+                performanceChart.update();
             }
         });
+    });
+}
 
-        if (!res.ok) throw new Error("API not ready");
+// Handle window resize for chart responsiveness
+function setupChartResize() {
+    window.addEventListener('resize', function() {
+        if (performanceChart) performanceChart.resize();
+    });
+}
 
-        const data = await res.json();
-
-        document.getElementById("investmentBalance").innerText =
-            `$${data.investmentBalance ?? 0}`;
-
-        document.getElementById("profitBalance").innerText =
-            `$${data.profitBalance ?? 0}`;
-
-    } catch (err) {
-        // 🔑 IMPORTANT: retry once after Render wakes up
-        if (retry) {
-            setTimeout(() => loadUserBalances(false), 1200);
-        } else {
-            console.warn("Backend still waking up, skipping balance load");
-        }
+// Setup event listeners for dashboard
+function setupDashboardEventListeners() {
+    const mobileBtn = document.getElementById('mobileMenuBtn');
+    if (mobileBtn) {
+        mobileBtn.addEventListener('click', toggleSidebar);
     }
 }
 
-// ===== INIT =====
-document.addEventListener('DOMContentLoaded', function () {
+// ====== BACKEND INTEGRATION (KEPT, NOT AUTO-CALLED) ======
+
+async function loadUserBalances() {
+    if (!window.Clerk || !window.API_BASE_URL) return;
+
+    await Clerk.load();
+    const session = Clerk.session;
+    if (!session) return;
+
+    const token = await session.getToken({ template: "backend" });
+    if (!token) return;
+
+    const res = await fetch(`${window.API_BASE_URL}/api/v1/me`, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
+
+    const data = await res.json();
+
+    if (document.getElementById("investmentBalance"))
+        document.getElementById("investmentBalance").innerText =
+            `$${data.investmentBalance ?? 0}`;
+
+    if (document.getElementById("profitBalance"))
+        document.getElementById("profitBalance").innerText =
+            `$${data.profitBalance ?? 0}`;
+}
+
+// ======================
+// SAFE INITIALIZATION
+// ======================
+document.addEventListener('DOMContentLoaded', function() {
     requireAuth({
-        onReady: async () => {
+        onReady: () => {
             setupSidebarClose();
-            initializeChart();
-            await loadUserBalances();
+            setupDashboardEventListeners();
+
+            if (document.getElementById('performanceChart')) {
+                initializeChart();
+                setupChartFilters();
+                setupChartResize();
+            }
+
+            // ✅ IMPORTANT FIX:
+            // ❌ Do NOT auto-call loadUserBalances() on page load
+            // This avoids Render cold-start 502 + fake CORS errors
         }
     });
 });
