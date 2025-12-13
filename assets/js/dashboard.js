@@ -14,10 +14,14 @@ function setupSidebarClose() {
         const sidebar = document.getElementById('sidebar');
         const mobileBtn = document.getElementById('mobileMenuBtn');
         
-        if (window.innerWidth <= 768 && sidebar && mobileBtn && 
-            !sidebar.contains(event.target) && 
+        if (
+            window.innerWidth <= 768 &&
+            sidebar &&
+            mobileBtn &&
+            !sidebar.contains(event.target) &&
             !mobileBtn.contains(event.target) &&
-            sidebar.classList.contains('mobile-open')) {
+            sidebar.classList.contains('mobile-open')
+        ) {
             sidebar.classList.remove('mobile-open');
         }
     });
@@ -49,7 +53,7 @@ let performanceChart = null;
 function initializeChart() {
     const ctx = document.getElementById('performanceChart');
     if (!ctx) return;
-    
+
     performanceChart = new Chart(ctx.getContext('2d'), {
         type: 'line',
         data: {
@@ -104,10 +108,7 @@ function initializeChart() {
                     }
                 }
             },
-            interaction: { intersect: false, mode: 'index' },
-            animations: {
-                tension: { duration: 1000, easing: 'linear' }
-            }
+            interaction: { intersect: false, mode: 'index' }
         }
     });
 }
@@ -118,13 +119,13 @@ function setupChartFilters() {
         btn.addEventListener('click', function() {
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             this.classList.add('active');
-            
+
             const period = this.getAttribute('data-period');
-            
+
             if (performanceChart) {
                 performanceChart.data.labels = chartDataSets[period].labels;
                 performanceChart.data.datasets[0].data = chartDataSets[period].data;
-                performanceChart.update('active');
+                performanceChart.update();
             }
         });
     });
@@ -133,9 +134,7 @@ function setupChartFilters() {
 // Handle window resize for chart responsiveness
 function setupChartResize() {
     window.addEventListener('resize', function() {
-        if (performanceChart) {
-            performanceChart.resize();
-        }
+        if (performanceChart) performanceChart.resize();
     });
 }
 
@@ -150,10 +149,21 @@ function setupDashboardEventListeners() {
 // ====== BACKEND INTEGRATION: LOAD LIVE USER BALANCE ======
 
 async function loadUserBalances() {
-    const token = await Clerk.session.getToken({ template: "backend" });
+    if (!window.Clerk || !window.API_BASE_URL) return;
+
+    // 🔑 CRITICAL FIX: wait until Clerk is fully ready
+    await Clerk.load();
+
+    const session = Clerk.session;
+    if (!session) return;
+
+    const token = await session.getToken({ template: "backend" });
+    if (!token) return;
 
     const res = await fetch(`${window.API_BASE_URL}/api/v1/me`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
     });
 
     const data = await res.json();
@@ -175,14 +185,14 @@ document.addEventListener('DOMContentLoaded', function() {
         onReady: async () => {
             setupSidebarClose();
             setupDashboardEventListeners();
-            
+
             if (document.getElementById('performanceChart')) {
                 initializeChart();
                 setupChartFilters();
                 setupChartResize();
             }
 
-            // 🔥 ONLY CHANGE: backend call AFTER Clerk is ready
+            // ✅ Backend call happens ONLY after Clerk is fully ready
             await loadUserBalances();
         }
     });

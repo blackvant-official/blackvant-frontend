@@ -1,0 +1,20 @@
+(async () => {
+  console.log("API_BASE_URL =", window.API_BASE_URL);
+
+  const token = await Clerk.session.getToken({ template: "backend" });
+  console.log("JWT exists =", !!token);
+
+  const res = await fetch(
+    window.API_BASE_URL + "/api/v1/me",
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  console.log("HTTP status =", res.status);
+
+  const data = await res.json();
+  console.log("Response =", data);
+})();
