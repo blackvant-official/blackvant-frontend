@@ -146,6 +146,28 @@ function setupDashboardEventListeners() {
     }
 }
 
+async function fetchMe() {
+  try {
+    if (!window.Clerk) throw new Error("Clerk not ready");
+    await Clerk.load();
+
+    const session = Clerk.session;
+    if (!session) throw new Error("No session");
+
+    const token = await session.getToken({ template: "backend" });
+    if (!token) throw new Error("No token");
+
+    const res = await fetch(`${window.API_BASE_URL}/api/v1/me`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    const data = await res.json();
+    console.log("ME:", data);
+  } catch (e) {
+    console.error("fetchMe failed:", e);
+  }
+}
+
 // ====== BACKEND INTEGRATION (KEPT, NOT AUTO-CALLED) ======
 
 async function loadUserBalances() {
