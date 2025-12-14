@@ -188,27 +188,26 @@
 
 <!-- ✅ Correct Clerk initialization (same as Deposit page) -->
 <script>
-window.addEventListener("load", async () => {
-    await Clerk.load();
+document.addEventListener("DOMContentLoaded", function () {
+  requireAuth({
+    redirectTo: "login.html",
+    onReady: (user, clerk) => {
+      clerk.mountUserButton(
+        document.getElementById("clerk-user-button"),
+        { afterSignOutUrl: "login.html" }
+      );
 
-    if (!Clerk.user) {
-        window.location.href = "login.html";
-        return;
+      const logoutBtn = document.getElementById("logoutBtn");
+      if (logoutBtn) {
+        logoutBtn.onclick = async () => {
+          await signOutAndRedirect("login.html");
+        };
+      }
     }
-
-    Clerk.mountUserButton(document.getElementById("clerk-user-button"), {
-        afterSignOutUrl: "login.html",
-        userProfileUrl: "profile-settings.html"
-    });
-
-    document.getElementById("fallbackAvatar").style.display = "none";
-
-    document.getElementById("logoutBtn").addEventListener("click", async () => {
-        await Clerk.signOut();
-        window.location.href = "login.html";
-    });
+  });
 });
 </script>
+
 
 </body>
 </html>
