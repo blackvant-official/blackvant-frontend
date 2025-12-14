@@ -73,49 +73,26 @@
 
 <!-- ✅ FINAL Clerk Logic -->
 <script>
-window.addEventListener("load", async () => {
-    try {
-        await Clerk.load();
+document.addEventListener("DOMContentLoaded", function () {
+  requireAuth({
+    redirectTo: "login.html",
+    onReady: (user, clerk) => {
+      clerk.mountUserButton(
+        document.getElementById("clerk-user-button"),
+        { afterSignOutUrl: "login.html" }
+      );
 
-        if (!Clerk.user) {
-            window.location.href = "login.html";
-            return;
-        }
-
-        // REAL avatar button
-        Clerk.mountUserButton(document.getElementById("clerk-user-button"), {
-            afterSignOutUrl: "login.html",
-            userProfileUrl: "profile-settings.html"
-        });
-
-        // Hide fallback avatar + fallback UI
-        document.getElementById("fallbackAvatar").style.display = "none";
-        document.getElementById("fallback-profile-ui").style.display = "none";
-
-        // Show Clerk's official user profile panel
-        document.getElementById("clerk-account-management").style.display = "block";
-        Clerk.mountUserProfile(document.getElementById("clerk-account-management"));
-
-        // Logout button
-        document.getElementById("logoutBtn").onclick = async () => {
-            await Clerk.signOut();
-            window.location.href = "login.html";
+      const logoutBtn = document.getElementById("logoutBtn");
+      if (logoutBtn) {
+        logoutBtn.onclick = async () => {
+          await signOutAndRedirect("login.html");
         };
-
-    } catch (e) {
-        console.error("Clerk failed:", e);
-
-        // Show fallback UI
-        document.getElementById("fallbackAvatar").style.display = "flex";
-        document.getElementById("fallback-profile-ui").style.display = "block";
-        document.getElementById("clerk-user-button").style.display = "none";
-
-        document.getElementById("logoutBtn").onclick = () => {
-            window.location.href = "login.html";
-        };
+      }
     }
+  });
 });
 </script>
+
 
 </body>
 </html>
