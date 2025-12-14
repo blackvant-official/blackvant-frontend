@@ -8,7 +8,11 @@ async function loadTransactionsFromBackend() {
     try {
         if (!window.Clerk || !window.API_BASE_URL) return [];
 
-        const token = await window.Clerk.session.getToken({ template: "backend" });
+        const token = await window.getAuthToken();
+            if (!token) {
+              console.warn("No auth token available, skipping backend call");
+              return;
+            }
 
         const [depositsRes, withdrawalsRes] = await Promise.all([
             fetch(`${window.API_BASE_URL}/api/v1/me/deposits`, {
