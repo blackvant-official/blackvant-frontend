@@ -434,7 +434,7 @@ async function initTransactionHistory() {
     const transactions = await loadTransactionsFromBackend();
 
     // 2️⃣ Render into table
-    renderTransactionsTable(transactions);
+    renderTransactionsTable(Array.isArray(transactions) ? transactions : []);
 
     // 3️⃣ Activate your existing UI features
     setupTableSorting();
