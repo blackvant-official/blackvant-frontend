@@ -31,6 +31,12 @@ async function loadTransactionsFromBackend() {
         const deposits = await depositsRes.json();
         const withdrawals = await withdrawalsRes.json();
 
+        if (!Array.isArray(deposits) || !Array.isArray(withdrawals)) {
+          console.warn("Transactions not available yet");
+          return;
+        }
+
+
         // Normalize transactions (so table can display them consistently)
         const mappedDeposits = deposits.map(d => ({
             id: d.id,
