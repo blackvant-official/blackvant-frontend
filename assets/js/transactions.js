@@ -329,7 +329,10 @@ function validateWithdrawForm() {
 }
 
 // INIT
-document.addEventListener("DOMContentLoaded", function () {
-    if (document.querySelector(".deposit-content")) initializeDepositPage();
-    if (document.querySelector(".withdraw-content")) initializeWithdrawPage();
+document.addEventListener("DOMContentLoaded", () => {
+  requireAuth({
+    onReady: () => {
+      initTransactionHistory();
+    }
+  });
 });
