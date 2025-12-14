@@ -5,6 +5,11 @@
 // -------------------------
 
 async function loadTransactionsFromBackend() {
+  if (!window.Clerk || !Clerk.session) return;
+
+  const token = await Clerk.session.getToken({ template: "backend" });
+  if (!token) return;
+
     try {
         if (!window.Clerk || !window.API_BASE_URL) return [];
 
