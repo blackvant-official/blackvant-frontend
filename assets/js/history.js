@@ -435,8 +435,10 @@ async function initTransactionHistory() {
     applyFilters();
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-    if (document.querySelector(".transaction-content")) {
-        initTransactionHistory();
+document.addEventListener("DOMContentLoaded", () => {
+  requireAuth({
+    onReady: () => {
+      initTransactionHistory();
     }
+  });
 });
