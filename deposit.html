@@ -262,5 +262,61 @@
     });
   </script>
 
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const submitBtn = document.getElementById("submitBtn");
+      const amountInput = document.getElementById("amount");
+      const fileInput = document.getElementById("fileInput");
+
+      // Minimum Deposit Amount:
+      if (!submitBtn) return;
+      submitBtn.addEventListener("click", async () => {
+        try {
+          const amount = Number(amountInput.value);
+          if (!amount || amount < 100) {
+            alert("Minimum deposit amount is $100");
+            return;
+          }
+
+          const token = await window.getAuthToken();
+          if (!token) {
+            alert("Authentication failed. Please login again.");
+            return;
+          }
+
+          const payload = {
+            amount,
+            currency: "USD",
+            method: "TRC20",
+            txId: null,
+            proofUrl: null,
+          };
+
+          const res = await fetch(`${window.API_BASE_URL}/api/v1/deposit`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(payload),
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            throw new Error(data.error || "Deposit failed");
+          }
+
+          alert("Deposit submitted successfully. Awaiting approval.");
+          submitBtn.disabled = true;
+
+        } catch (err) {
+          console.error("Deposit submit error:", err);
+          alert(err.message || "Something went wrong");
+        }
+      });
+    });
+  </script>
+
 </body>
 </html>
