@@ -5,64 +5,65 @@
 // -------------------------
 
 async function loadTransactionsFromBackend() {
-  if (!window.Clerk || !Clerk.session) return;
-
-  const token = await Clerk.session.getToken({ template: "backend" });
-  if (!token) return;
-
-    try {
-        if (!window.Clerk || !window.API_BASE_URL) return [];
-
-        const token = await window.getAuthToken();
-            if (!token) {
-              console.warn("No auth token available, skipping backend call");
-              return;
-            }
-
-        const [depositsRes, withdrawalsRes] = await Promise.all([
-            fetch(`${window.API_BASE_URL}/api/v1/me/deposits`, {
-                headers: { Authorization: `Bearer ${token}` }
-            }),
-            fetch(`${window.API_BASE_URL}/api/v1/me/withdrawals`, {
-                headers: { Authorization: `Bearer ${token}` }
-            })
-        ]);
-
-        const deposits = await depositsRes.json();
-        const withdrawals = await withdrawalsRes.json();
-
-        if (!Array.isArray(deposits) || !Array.isArray(withdrawals)) {
-          console.warn("Transactions not available yet");
-          return;
-        }
-
-
-        // Normalize transactions (so table can display them consistently)
-        const mappedDeposits = deposits.map(d => ({
-            id: d.id,
-            date: new Date(d.createdAt).toLocaleDateString(),
-            type: "Deposit",
-            description: d.method || "USDT Deposit",
-            amount: `$${Number(d.amount).toFixed(2)}`,
-            status: d.status.charAt(0).toUpperCase() + d.status.slice(1)
-        }));
-
-        const mappedWithdrawals = withdrawals.map(w => ({
-            id: w.id,
-            date: new Date(w.createdAt).toLocaleDateString(),
-            type: "Withdrawal",
-            description: w.method || "Profit Withdrawal",
-            amount: `-$${Number(w.amount).toFixed(2)}`,
-            status: w.status.charAt(0).toUpperCase() + w.status.slice(1)
-        }));
-
-        return [...mappedDeposits, ...mappedWithdrawals];
-
-    } catch (error) {
-        console.error("Failed to load transactions:", error);
-        return [];
+  try {
+    if (!window.API_BASE_URL || !window.getAuthToken) {
+      console.warn("Backend config not ready");
+      return [];
     }
+
+    const token = await window.getAuthToken();
+    if (!token) {
+      console.warn("No auth token available, skipping backend call");
+      return [];
+    }
+
+    const [depositsRes, withdrawalsRes] = await Promise.all([
+      fetch(`${window.API_BASE_URL}/api/v1/me/deposits`, {
+        headers: { Authorization: `Bearer ${token}` }
+      }),
+      fetch(`${window.API_BASE_URL}/api/v1/me/withdrawals`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+    ]);
+
+    const depositsJson = await depositsRes.json();
+    const withdrawalsJson = await withdrawalsRes.json();
+
+    const deposits = Array.isArray(depositsJson.items)
+      ? depositsJson.items
+      : [];
+
+    const withdrawals = Array.isArray(withdrawalsJson.items)
+      ? withdrawalsJson.items
+      : [];
+
+    // Normalize transactions (unchanged behavior)
+    const mappedDeposits = deposits.map(d => ({
+      id: d.id,
+      date: new Date(d.createdAt).toLocaleDateString(),
+      type: "Deposit",
+      description: d.method || "USDT Deposit",
+      amount: `$${Number(d.amount).toFixed(2)}`,
+      status: d.status.charAt(0).toUpperCase() + d.status.slice(1)
+    }));
+
+    const mappedWithdrawals = withdrawals.map(w => ({
+      id: w.id,
+      date: new Date(w.createdAt).toLocaleDateString(),
+      type: "Withdrawal",
+      description: w.method || "Profit Withdrawal",
+      amount: `-$${Number(w.amount).toFixed(2)}`,
+      status: w.status.charAt(0).toUpperCase() + w.status.slice(1)
+    }));
+
+    return [...mappedDeposits, ...mappedWithdrawals];
+
+  } catch (error) {
+    console.error("Failed to load transactions:", error);
+    return [];
+  }
 }
+
 
 // -------------------------
 // 🔥 NEW: RENDER ROWS
