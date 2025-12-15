@@ -150,6 +150,12 @@ async function fetchMe() {
   try {
     if (!window.Clerk) throw new Error("Clerk not ready");
     await Clerk.load();
+    
+    const investmentEl = document.getElementById("investmentBalance");
+    const profitEl = document.getElementById("profitBalance");
+
+    if (investmentEl) investmentEl.textContent = `$${(data.balances?.investment ?? 0).toFixed(2)}`;
+    if (profitEl) profitEl.textContent = `$${(data.balances?.profit ?? 0).toFixed(2)}`;
 
     const session = Clerk.session;
     if (!session) throw new Error("No session");
