@@ -148,36 +148,47 @@ function setupDashboardEventListeners() {
 
 async function fetchMe() {
   try {
-    if (!window.Clerk) throw new Error("Clerk not ready");
-    await Clerk.load();
-    
-    const investmentEl = document.getElementById("investmentBalance");
-    const profitEl = document.getElementById("profitBalance");
-    
-    if (investmentEl) {
-      investmentEl.textContent = `$${(data.balances?.investment ?? 0).toFixed(2)}`;
-    }
-    
-    if (profitEl) {
-      profitEl.textContent = `$${(data.balances?.profit ?? 0).toFixed(2)}`;
-    }
-    
-    const session = Clerk.session;
-    if (!session) throw new Error("No session");
-
-    const token = await session.getToken({ template: "backend" });
-    if (!token) throw new Error("No token");
+    const token = await window.getAuthToken();
+    if (!token) return;
 
     const res = await fetch(`${window.API_BASE_URL}/api/v1/me`, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     const data = await res.json();
     console.log("ME:", data);
+
+    // ---- BALANCE CARDS ----
+    const investmentEl = document.getElementById("investmentBalance");
+    const profitEl = document.getElementById("profitBalance");
+
+    if (investmentEl) {
+      investmentEl.textContent = `$${(data.balances?.investment ?? 0).toFixed(2)}`;
+    }
+
+    if (profitEl) {
+      profitEl.textContent = `$${(data.balances?.profit ?? 0).toFixed(2)}`;
+    }
+
+    // ---- PROFIT CARDS ----
+    const totalProfitEl = document.getElementById("totalProfit");
+    const todayProfitEl = document.getElementById("todayProfit");
+
+    if (totalProfitEl) {
+      totalProfitEl.textContent = `+$${(data.balances?.profit ?? 0).toFixed(2)}`;
+    }
+
+    if (todayProfitEl) {
+      todayProfitEl.textContent = `+$0.00`;
+    }
+
   } catch (e) {
     console.error("fetchMe failed:", e);
   }
 }
+
 
 // ====== BACKEND INTEGRATION (KEPT, NOT AUTO-CALLED) ======
 
