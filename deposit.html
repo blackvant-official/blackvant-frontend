@@ -48,28 +48,43 @@
 
       <!-- Sidebar -->
       <nav class="sidebar" id="sidebar">
-        <a href="dashboard.html" class="nav-item"><span>📊</span> Dashboard</a>
-        <a href="deposit.html" class="nav-item active"><span>💰</span> Deposit Funds</a>
-        <a href="withdraw.html" class="nav-item"><span>💸</span> Withdraw Earnings</a>
-        <a href="transaction-history.html" class="nav-item"><span>📋</span> Transactions History</a>
-        <a href="profile-settings.html" class="nav-item"><span>👤</span> Profile Settings</a>
-        <a href="support.html" class="nav-item"><span>🆘</span> Support</a>
-        <a href="javascript:void(0)" class="nav-item" id="logoutBtn"><span>🚪</span> Logout</a>
+        <a href="dashboard.html" class="nav-item">
+          <span>📊</span> Dashboard
+        </a>
+        <a href="deposit.html" class="nav-item active">
+          <span>💰</span> Deposit Funds
+        </a>
+        <a href="withdraw.html" class="nav-item">
+          <span>💸</span> Withdraw Earnings
+        </a>
+        <a href="transaction-history.html" class="nav-item">
+          <span>📋</span> Transactions History
+        </a>
+        <a href="profile-settings.html" class="nav-item">
+          <span>👤</span> Profile Settings
+        </a>
+        <a href="support.html" class="nav-item">
+          <span>🆘</span> Support
+        </a>
+
+        <a href="javascript:void(0)" class="nav-item" id="logoutBtn">
+          <span>🚪</span> Logout
+        </a>
       </nav>
 
       <!-- Deposit Content -->
       <main class="deposit-content">
-
+        <!-- Page Header -->
         <div class="page-header">
           <h1>Deposit Funds</h1>
           <p>Add funds to your investment account</p>
         </div>
 
-        <!-- Payment Details -->
+        <!-- Payment Methods - ONLY CRYPTO -->
         <div class="payment-methods">
           <div class="methods-grid">
-            <label class="method-option selected">
-              <input type="radio" checked>
+            <label class="method-option selected" id="cryptoOption">
+              <input type="radio" name="paymentMethod" value="crypto" checked>
               <div class="method-icon">₿</div>
               <div class="method-info">
                 <h3>TRC20 (USDT)</h3>
@@ -78,14 +93,15 @@
             </label>
           </div>
 
+          <!-- Crypto Details -->
           <div class="method-details">
-            <div class="crypto-details active">
+            <div class="crypto-details active" id="cryptoDetails">
               <div class="details-header">
                 <div>
                   <h3 class="details-title">TRC20 Payment Details</h3>
                   <p>Send USDT via TRC20 network only</p>
                 </div>
-                <div class="usdt-price">1 USDT = PKR. 295</div>
+                <div class="usdt-price" id="usdtPrice">1 USDT = PKR. 295</div>
               </div>
 
               <div class="details-grid">
@@ -102,7 +118,12 @@
                   <div class="detail-value" id="walletAddress">
                     TAb6RFK1RZ1gCwwgT1CGUJ9jF5cF5s5X5v
                   </div>
-                  <button class="copy-btn" id="copyAddressBtn">Copy Address</button>
+                  <button
+                    class="copy-btn"
+                    id="copyAddressBtn"
+                    data-copy="TAb6RFK1RZ1gCwwgT1CGUJ9jF5cF5s5X5v">
+                    Copy Address
+                  </button>
                 </div>
               </div>
 
@@ -110,9 +131,9 @@
                 <h4>Instructions:</h4>
                 <ul>
                   <li>Send only USDT via TRC20 network</li>
-                  <li>Minimum deposit: $100</li>
-                  <li>Upload transaction proof</li>
-                  <li>Manual verification required</li>
+                  <li>Minimum deposit: $100 equivalent</li>
+                  <li>Upload transaction hash screenshot</li>
+                  <li>Manual verification required (10–30 minutes)</li>
                 </ul>
               </div>
             </div>
@@ -122,38 +143,92 @@
         <!-- Deposit Form -->
         <div class="deposit-form">
           <div class="form-group">
-            <label class="form-label">Amount (USD)</label>
-            <input type="number" id="amount" class="form-input" min="100">
-            <div class="error-message" id="amountError">Minimum deposit amount is $100</div>
+            <label class="form-label" for="amount">Amount (USD)</label>
+            <input
+              type="number"
+              id="amount"
+              class="form-input"
+              placeholder="100.00"
+              min="100"
+              step="0.01">
+            <div class="error-message" id="amountError">
+              Minimum deposit amount is $100
+            </div>
           </div>
 
           <div class="form-group">
-            <label class="form-label">Upload Receipt</label>
+            <label class="form-label">Upload Receipt/Transaction Proof</label>
             <div class="upload-area" id="uploadArea">
               <div class="upload-icon">📁</div>
-              <div class="upload-text">Click or drag & drop</div>
-              <div class="upload-hint">JPG, PNG, PDF</div>
-              <input type="file" id="fileInput" class="file-input" accept=".jpg,.jpeg,.png,.pdf">
+              <div class="upload-text">Click to upload or drag and drop</div>
+              <div class="upload-hint">JPG, PNG, PDF (Max 5MB)</div>
+              <input
+                type="file"
+                id="fileInput"
+                class="file-input"
+                accept=".jpg,.jpeg,.png,.pdf">
             </div>
-
             <div class="file-preview" id="filePreview">
               <div class="file-info">
-                <span id="fileName"></span>
-                <button id="removeFileBtn" class="remove-file">×</button>
+                <span class="file-name" id="fileName"></span>
+                <button class="remove-file" id="removeFileBtn">×</button>
               </div>
             </div>
           </div>
 
-          <button class="btn-primary" id="submitBtn" disabled>
+          <button class="btn-primary" id="submitBtn">
             Submit Deposit Request
           </button>
+        </div>
+
+        <!-- Recent Deposits -->
+        <div class="recent-deposits">
+          <div class="section-header">
+            <h2 class="section-title">Recent Deposits</h2>
+          </div>
+          <table class="deposits-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Method</th>
+                <th>Amount</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Dec 14, 2024</td>
+                <td>TRC20</td>
+                <td>$200.00</td>
+                <td><span class="status-badge status-completed">Approved</span></td>
+              </tr>
+              <tr>
+                <td>Dec 12, 2024</td>
+                <td>TRC20</td>
+                <td>$150.00</td>
+                <td><span class="status-badge status-completed">Approved</span></td>
+              </tr>
+              <tr>
+                <td>Dec 10, 2024</td>
+                <td>TRC20</td>
+                <td>$100.00</td>
+                <td><span class="status-badge status-pending">Pending</span></td>
+              </tr>
+              <tr>
+                <td>Dec 08, 2024</td>
+                <td>TRC20</td>
+                <td>$500.00</td>
+                <td><span class="status-badge status-failed">Rejected</span></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
       </main>
     </div>
   </div>
 
-  <!-- Scripts -->
+  <!-- Shared Scripts -->
   <script src="assets/js/config.js"></script>
   <script src="assets/js/auth.js"></script>
   <script src="assets/js/dashboard.js"></script>
@@ -163,80 +238,30 @@
     document.addEventListener("DOMContentLoaded", function () {
       requireAuth({
         redirectTo: "login.html",
-        onReady: async () => {
-
-          let isFileUploaded = false;
-
-          const amountInput = document.getElementById("amount");
-          const amountError = document.getElementById("amountError");
-          const submitBtn = document.getElementById("submitBtn");
-
-          const fileInput = document.getElementById("fileInput");
-          const filePreview = document.getElementById("filePreview");
-          const fileName = document.getElementById("fileName");
-          const uploadArea = document.getElementById("uploadArea");
-          const removeFileBtn = document.getElementById("removeFileBtn");
-
-          function validateDepositForm() {
-            const amount = Number(amountInput.value);
-            const amountValid = amount >= 100;
-
-            amountError.style.display = amountValid ? "none" : "block";
-            submitBtn.disabled = !(amountValid && isFileUploaded);
+        onReady: (user, clerk) => {
+          const userBtnEl = document.getElementById("clerk-user-button");
+          if (userBtnEl) {
+            clerk.mountUserButton(userBtnEl, {
+              afterSignOutUrl: "login.html",
+            });
           }
 
-          uploadArea.addEventListener("click", () => fileInput.click());
+          const userEmailEl = document.getElementById("userEmail");
+          if (user && user.primaryEmailAddress && userEmailEl) {
+            userEmailEl.textContent = user.primaryEmailAddress.emailAddress;
+          }
 
-          fileInput.addEventListener("change", () => {
-            if (fileInput.files.length > 0) {
-              fileName.textContent = fileInput.files[0].name;
-              filePreview.style.display = "block";
-              isFileUploaded = true;
-              validateDepositForm();
-            }
-          });
-
-          removeFileBtn.addEventListener("click", () => {
-            fileInput.value = "";
-            filePreview.style.display = "none";
-            isFileUploaded = false;
-            validateDepositForm();
-          });
-
-          amountInput.addEventListener("input", validateDepositForm);
-
-          submitBtn.addEventListener("click", async () => {
-            if (!isFileUploaded) {
-              alert("Please upload payment proof before submitting.");
-              return;
-            }
-            if (Number(amountInput.value) < 100) return;
-
-            const token = await getAuthToken();
-            if (!token) return alert("Authentication failed");
-
-            await fetch(`${window.API_BASE_URL}/api/v1/deposit`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`
-              },
-              body: JSON.stringify({
-                amount: Number(amountInput.value),
-                method: "TRC20",
-                currency: "USD"
-              })
+          const logoutBtn = document.getElementById("logoutBtn");
+          if (logoutBtn) {
+            logoutBtn.addEventListener("click", async () => {
+              await signOutAndRedirect("login.html");
             });
-
-            alert("Deposit submitted successfully.");
-            submitBtn.disabled = true;
-          });
-
-          validateDepositForm();
-        }
+          }
+        },
       });
     });
   </script>
 
+  
 </body>
 </html>

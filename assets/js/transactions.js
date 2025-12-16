@@ -151,6 +151,7 @@ function initializeDepositPage() {
 
 // ====== DEPOSIT FORM VALIDATION ======
 function validateDepositForm() {
+    const fileInput = document.getElementById("fileInput");
     const amountInput = document.getElementById("amount");
     const amountError = document.getElementById("amountError");
     const submitBtn = document.getElementById("submitBtn");
@@ -160,7 +161,12 @@ function validateDepositForm() {
 
     const amount = parseFloat(amountInput.value) || 0;
     const minAmount = 100;
-    const hasFile = filePreview?.classList.contains("show");
+    const hasFile =
+        filePreview?.classList.contains("show") &&
+        fileInput &&
+        fileInput.files &&
+        fileInput.files.length > 0;
+
 
     let valid = true;
 
@@ -330,9 +336,15 @@ function validateWithdrawForm() {
 
 // INIT
 document.addEventListener("DOMContentLoaded", () => {
-  requireAuth({
-    onReady: () => {
-      initTransactionHistory();
-    }
-  });
+  if (document.querySelector(".deposit-content")) {
+    initializeDepositPage();
+  }
+
+  if (document.querySelector(".withdraw-content")) {
+    initializeWithdrawPage();
+  }
+
+  if (document.querySelector(".transaction-content")) {
+    initTransactionHistory();
+  }
 });
