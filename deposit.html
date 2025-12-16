@@ -375,6 +375,11 @@
 
               alert("Deposit submitted successfully. Awaiting approval.");
               submitBtn.disabled = true;
+            
+            if (!isFileUploaded) {
+              alert("Please upload payment proof before submitting.");
+              return;
+            }
 
             } catch (err) {
               console.error(err);
