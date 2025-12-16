@@ -157,6 +157,14 @@ function validateDepositForm() {
     const submitBtn = document.getElementById("submitBtn");
     const filePreview = document.getElementById("filePreview");
 
+    if (!hasFile && amount >= minAmount) {
+        submitBtn.title = "Please upload payment proof";
+    } else if (amount < minAmount) {
+        submitBtn.title = "Minimum deposit is $100";
+    } else {
+        submitBtn.title = "";
+    }
+
     if (!amountInput || !submitBtn) return;
 
     const amount = parseFloat(amountInput.value) || 0;
