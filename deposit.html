@@ -267,7 +267,23 @@
     requireAuth({
       redirectTo: "login.html",
       onReady: async () => {
-      
+        let isFileUploaded = false;
+        function validateDepositForm() {
+        const amount = Number(amountInput.value);
+
+        const isAmountValid = amount && amount >= 100;
+        const isFormValid = isAmountValid && isFileUploaded;
+
+        if (!isAmountValid) {
+          amountError.style.display = "block";
+        } else {
+          amountError.style.display = "none";
+        }
+
+        submitBtn.disabled = !isFormValid;
+        }
+
+
         /* ---------- HEADER / LOGOUT ---------- */
         const logoutBtn = document.getElementById("logoutBtn");
         if (logoutBtn) {
@@ -275,76 +291,72 @@
             await signOutAndRedirect("login.html");
           });
         }
-      
+
         /* ---------- COPY ADDRESS ---------- */
         const copyBtn = document.getElementById("copyAddressBtn");
         const walletAddress = document.getElementById("walletAddress");
-      
+
         if (copyBtn && walletAddress) {
           copyBtn.addEventListener("click", () => {
             navigator.clipboard.writeText(walletAddress.innerText.trim());
             alert("Wallet address copied");
           });
         }
-      
+
         /* ---------- FILE UPLOAD ---------- */
         const uploadArea = document.getElementById("uploadArea");
         const fileInput = document.getElementById("fileInput");
         const filePreview = document.getElementById("filePreview");
         const fileName = document.getElementById("fileName");
         const removeFileBtn = document.getElementById("removeFileBtn");
-      
+
         if (uploadArea && fileInput) {
           uploadArea.addEventListener("click", () => fileInput.click());
         }
-      
+
         if (fileInput && filePreview && fileName) {
           fileInput.addEventListener("change", () => {
             if (fileInput.files.length > 0) {
               fileName.textContent = fileInput.files[0].name;
               filePreview.style.display = "block";
+              isFileUploaded = true;
+              validateDepositForm();
             }
           });
+
         }
-      
+
         if (removeFileBtn && fileInput && filePreview) {
           removeFileBtn.addEventListener("click", () => {
             fileInput.value = "";
             filePreview.style.display = "none";
+            isFileUploaded = false;
+            validateDepositForm();
           });
         }
-      
+
         /* ---------- AMOUNT VALIDATION ---------- */
         const amountInput = document.getElementById("amount");
         const submitBtn = document.getElementById("submitBtn");
         const amountError = document.getElementById("amountError");
-      
+
         if (amountInput && submitBtn) {
-          amountInput.addEventListener("input", () => {
-            const value = Number(amountInput.value);
-            if (!value || value < 100) {
-              amountError.style.display = "block";
-              submitBtn.disabled = true;
-            } else {
-              amountError.style.display = "none";
-              submitBtn.disabled = false;
-            }
-          });
+          amountInput.addEventListener("input", validateDepositForm);
         }
-      
+
         /* ---------- SUBMIT DEPOSIT ---------- */
         if (submitBtn) {
           submitBtn.addEventListener("click", async () => {
             try {
               const amount = Number(amountInput.value);
               if (!amount || amount < 100) return;
-            
+
               const token = await window.getAuthToken();
               if (!token) {
                 alert("Authentication failed. Please login again.");
                 return;
               }
-            
+
               const res = await fetch(`${window.API_BASE_URL}/api/v1/deposit`, {
                 method: "POST",
                 headers: {
@@ -357,20 +369,23 @@
                   method: "TRC20",
                 }),
               });
-            
+
               const data = await res.json();
               if (!res.ok) throw new Error(data.error || "Deposit failed");
-            
+
               alert("Deposit submitted successfully. Awaiting approval.");
               submitBtn.disabled = true;
-            
+
             } catch (err) {
               console.error(err);
               alert(err.message || "Something went wrong");
             }
           });
         }
-      
+        if (!isFileUploaded) {
+          alert("Please upload payment proof before submitting.");
+          return;
+        }
       }
     });
   });
