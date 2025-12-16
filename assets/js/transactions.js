@@ -271,9 +271,12 @@ function initializeWithdrawPage() {
                     },
                     body: JSON.stringify({
                         amount,
+                        currency: "USD",
                         method: "USDT_TRC20",
-                        targetAddress: walletAddress
+                        txId: "PENDING-" + Date.now(),
+                        proofUrl: file.name
                     })
+
                 });
 
                 const data = await res.json();
