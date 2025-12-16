@@ -1,8 +1,8 @@
-// ================================
-// TRANSACTIONS.JS — FIXED VERSION
-// ================================
+// ========================================
+// TRANSACTIONS.JS — FINAL STABLE VERSION
+// ========================================
 
-// ---------- DEPOSIT PAGE ----------
+// ---------------- DEPOSIT ----------------
 
 function initializeDepositPage() {
     const uploadArea = document.getElementById("uploadArea");
@@ -13,33 +13,32 @@ function initializeDepositPage() {
     const amountInput = document.getElementById("amount");
     const amountError = document.getElementById("amountError");
     const submitBtn = document.getElementById("submitBtn");
-    const copyAddressBtn = document.getElementById("copyAddressBtn");
+    const copyBtn = document.getElementById("copyAddressBtn");
+    const walletAddress = document.getElementById("walletAddress");
 
     if (!submitBtn) return;
 
-    // Initialize copy address button
-    if (copyAddressBtn) {
-        copyAddressBtn.addEventListener("click", function() {
-            const address = this.getAttribute("data-copy") || document.getElementById("walletAddress")?.textContent?.trim();
-            if (address) {
-                navigator.clipboard.writeText(address)
-                    .then(() => {
-                        const originalText = this.textContent;
-                        this.textContent = "Copied!";
-                        setTimeout(() => {
-                            this.textContent = originalText;
-                        }, 2000);
-                    })
-                    .catch(err => {
-                        console.error("Failed to copy:", err);
-                        alert("Failed to copy address. Please copy manually.");
-                    });
-            }
+    // ---- Copy address (RESTORED ORIGINAL FEEL) ----
+    if (copyBtn) {
+        copyBtn.addEventListener("click", () => {
+            const text = copyBtn.getAttribute("data-copy") || walletAddress?.textContent?.trim();
+            if (!text) return;
+
+            navigator.clipboard.writeText(text).then(() => {
+                const original = copyBtn.textContent;
+                const originalBg = copyBtn.style.background;
+                copyBtn.textContent = "Copied!";
+                copyBtn.style.background = "var(--accent-green)";
+                setTimeout(() => {
+                    copyBtn.textContent = original;
+                    copyBtn.style.background = originalBg;
+                }, 2000);
+            });
         });
     }
 
-    // File upload UI
-    uploadArea?.addEventListener("click", () => fileInput?.click());
+    // ---- File upload ----
+    uploadArea?.addEventListener("click", () => fileInput.click());
 
     uploadArea?.addEventListener("dragover", e => {
         e.preventDefault();
@@ -69,8 +68,8 @@ function initializeDepositPage() {
     });
 
     function handleFile(file) {
-        const validTypes = ["image/jpeg", "image/png", "image/jpg", "application/pdf"];
-        if (!validTypes.includes(file.type)) {
+        const valid = ["image/jpeg", "image/png", "image/jpg", "application/pdf"];
+        if (!valid.includes(file.type)) {
             alert("Only JPG, PNG or PDF allowed");
             return;
         }
@@ -84,101 +83,89 @@ function initializeDepositPage() {
     }
 
     amountInput?.addEventListener("input", validateDeposit);
-    amountInput?.addEventListener("blur", validateDeposit);
 
     function validateDeposit() {
         const amount = parseFloat(amountInput.value) || 0;
-        const hasFile = fileInput?.files?.length > 0;
-        let isValid = true;
+        const hasFile = fileInput.files.length > 0;
 
-        // Amount validation
+        let valid = true;
+
         if (amount < 100) {
             amountError.classList.add("show");
             amountInput.classList.add("error");
-            isValid = false;
+            submitBtn.title = "Minimum deposit is $100";
+            valid = false;
         } else {
             amountError.classList.remove("show");
             amountInput.classList.remove("error");
         }
 
-        // File validation
         if (!hasFile) {
-            isValid = false;
+            submitBtn.title = "Please upload payment proof";
+            valid = false;
         }
 
-        // Update button state
-        submitBtn.disabled = !isValid;
-        submitBtn.title = isValid ? "" : 
-            (amount < 100 ? "Minimum deposit is $100" : "Please upload payment proof");
-
-        return isValid;
+        if (valid) submitBtn.title = "";
+        submitBtn.disabled = !valid;
+        return valid;
     }
 
     submitBtn.addEventListener("click", async e => {
         e.preventDefault();
 
-        const amount = parseFloat(amountInput.value) || 0;
-        const file = fileInput?.files?.[0];
-        
-        // Final validation
         if (!validateDeposit()) {
-            if (amount < 100) {
+            if (parseFloat(amountInput.value) < 100) {
                 alert("Minimum deposit amount is $100");
-            } else if (!file) {
+            } else {
                 alert("Please upload payment proof");
             }
             return;
         }
 
-        const originalHTML = submitBtn.innerHTML;
-        const originalText = submitBtn.textContent;
+        const file = fileInput.files[0];
+        const amount = parseFloat(amountInput.value);
+
+        const original = submitBtn.innerHTML;
         submitBtn.innerHTML = "Processing...";
         submitBtn.disabled = true;
 
         try {
             const token = await window.Clerk.session.getToken({ template: "backend" });
+
             const formData = new FormData();
             formData.append("amount", amount);
             formData.append("method", "USDT_TRC20");
-            formData.append("txId", "PENDING-" + Date.now() + "-" + Math.random().toString(36).substr(2, 9));
+            formData.append("txId", "PENDING-" + Date.now());
             formData.append("proof", file);
 
             const res = await fetch(`${window.API_BASE_URL}/api/v1/me/deposits`, {
                 method: "POST",
-                headers: { 
-                    "Authorization": `Bearer ${token}`
-                },
+                headers: { Authorization: `Bearer ${token}` },
                 body: formData
             });
 
             const data = await res.json();
-            
-            if (!res.ok) {
-                throw new Error(data.error || data.message || `Deposit failed: ${res.status}`);
-            }
+            if (!res.ok) throw new Error(data.error || "Deposit failed");
 
-            alert("Deposit submitted successfully! It will be reviewed shortly.");
-            
-            // Reset form
+            alert("Deposit submitted successfully. Status: Pending");
+
             amountInput.value = "";
             fileInput.value = "";
             filePreview.classList.remove("show");
             fileName.textContent = "";
-            
+
         } catch (err) {
-            console.error("Deposit error:", err);
-            alert(err.message || "Server error. Please try again.");
-        } finally {
-            submitBtn.innerHTML = originalHTML;
-            submitBtn.textContent = originalText;
-            validateDeposit(); // Re-validate to update button state
+            alert(err.message || "Server error");
         }
+
+        submitBtn.innerHTML = original;
+        validateDeposit();
     });
 
     validateDeposit();
 }
 
-// ---------- WITHDRAW PAGE ----------
+// ---------------- WITHDRAW ----------------
 
 function initializeWithdrawPage() {
     const amountInput = document.getElementById("withdrawAmount");
@@ -189,135 +176,94 @@ function initializeWithdrawPage() {
     const netDisplay = document.getElementById("netAmount");
     const submitBtn = document.getElementById("submitBtn");
 
-    if (!submitBtn || !amountInput || !walletInput) return;
+    if (!submitBtn) return;
 
     const feeRate = 0.005;
     const minWithdraw = 10;
 
-    function validateWithdraw() {
+    function update() {
         const amount = parseFloat(amountInput.value) || 0;
-        const wallet = walletInput.value.trim();
-        let isValid = true;
+        const fee = amount * feeRate;
+        netDisplay.textContent = "$" + (amount - fee).toFixed(2);
+        feeDisplay.textContent = "$" + fee.toFixed(2);
+        validate();
+    }
 
-        // Amount validation
+    function validate() {
+        let valid = true;
+        const amount = parseFloat(amountInput.value) || 0;
+
         if (amount < minWithdraw) {
             amountError.classList.add("show");
-            isValid = false;
+            valid = false;
         } else {
             amountError.classList.remove("show");
         }
 
-        // Wallet validation
-        if (!wallet) {
+        if (!walletInput.value.trim()) {
             walletError.classList.add("show");
-            isValid = false;
+            valid = false;
         } else {
             walletError.classList.remove("show");
         }
 
-        // Update button state
-        submitBtn.disabled = !isValid;
-        
-        return isValid;
+        submitBtn.disabled = !valid;
+        return valid;
     }
 
-    function updateCalculations() {
-        const amount = parseFloat(amountInput.value) || 0;
-        const fee = amount * feeRate;
-        const net = amount - fee;
-        
-        if (feeDisplay) feeDisplay.textContent = `$${fee.toFixed(2)}`;
-        if (netDisplay) netDisplay.textContent = `$${net.toFixed(2)}`;
-    }
-
-    amountInput.addEventListener("input", () => {
-        updateCalculations();
-        validateWithdraw();
-    });
-
-    amountInput.addEventListener("blur", validateWithdraw);
-    
-    walletInput.addEventListener("input", validateWithdraw);
-    walletInput.addEventListener("blur", validateWithdraw);
+    amountInput.addEventListener("input", update);
+    walletInput.addEventListener("input", validate);
 
     submitBtn.addEventListener("click", async e => {
         e.preventDefault();
-        
-        // Final validation
-        if (!validateWithdraw()) {
-            const amount = parseFloat(amountInput.value) || 0;
-            const wallet = walletInput.value.trim();
-            
-            if (amount < minWithdraw) {
-                alert(`Minimum withdrawal amount is $${minWithdraw}`);
-                amountInput.focus();
-            } else if (!wallet) {
-                alert("Please enter your TRC20 wallet address");
-                walletInput.focus();
-            }
+        if (!validate()) {
+            alert("Please fill all fields correctly");
             return;
         }
 
-        const originalHTML = submitBtn.innerHTML;
-        const originalText = submitBtn.textContent;
+        const original = submitBtn.innerHTML;
         submitBtn.innerHTML = "Processing...";
         submitBtn.disabled = true;
 
         try {
             const token = await window.Clerk.session.getToken({ template: "backend" });
-            
-            const withdrawalData = {
-                amount: parseFloat(amountInput.value),
-                method: "USDT_TRC20",
-                walletAddress: walletInput.value.trim()
-            };
 
             const res = await fetch(`${window.API_BASE_URL}/api/v1/me/withdrawals`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify(withdrawalData)
+                body: JSON.stringify({
+                    amount: parseFloat(amountInput.value),
+                    method: "USDT_TRC20",
+                    walletAddress: walletInput.value.trim()
+                })
             });
 
             const data = await res.json();
-            
-            if (!res.ok) {
-                throw new Error(data.error || data.message || `Withdrawal failed: ${res.status}`);
-            }
+            if (!res.ok) throw new Error(data.error || "Withdrawal failed");
 
-            alert("Withdrawal request submitted successfully! It will be processed within 24-48 hours.");
-            
-            // Reset form
+            alert("Withdrawal request submitted successfully");
+
             amountInput.value = "";
             walletInput.value = "";
-            updateCalculations();
-            
+            update();
+
         } catch (err) {
-            console.error("Withdrawal error:", err);
-            alert(err.message || "Server error. Please try again.");
-        } finally {
-            submitBtn.innerHTML = originalHTML;
-            submitBtn.textContent = originalText;
-            validateWithdraw(); // Re-validate to update button state
+            alert(err.message || "Server error");
         }
+
+        submitBtn.innerHTML = original;
+        validate();
     });
 
-    // Initial calculations and validation
-    updateCalculations();
-    validateWithdraw();
+    update();
 }
 
-// ---------- INIT ----------
+// ---------------- INIT ----------------
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Check which page we're on by looking for specific containers
-    if (document.querySelector(".deposit-content")) {
-        initializeDepositPage();
-    }
-    
-    if (document.querySelector(".withdraw-content")) {
-        initializeWithdrawPage();
-    }
+    if (document.querySelector(".deposit-content")) initializeDepositPage();
+    if (document.querySelector(".withdraw-content")) initializeWithdrawPage();
 });
