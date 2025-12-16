@@ -176,7 +176,7 @@
             </div>
           </div>
 
-          <button class="btn-primary" id="submitBtn" disabled>
+          <button class="btn-primary" id="submitBtn">
             Submit Deposit Request
           </button>
         </div>
@@ -263,60 +263,119 @@
   </script>
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const submitBtn = document.getElementById("submitBtn");
-      const amountInput = document.getElementById("amount");
-      const fileInput = document.getElementById("fileInput");
-
-      // Minimum Deposit Amount:
-      if (!submitBtn) return;
-      submitBtn.addEventListener("click", async () => {
-        try {
-          const amount = Number(amountInput.value);
-          if (!amount || amount < 100) {
-            alert("Minimum deposit amount is $100");
-            return;
-          }
-
-          const token = await window.getAuthToken();
-          if (!token) {
-            alert("Authentication failed. Please login again.");
-            return;
-          }
-
-          const payload = {
-            amount,
-            currency: "USD",
-            method: "TRC20",
-            txId: null,
-            proofUrl: null,
-          };
-
-          const res = await fetch(`${window.API_BASE_URL}/api/v1/deposit`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(payload),
+  document.addEventListener("DOMContentLoaded", function () {
+    requireAuth({
+      redirectTo: "login.html",
+      onReady: async () => {
+      
+        /* ---------- HEADER / LOGOUT ---------- */
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (logoutBtn) {
+          logoutBtn.addEventListener("click", async () => {
+            await signOutAndRedirect("login.html");
           });
-
-          const data = await res.json();
-
-          if (!res.ok) {
-            throw new Error(data.error || "Deposit failed");
-          }
-
-          alert("Deposit submitted successfully. Awaiting approval.");
-          submitBtn.disabled = true;
-
-        } catch (err) {
-          console.error("Deposit submit error:", err);
-          alert(err.message || "Something went wrong");
         }
-      });
+      
+        /* ---------- COPY ADDRESS ---------- */
+        const copyBtn = document.getElementById("copyAddressBtn");
+        const walletAddress = document.getElementById("walletAddress");
+      
+        if (copyBtn && walletAddress) {
+          copyBtn.addEventListener("click", () => {
+            navigator.clipboard.writeText(walletAddress.innerText.trim());
+            alert("Wallet address copied");
+          });
+        }
+      
+        /* ---------- FILE UPLOAD ---------- */
+        const uploadArea = document.getElementById("uploadArea");
+        const fileInput = document.getElementById("fileInput");
+        const filePreview = document.getElementById("filePreview");
+        const fileName = document.getElementById("fileName");
+        const removeFileBtn = document.getElementById("removeFileBtn");
+      
+        if (uploadArea && fileInput) {
+          uploadArea.addEventListener("click", () => fileInput.click());
+        }
+      
+        if (fileInput && filePreview && fileName) {
+          fileInput.addEventListener("change", () => {
+            if (fileInput.files.length > 0) {
+              fileName.textContent = fileInput.files[0].name;
+              filePreview.style.display = "block";
+            }
+          });
+        }
+      
+        if (removeFileBtn && fileInput && filePreview) {
+          removeFileBtn.addEventListener("click", () => {
+            fileInput.value = "";
+            filePreview.style.display = "none";
+          });
+        }
+      
+        /* ---------- AMOUNT VALIDATION ---------- */
+        const amountInput = document.getElementById("amount");
+        const submitBtn = document.getElementById("submitBtn");
+        const amountError = document.getElementById("amountError");
+      
+        if (amountInput && submitBtn) {
+          amountInput.addEventListener("input", () => {
+            const value = Number(amountInput.value);
+            if (!value || value < 100) {
+              amountError.style.display = "block";
+              submitBtn.disabled = true;
+            } else {
+              amountError.style.display = "none";
+              submitBtn.disabled = false;
+            }
+          });
+        }
+      
+        /* ---------- SUBMIT DEPOSIT ---------- */
+        if (submitBtn) {
+          submitBtn.addEventListener("click", async () => {
+            try {
+              const amount = Number(amountInput.value);
+              if (!amount || amount < 100) return;
+            
+              const token = await window.getAuthToken();
+              if (!token) {
+                alert("Authentication failed. Please login again.");
+                return;
+              }
+            
+              const res = await fetch(`${window.API_BASE_URL}/api/v1/deposit`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                  amount,
+                  currency: "USD",
+                  method: "TRC20",
+                }),
+              });
+            
+              const data = await res.json();
+              if (!res.ok) throw new Error(data.error || "Deposit failed");
+            
+              alert("Deposit submitted successfully. Awaiting approval.");
+              submitBtn.disabled = true;
+            
+            } catch (err) {
+              console.error(err);
+              alert(err.message || "Something went wrong");
+            }
+          });
+        }
+      
+      }
     });
+  });
   </script>
+
 
 </body>
 </html>
