@@ -221,6 +221,66 @@ async function loadUserBalances() {
             `$${data.profitBalance ?? 0}`;
 }
 
+async function loadRecentTransactions() {
+    const tbody = document.querySelector(".transactions-table tbody");
+    if (!tbody) return;
+
+    tbody.innerHTML = `<tr><td colspan="4">Loading...</td></tr>`;
+
+    try {
+        const token = await window.Clerk.session.getToken({ template: "backend" });
+        const headers = {
+            Authorization: `Bearer ${token}`
+        };
+
+        const [depRes, wdRes] = await Promise.all([
+            fetch(`${window.API_BASE_URL}/api/v1/me/deposits`, { headers }),
+            fetch(`${window.API_BASE_URL}/api/v1/me/withdrawals`, { headers })
+        ]);
+
+        const deposits = depRes.ok ? await depRes.json() : [];
+        const withdrawals = wdRes.ok ? await wdRes.json() : [];
+
+        const transactions = [
+            ...deposits.map(d => ({
+                date: d.createdAt,
+                type: "Deposit",
+                amount: `+$${Number(d.amount).toFixed(2)}`,
+                status: d.status
+            })),
+            ...withdrawals.map(w => ({
+                date: w.createdAt,
+                type: "Withdraw",
+                amount: `-$${Number(w.amount).toFixed(2)}`,
+                status: w.status
+            }))
+        ];
+
+        transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        if (transactions.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4">No transactions yet</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = "";
+        transactions.slice(0, 5).forEach(tx => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${new Date(tx.date).toLocaleDateString()}</td>
+                <td>${tx.type}</td>
+                <td>${tx.amount}</td>
+                <td>${tx.status}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+    } catch (err) {
+        console.error("Failed to load transactions", err);
+        tbody.innerHTML = `<tr><td colspan="4">Failed to load transactions</td></tr>`;
+    }
+}
+
 // ======================
 // SAFE INITIALIZATION
 // ======================
@@ -234,6 +294,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 initializeChart();
                 setupChartFilters();
                 setupChartResize();
+                loadRecentTransactions();
             }
 
             // ✅ IMPORTANT FIX:
