@@ -295,10 +295,66 @@ function validateWithdrawForm() {
     return valid;
 }
 
+async function loadRecentDeposits() {
+    const tbody = document.querySelector(".deposits-table tbody");
+    if (!tbody) return;
+
+    tbody.innerHTML = `<tr><td colspan="4">Loading...</td></tr>`;
+
+    try {
+        const token = await window.Clerk.session.getToken({ template: "backend" });
+
+        const res = await fetch(`${window.API_BASE_URL}/api/v1/me/deposits`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        if (!res.ok) throw new Error("Failed to fetch deposits");
+
+        const deposits = await res.json();
+
+        if (!deposits.length) {
+            tbody.innerHTML = `<tr><td colspan="4">No deposits yet</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = "";
+
+        deposits
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .slice(0, 5)
+            .forEach(dep => {
+                const statusClass =
+                    dep.status === "approved" ? "status-completed" :
+                    dep.status === "pending" ? "status-pending" :
+                    "status-failed";
+
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${new Date(dep.createdAt).toLocaleDateString()}</td>
+                    <td>${dep.method}</td>
+                    <td>$${Number(dep.amount).toFixed(2)}</td>
+                    <td>
+                      <span class="status-badge ${statusClass}">
+                        ${dep.status.charAt(0).toUpperCase() + dep.status.slice(1)}
+                      </span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+    } catch (err) {
+        console.error("Failed to load deposits", err);
+        tbody.innerHTML = `<tr><td colspan="4">Failed to load deposits</td></tr>`;
+    }
+}
+
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', function () {
     if (document.querySelector('.deposit-content')) {
         initializeDepositPage();
+        loadRecentDeposits();
     }
     if (document.querySelector('.withdraw-content')) {
         initializeWithdrawPage();
