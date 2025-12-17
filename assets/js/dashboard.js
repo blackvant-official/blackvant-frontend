@@ -28,24 +28,26 @@ function setupSidebarClose() {
 }
 
 // Chart Data for different time periods
+// Chart Data (ZERO-STATE, REAL-DATA READY)
 const chartDataSets = {
     '7d': {
-        labels: ['Dec 9', 'Dec 10', 'Dec 11', 'Dec 12', 'Dec 13', 'Dec 14', 'Dec 15'],
-        data: [4500, 4525, 4550, 4575, 4600, 4644.5, 4689.5]
+        labels: ['No data'],
+        data: [0]
     },
     '30d': {
-        labels: ['Nov 16', 'Nov 20', 'Nov 24', 'Nov 28', 'Dec 2', 'Dec 6', 'Dec 10', 'Dec 14', 'Dec 15'],
-        data: [4200, 4250, 4300, 4350, 4400, 4450, 4525, 4644.5, 4689.5]
+        labels: ['No data'],
+        data: [0]
     },
     '90d': {
-        labels: ['Sep 17', 'Oct 1', 'Oct 15', 'Oct 29', 'Nov 12', 'Nov 26', 'Dec 10', 'Dec 15'],
-        data: [3800, 3900, 4000, 4100, 4200, 4300, 4525, 4689.5]
+        labels: ['No data'],
+        data: [0]
     },
     '1y': {
-        labels: ['Jan', 'Mar', 'May', 'Jul', 'Sep', 'Nov', 'Dec'],
-        data: [3000, 3200, 3500, 3800, 4100, 4400, 4689.5]
+        labels: ['No data'],
+        data: [0]
     }
 };
+
 
 // Initialize Chart.js
 let performanceChart = null;
