@@ -1330,7 +1330,6 @@ body {
 }
 
 /* Withdraw source dropdown styling */
-.select-field,
 select#withdrawSource {
   width: 100%;
   padding: 12px 14px;
@@ -1357,11 +1356,12 @@ select#withdrawSource option {
 }
 
 /* optional dropdown arrow */
-.select-wrapper {
+.withdraw-form .select-wrapper {
   position: relative;
 }
 
-.select-wrapper::after {
+
+.withdraw-form .select-wrapper::after {
   content: "▾";
   position: absolute;
   right: 14px;
@@ -1370,6 +1370,7 @@ select#withdrawSource option {
   color: #94a3b8;
   pointer-events: none;
 }
+
 
 
 .available-balance {
