@@ -1329,6 +1329,48 @@ body {
     color: var(--text-secondary);
 }
 
+/* Withdraw source dropdown styling */
+.select-field,
+select#withdrawSource {
+  width: 100%;
+  padding: 12px 14px;
+  background: #0f172a;            /* same as inputs */
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  color: #e5e7eb;
+  font-size: 14px;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+}
+
+select#withdrawSource:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.15);
+}
+
+select#withdrawSource option {
+  background: #020617;
+  color: #e5e7eb;
+}
+
+/* optional dropdown arrow */
+.select-wrapper {
+  position: relative;
+}
+
+.select-wrapper::after {
+  content: "▾";
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  pointer-events: none;
+}
+
 .available-balance {
     background: rgba(0, 217, 90, 0.1);
     border: 1px solid var(--accent-green);
