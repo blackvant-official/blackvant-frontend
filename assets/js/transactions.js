@@ -415,13 +415,72 @@ async function loadRecentDeposits() {
     }
 }
 
+async function loadRecentWithdrawals() {
+    const tbody = document.querySelector(".withdrawals-table tbody");
+    if (!tbody) return;
+
+    tbody.innerHTML = `<tr><td colspan="4">Loading...</td></tr>`;
+
+    try {
+        const token = await getBackendToken();
+
+        const res = await fetch(`${window.API_BASE_URL}/api/v1/me/withdrawals`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        if (!res.ok) {
+            throw new Error("Failed to fetch withdrawals");
+        }
+
+        const withdrawals = await res.json();
+
+        if (!withdrawals.length) {
+            tbody.innerHTML = `<tr><td colspan="4">No withdrawals yet</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = "";
+
+        withdrawals
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .slice(0, 5)
+            .forEach(w => {
+                const statusClass =
+                    w.status === "approved" ? "status-completed" :
+                    w.status === "pending" ? "status-pending" :
+                    "status-failed";
+
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${new Date(w.createdAt).toLocaleDateString()}</td>
+                    <td>${w.method}</td>
+                    <td>$${Number(w.amount).toFixed(2)}</td>
+                    <td>
+                      <span class="status-badge ${statusClass}">
+                        ${w.status.charAt(0).toUpperCase() + w.status.slice(1)}
+                      </span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+    } catch (err) {
+        console.error("Withdrawals load error:", err);
+        tbody.innerHTML = `<tr><td colspan="4">Failed to load withdrawals</td></tr>`;
+    }
+}
+
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', function () {
     if (document.querySelector('.deposit-content')) {
         initializeDepositPage();
         loadRecentDeposits();
     }
+
     if (document.querySelector('.withdraw-content')) {
         initializeWithdrawPage();
+        loadRecentWithdrawals();
     }
 });
