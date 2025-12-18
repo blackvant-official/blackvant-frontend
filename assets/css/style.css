@@ -1371,6 +1371,7 @@ select#withdrawSource option {
   pointer-events: none;
 }
 
+
 .available-balance {
     background: rgba(0, 217, 90, 0.1);
     border: 1px solid var(--accent-green);
