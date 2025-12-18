@@ -296,17 +296,18 @@ function validateWithdrawForm() {
 }
 
 async function getBackendToken() {
-    if (!window.Clerk) {
-        throw new Error("Clerk not loaded");
-    }
+    const start = Date.now();
 
-    // Wait until Clerk is fully ready
-    if (!window.Clerk.session) {
-        await window.Clerk.load();
+    while (!window.Clerk || !window.Clerk.session) {
+        if (Date.now() - start > 5000) {
+            throw new Error("Clerk session not ready");
+        }
+        await new Promise(r => setTimeout(r, 50));
     }
 
     return await window.Clerk.session.getToken({ template: "backend" });
 }
+
 
 async function loadRecentDeposits() {
     const tbody = document.querySelector(".deposits-table tbody");
