@@ -55,6 +55,21 @@ function initializeDepositPage() {
         }
     }
 
+    async function loadWithdrawBalances() {
+      const token = await getBackendToken();
+
+      const res = await fetch(`${window.API_BASE_URL}/api/v1/me`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const data = await res.json();
+
+      return {
+        profit: Number(data.profitBalance || 0),
+        capital: 0 // locked in phase 1
+      };
+    }
+
     // Copy wallet address (single, stable implementation)
     const copyBtn = document.getElementById('copyAddressBtn');
     if (copyBtn) {
@@ -200,10 +215,13 @@ function initializeWithdrawPage() {
     const availableBalanceEl = document.getElementById('availableBalance');
     const displayBalanceEl = document.getElementById('displayBalance');
 
-    const balances = {
-        profit: 0,   // real profit will come later
-        capital: 0   // locked in phase 1
-    };
+    let balances = { profit: 0, capital: 0 };
+
+    loadWithdrawBalances().then(b => {
+      balances = b;
+      updateWithdrawSource();
+    });
+
 
     function updateWithdrawSource() {
         const source = withdrawSourceSelect.value;
