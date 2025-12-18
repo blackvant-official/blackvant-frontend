@@ -196,6 +196,30 @@ function validateDepositForm() {
 // ===== WITHDRAW PAGE FUNCTIONS =====
 
 function initializeWithdrawPage() {
+    const withdrawSourceSelect = document.getElementById('withdrawSource');
+    const availableBalanceEl = document.getElementById('availableBalance');
+    const displayBalanceEl = document.getElementById('displayBalance');
+
+    const balances = {
+        profit: 0,   // real profit will come later
+        capital: 0   // locked in phase 1
+    };
+
+    function updateWithdrawSource() {
+        const source = withdrawSourceSelect.value;
+        const available = balances[source] || 0;
+        
+        availableBalanceEl.textContent = `$${available.toFixed(2)}`;
+        displayBalanceEl.textContent = `$${available.toFixed(2)}`;
+        
+        validateWithdrawForm();
+    }
+    
+    withdrawSourceSelect.addEventListener('change', updateWithdrawSource);
+    
+    // initialize once
+    updateWithdrawSource();
+    
     const amountInput = document.getElementById('withdrawAmount');
     const walletAddressInput = document.getElementById('walletAddress');
     const feeDisplay = document.getElementById('feeAmount');
@@ -214,6 +238,14 @@ function initializeWithdrawPage() {
         netDisplay.textContent = '$' + net.toFixed(2);
 
         validateWithdrawForm();
+        const source = document.getElementById('withdrawSource')?.value;
+
+        if (source === 'capital') {
+            submitBtn.disabled = true;
+            submitBtn.title = 'Capital withdrawals are currently locked';
+            return false;
+        }
+
     });
 
     walletAddressInput?.addEventListener('input', validateWithdrawForm);
@@ -246,6 +278,7 @@ function initializeWithdrawPage() {
                     amount,
                     currency: "USD",
                     method: "USDT_TRC20",
+                    source: withdrawSourceSelect.value,
                     targetAddress: walletAddress
                 })
             });

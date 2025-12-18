@@ -70,9 +70,16 @@
                     <div class="rule-item"><div class="rule-icon">⏰</div><div class="rule-text">24–48 hours</div></div>
                     <div class="rule-item"><div class="rule-icon">📊</div><div class="rule-text">Fee: 0.5%</div></div>
                 </div>
+                <div class="form-group">
+                  <label for="withdrawSource">Withdraw From</label>
+                  <select id="withdrawSource">
+                    <option value="profit" selected>Profit Balance</option>
+                    <option value="capital">Capital Balance</option>
+                  </select>
+                </div>      
                 <div class="available-balance">
                     <div class="balance-label">Available Balance</div>
-                    <div class="balance-amount" id="availableBalance">$784.50</div>
+                    <div class="balance-amount" id="availableBalance">$0.00</div>
                 </div>
             </div>
 
@@ -117,7 +124,7 @@
                 </div>
 
                 <div class="amount-display">
-                    <div class="amount-item"><div class="amount-label">Available Balance</div><div class="amount-value" id="displayBalance">$784.50</div></div>
+                    <div class="amount-item"><div class="amount-label">Available Balance</div><div class="amount-value" id="displayBalance">$0.00</div></div>
                     <div class="amount-item"><div class="amount-label">Fee (0.5%)</div><div class="amount-value fee" id="feeAmount">$0.00</div></div>
                     <div class="amount-item"><div class="amount-label">You Will Receive</div><div class="amount-value net" id="netAmount">$0.00</div></div>
                 </div>
