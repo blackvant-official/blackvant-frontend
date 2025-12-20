@@ -1,17 +1,19 @@
 // =======================================================
-// TRANSACTION HISTORY — REAL LEDGER (UI PRESERVED)
+// BLACKVANT — TRANSACTION HISTORY (REAL LEDGER)
+// UI: LOCKED | LOGIC: REAL BACKEND
 // =======================================================
 
-// -------------------------
-// LOAD REAL DATA (DEPOSITS + WITHDRAWALS)
-// -------------------------
-async function loadTransactionsFromBackend() {
-    try {
-        if (!window.Clerk || !window.API_BASE_URL) return [];
+// =======================================================
+// BACKEND LOADER
+// =======================================================
 
+async function loadTransactionsFromBackend() {
+    if (!window.Clerk || !window.API_BASE_URL) return [];
+
+    try {
         const token = await window.Clerk.session.getToken({ template: "backend" });
 
-        const [depositsRes, withdrawalsRes] = await Promise.all([
+        const [depRes, wdRes] = await Promise.all([
             fetch(`${window.API_BASE_URL}/api/v1/me/deposits`, {
                 headers: { Authorization: `Bearer ${token}` }
             }),
@@ -20,8 +22,8 @@ async function loadTransactionsFromBackend() {
             })
         ]);
 
-        const deposits = await depositsRes.json();
-        const withdrawals = await withdrawalsRes.json();
+        const deposits = await depRes.json();
+        const withdrawals = await wdRes.json();
 
         const normalize = (tx, kind) => ({
             id: tx.id,
@@ -36,15 +38,13 @@ async function loadTransactionsFromBackend() {
                 kind === "Deposit"
                     ? Number(tx.amount)
                     : -Math.abs(Number(tx.amount)),
-            statusRaw: tx.status, // approved | pending | rejected
-            statusLabel:
-                tx.status.charAt(0).toUpperCase() + tx.status.slice(1)
+            status: tx.status // approved | pending | rejected
         });
 
-        const mappedDeposits = deposits.map(d => normalize(d, "Deposit"));
-        const mappedWithdrawals = withdrawals.map(w => normalize(w, "Withdrawal"));
-
-        return [...mappedDeposits, ...mappedWithdrawals];
+        return [
+            ...deposits.map(d => normalize(d, "Deposit")),
+            ...withdrawals.map(w => normalize(w, "Withdrawal"))
+        ];
 
     } catch (err) {
         console.error("Transaction load failed:", err);
@@ -52,9 +52,10 @@ async function loadTransactionsFromBackend() {
     }
 }
 
-// -------------------------
-// RENDER TABLE ROWS (NO UI CHANGE)
-// -------------------------
+// =======================================================
+// TABLE RENDERING (UI UNCHANGED)
+// =======================================================
+
 function renderTransactionsTable(transactions) {
     const tbody = document.getElementById("transactionsTableBody");
     if (!tbody) return;
@@ -66,9 +67,14 @@ function renderTransactionsTable(transactions) {
         .forEach(tx => {
             const tr = document.createElement("tr");
 
-            if (tx.statusRaw === "rejected") {
-                tr.style.opacity = "0.55"; // required dimming
+            if (tx.status === "rejected") {
+                tr.style.opacity = "0.55";
             }
+
+            tr.dataset.amount = tx.amount;
+            tr.dataset.type = tx.type.toLowerCase();
+            tr.dataset.status = tx.status;
+            tr.dataset.date = tx.createdAt.toISOString();
 
             tr.innerHTML = `
                 <td>${tx.dateLabel}</td>
@@ -76,8 +82,8 @@ function renderTransactionsTable(transactions) {
                 <td>${tx.description}</td>
                 <td>${tx.amount >= 0 ? "$" + tx.amount.toFixed(2) : "-$" + Math.abs(tx.amount).toFixed(2)}</td>
                 <td>
-                    <span class="status-badge status-${tx.statusRaw}">
-                        ${tx.statusLabel}
+                    <span class="status-badge status-${tx.status}">
+                        ${tx.status.charAt(0).toUpperCase() + tx.status.slice(1)}
                     </span>
                 </td>
                 <td>
@@ -87,24 +93,20 @@ function renderTransactionsTable(transactions) {
                 </td>
             `;
 
-            tr.dataset.amount = tx.amount;
-            tr.dataset.type = tx.type.toLowerCase();
-            tr.dataset.status = tx.statusRaw;
-            tr.dataset.date = tx.createdAt.toISOString();
-
             tbody.appendChild(tr);
         });
 }
 
-// -------------------------
-// STATISTICS — APPROVED ONLY
-// -------------------------
+// =======================================================
+// STATISTICS (APPROVED-ONLY LEDGER)
+// =======================================================
+
 function updateStatistics() {
     const rows = document.querySelectorAll("#transactionsTableBody tr");
 
-    let depositTotal = 0;
-    let withdrawalTotal = 0;
-    let profitTotal = 0;
+    let deposits = 0;
+    let withdrawals = 0;
+    let profits = 0;
     let approvedCount = 0;
 
     rows.forEach(row => {
@@ -112,26 +114,27 @@ function updateStatistics() {
 
         approvedCount++;
 
-        const amount = Number(row.dataset.amount || 0);
+        const amount = Number(row.dataset.amount);
         const type = row.dataset.type;
 
-        if (type === "deposit") depositTotal += amount;
-        else if (type === "withdrawal") withdrawalTotal += Math.abs(amount);
-        else if (type === "profit") profitTotal += amount;
+        if (type === "deposit") deposits += amount;
+        else if (type === "withdrawal") withdrawals += Math.abs(amount);
+        else if (type === "profit") profits += amount;
     });
 
     document.getElementById("totalTransactions").textContent = approvedCount;
-    document.getElementById("totalDeposited").textContent = `$${depositTotal.toFixed(2)}`;
-    document.getElementById("totalWithdrawn").textContent = `$${withdrawalTotal.toFixed(2)}`;
+    document.getElementById("totalDeposited").textContent = `$${deposits.toFixed(2)}`;
+    document.getElementById("totalWithdrawn").textContent = `$${withdrawals.toFixed(2)}`;
 
-    const net = profitTotal - withdrawalTotal;
+    const net = profits - withdrawals;
     document.getElementById("netProfit").textContent =
         net >= 0 ? `+$${net.toFixed(2)}` : `-$${Math.abs(net).toFixed(2)}`;
 }
 
-// -------------------------
-// FILTERS (UNCHANGED BEHAVIOR)
-// -------------------------
+// =======================================================
+// FILTERS (RESTORED)
+// =======================================================
+
 function applyFilters() {
     const search = document.getElementById("searchInput")?.value.toLowerCase() || "";
     const from = document.getElementById("dateFrom")?.value || "";
@@ -145,10 +148,10 @@ function applyFilters() {
     rows.forEach(row => {
         let show = true;
 
-        const rowText = row.innerText.toLowerCase();
         const rowDate = new Date(row.dataset.date);
+        const text = row.innerText.toLowerCase();
 
-        if (search && !rowText.includes(search)) show = false;
+        if (search && !text.includes(search)) show = false;
         if (from && rowDate < new Date(from)) show = false;
         if (to && rowDate > new Date(to)) show = false;
         if (type && row.dataset.type !== type) show = false;
@@ -158,18 +161,115 @@ function applyFilters() {
         if (show) visible++;
     });
 
+    setupPagination();
     updateTableInfo(visible);
 }
 
-// -------------------------
-// PAGINATION / EXPORT / SORT (UNCHANGED)
-// -------------------------
+// =======================================================
+// PAGINATION (FULLY RESTORED)
+// =======================================================
+
+let currentPage = 1;
+const rowsPerPage = 10;
+
+function setupPagination() {
+    const rows = Array.from(document.querySelectorAll("#transactionsTableBody tr"))
+        .filter(r => r.style.display !== "none");
+
+    const totalPages = Math.max(1, Math.ceil(rows.length / rowsPerPage));
+
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const pageBtns = document.querySelectorAll(".pagination-btn[data-page]");
+
+    function showPage(page) {
+        currentPage = page;
+
+        rows.forEach((row, i) => {
+            row.style.display =
+                i >= (page - 1) * rowsPerPage && i < page * rowsPerPage
+                    ? ""
+                    : "none";
+        });
+
+        pageBtns.forEach(btn => {
+            const p = Number(btn.dataset.page);
+            btn.classList.toggle("active", p === page);
+            btn.style.display = p <= totalPages ? "" : "none";
+        });
+
+        prevBtn.disabled = page === 1;
+        nextBtn.disabled = page === totalPages;
+
+        updateTableInfo(rows.length, page);
+    }
+
+    pageBtns.forEach(btn => {
+        btn.onclick = () => showPage(Number(btn.dataset.page));
+    });
+
+    prevBtn.onclick = () => currentPage > 1 && showPage(currentPage - 1);
+    nextBtn.onclick = () => currentPage < totalPages && showPage(currentPage + 1);
+
+    showPage(Math.min(currentPage, totalPages));
+}
+
+// =======================================================
+// TABLE INFO
+// =======================================================
+
+function updateTableInfo(total, page = currentPage) {
+    const start = (page - 1) * rowsPerPage + 1;
+    const end = Math.min(start + rowsPerPage - 1, total);
+
+    document.getElementById("tableInfo").textContent =
+        total === 0
+            ? "Showing 0 transactions"
+            : `Showing ${start}-${end} of ${total} transactions`;
+}
+
+// =======================================================
+// EXPORT CSV (RESTORED)
+// =======================================================
+
+function setupExport() {
+    const btn = document.getElementById("exportBtn");
+    if (!btn) return;
+
+    btn.onclick = () => {
+        const rows = document.querySelectorAll("#transactionsTableBody tr");
+        let csv = "Date,Type,Description,Amount,Status\n";
+
+        rows.forEach(row => {
+            if (row.style.display === "none") return;
+
+            const cells = row.querySelectorAll("td");
+            csv += [
+                cells[0].innerText,
+                cells[1].innerText,
+                cells[2].innerText,
+                cells[3].innerText.replace(/[^\d.-]/g, ""),
+                cells[4].innerText
+            ].map(v => `"${v}"`).join(",") + "\n";
+        });
+
+        const blob = new Blob([csv], { type: "text/csv" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `blackvant-transactions-${new Date().toISOString().slice(0,10)}.csv`;
+        a.click();
+    };
+}
+
+// =======================================================
+// VIEW DETAILS
+// =======================================================
+
 function setupViewDetails() {
     document.addEventListener("click", e => {
         if (!e.target.classList.contains("view-details")) return;
 
         const row = e.target.closest("tr");
-
         alert(
             `Transaction ID: ${e.target.dataset.id}\n` +
             `Date: ${row.cells[0].innerText}\n` +
@@ -181,15 +281,17 @@ function setupViewDetails() {
     });
 }
 
-// -------------------------
-// INIT
-// -------------------------
+// =======================================================
+// INIT (ORDER IS CRITICAL)
+// =======================================================
+
 async function initTransactionHistory() {
-    const txs = await loadTransactionsFromBackend();
-    renderTransactionsTable(txs);
+    const data = await loadTransactionsFromBackend();
+    renderTransactionsTable(data);
     updateStatistics();
-    applyFilters();
+    setupExport();
     setupViewDetails();
+    applyFilters();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
