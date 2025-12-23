@@ -230,7 +230,7 @@ function updateProfileFromClerk() {
 
     Clerk.mountUserProfile(el, {
         appearance: {
-            baseTheme: "dark"
+            baseTheme: Clerk.themes.dark
         }
     });
 }
