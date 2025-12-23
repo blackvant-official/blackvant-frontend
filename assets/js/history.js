@@ -292,8 +292,4 @@ async function initTransactionHistory() {
     updateStatistics();
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    if (document.querySelector(".transaction-content")) {
-        initTransactionHistory();
-    }
-});
+
