@@ -319,6 +319,8 @@ async function initTransactionHistory() {
     setupFilters();       // ✅ ADD THIS
     applyFilters();       // initial load
     updateStatistics();
+    
+    document.querySelector(".transaction-content").style.visibility = "visible";
 }
 
 
