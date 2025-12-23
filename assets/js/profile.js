@@ -228,6 +228,11 @@ function updateProfileFromClerk() {
 
     el.style.display = "block";
 
+    Clerk.mountUserProfile(el, {
+        appearance: {
+            baseTheme: "dark"
+        }
+    });
 }
 
 
