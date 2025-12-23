@@ -167,7 +167,7 @@ function applyFilters() {
         }
         
 
-        row.style.display = show ? "" : "none";
+        row.dataset.filtered = show ? "true" : "false";
         if (show) visible++;
     });
 
@@ -195,7 +195,7 @@ const rowsPerPage = 10;
 
 function setupPagination() {
     const rows = Array.from(document.querySelectorAll("#transactionsTableBody tr"))
-        .filter(r => r.style.display !== "none");
+        .filter(r => r.dataset.filtered !== "false");
 
     const totalPages = Math.max(1, Math.ceil(rows.length / rowsPerPage));
 
@@ -223,10 +223,11 @@ function setupPagination() {
         nextBtn.disabled = page === totalPages;
 
         updateTableInfo(rows.length, page);
-        const pageLabel = document.getElementById("pageLabel");
-        if (pageLabel) {
-            pageLabel.textContent = `Page ${page} of ${totalPages}`;
+        const paginationInfo = document.getElementById("paginationInfo");
+        if (paginationInfo) {
+            paginationInfo.textContent = `Page ${page} of ${totalPages}`;
         }
+
     }
 
     pageBtns.forEach(btn => {
