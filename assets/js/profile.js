@@ -222,16 +222,25 @@ function updateProfileFromClerk() {
     const el = document.getElementById("clerk-account-management");
     if (!el) return;
 
-    const fallback = document.getElementById("fallback-profile-ui");
-    if (fallback) fallback.style.display = "none";
+    function updateProfileFromClerk(clerk) {
+        if (!clerk) return;
+        
+        const el = document.getElementById("clerk-account-management");
+        if (!el) return;
+        
+        el.style.display = "block";
+        
+        clerk.mountUserProfile(el, {
+            appearance: {
+                baseTheme: clerk.themes.dark
+            }
+        });
+    
+        // ✅ hide fallback ONLY after mount attempt
+        const fallback = document.getElementById("fallback-profile-ui");
+        if (fallback) fallback.style.display = "none";
+    }
 
-    el.style.display = "block";
-
-    Clerk.mountUserProfile(el, {
-        appearance: {
-            baseTheme: Clerk.themes.dark
-        }
-    });
 }
 
 

@@ -57,10 +57,12 @@
 
             <!-- Fallback UI (only shows if Clerk fails) -->
             <div id="fallback-profile-ui">
-                <!-- YOUR ENTIRE UI UNTOUCHED… -->
-                <!-- (I am not rewriting it here again—you already have it above) -->
-                <!-- keep exactly your UI content -->
+                <div class="card">
+                    <h3>Profile Settings</h3>
+                    <p>Loading your profile…</p>
+                </div>
             </div>
+
 
         </main>
     </div>
@@ -107,7 +109,7 @@ document.addEventListener("DOMContentLoaded", function () {
         setupPaymentMethods();
         setupToggleSwitches();
         setupDangerZone();
-        updateProfileFromClerk();
+        updateProfileFromClerk(clerk);
       }
     }
 
