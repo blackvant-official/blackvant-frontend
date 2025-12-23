@@ -106,23 +106,7 @@ document.addEventListener("DOMContentLoaded", function () {
         setupPaymentMethods();
         setupToggleSwitches();
         setupDangerZone();
-        updateProfileFromClerk(
-          function updateProfileFromClerk() {
-              if (!window.Clerk) return;
-                    
-              const el = document.getElementById("clerk-account-management");
-              if (!el) return;
-                    
-              el.style.display = "block";
-                    
-              Clerk.mountUserProfile(el, {
-                  appearance: {
-                      baseTheme: "dark"
-                  }
-              });
-          }
-
-        );
+        updateProfileFromClerk();
       }
     }
 
