@@ -216,7 +216,25 @@ function setupTabs() { /* unchanged */ }
 function setupPasswordStrength() { /* unchanged */ }
 function setupPasswordChange() { /* unchanged */ }
 function setupDangerZone() { /* unchanged */ }
-function updateProfileFromClerk() { /* unchanged */ }
+function updateProfileFromClerk() {
+    if (!window.Clerk) return;
+
+    const el = document.getElementById("clerk-account-management");
+    if (!el) return;
+
+    // Hide fallback UI when Clerk profile is active
+    const fallback = document.getElementById("fallback-profile-ui");
+    if (fallback) fallback.style.display = "none";
+
+    el.style.display = "block";
+
+    Clerk.mountUserProfile(el, {
+        appearance: {
+            baseTheme: "dark"
+        }
+    });
+}
+
 
 // =======================================================
 // INITIALIZE PAGE
