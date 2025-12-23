@@ -77,10 +77,17 @@ document.addEventListener("DOMContentLoaded", function () {
   requireAuth({
     redirectTo: "login.html",
     onReady: (user, clerk) => {
+
       clerk.mountUserButton(
         document.getElementById("clerk-user-button"),
-        { afterSignOutUrl: "login.html" }
+        {
+          afterSignOutUrl: "login.html",
+          appearance: { 
+            baseTheme: "dark"
+          }
+        }
       );
+
 
       const logoutBtn = document.getElementById("logoutBtn");
       if (logoutBtn) {
@@ -88,7 +95,37 @@ document.addEventListener("DOMContentLoaded", function () {
           await signOutAndRedirect("login.html");
         };
       }
+    
+      // ✅ START PROFILE LOGIC ONLY AFTER AUTH IS READY
+      if (document.querySelector('.profile-content')) {
+        loadUserProfile();
+        setupTabs();
+        setupPasswordStrength();
+        setupPersonalInfo();
+        setupPasswordChange();
+        setupPaymentMethods();
+        setupToggleSwitches();
+        setupDangerZone();
+        updateProfileFromClerk(
+          function updateProfileFromClerk() {
+              if (!window.Clerk) return;
+                    
+              const el = document.getElementById("clerk-account-management");
+              if (!el) return;
+                    
+              el.style.display = "block";
+                    
+              Clerk.mountUserProfile(el, {
+                  appearance: {
+                      baseTheme: "dark"
+                  }
+              });
+          }
+
+        );
+      }
     }
+
   });
 });
 </script>

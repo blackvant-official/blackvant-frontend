@@ -222,16 +222,3 @@ function updateProfileFromClerk() { /* unchanged */ }
 // INITIALIZE PAGE
 // =======================================================
 
-document.addEventListener('DOMContentLoaded', function() {
-    if (document.querySelector('.profile-content')) {
-        loadUserProfile();
-        setupTabs();
-        setupPasswordStrength();
-        setupPersonalInfo();
-        setupPasswordChange();
-        setupPaymentMethods();
-        setupToggleSwitches();
-        setupDangerZone();
-        updateProfileFromClerk();
-    }
-});
