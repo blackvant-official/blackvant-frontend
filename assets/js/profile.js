@@ -222,7 +222,6 @@ function updateProfileFromClerk() {
     const el = document.getElementById("clerk-account-management");
     if (!el) return;
 
-    // Hide fallback UI when Clerk profile is active
     const fallback = document.getElementById("fallback-profile-ui");
     if (fallback) fallback.style.display = "none";
 
@@ -230,7 +229,7 @@ function updateProfileFromClerk() {
 
     Clerk.mountUserProfile(el, {
         appearance: {
-            baseTheme: "dark"
+            baseTheme: Clerk.themes.dark
         }
     });
 }
