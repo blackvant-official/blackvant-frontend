@@ -151,9 +151,21 @@ function applyFilters() {
         if (type && type !== "All Types" && row.dataset.type !== type.toLowerCase()) {
             show = false;
         }
-        if (status && status !== "All Status" && row.dataset.status !== status.toLowerCase()) {
-            show = false;
+        if (status) {
+            const statusMap = {
+                completed: "approved",
+                pending: "pending",
+        failed: "rejected",
+                processing: "pending"
+            };
+        
+            const mappedStatus = statusMap[status] || status;
+        
+            if (row.dataset.status !== mappedStatus) {
+                show = false;
+            }
         }
+        
 
         row.style.display = show ? "" : "none";
         if (show) visible++;
@@ -161,6 +173,17 @@ function applyFilters() {
 
     setupPagination();
     updateTableInfo(visible);
+}
+
+function setupFilters() {
+    const applyBtn = document.getElementById("applyFiltersBtn");
+    if (!applyBtn) return;
+
+    applyBtn.onclick = () => {
+        currentPage = 1;      // reset pagination
+        applyFilters();
+        updateStatistics();
+    };
 }
 
 // =======================================================
@@ -200,6 +223,10 @@ function setupPagination() {
         nextBtn.disabled = page === totalPages;
 
         updateTableInfo(rows.length, page);
+        const pageLabel = document.getElementById("pageLabel");
+        if (pageLabel) {
+            pageLabel.textContent = `Page ${page} of ${totalPages}`;
+        }
     }
 
     pageBtns.forEach(btn => {
@@ -288,7 +315,8 @@ async function initTransactionHistory() {
     renderTransactionsTable(data);
     setupExport();
     setupViewDetails();
-    applyFilters();
+    setupFilters();       // ✅ ADD THIS
+    applyFilters();       // initial load
     updateStatistics();
 }
 
