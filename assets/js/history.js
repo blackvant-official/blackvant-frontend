@@ -13,44 +13,38 @@ async function loadTransactionsFromBackend() {
     try {
         const token = await window.Clerk.session.getToken({ template: "backend" });
 
-        const [depRes, wdRes] = await Promise.all([
-            fetch(`${window.API_BASE_URL}/api/v1/me/deposits`, {
-                headers: { Authorization: `Bearer ${token}` }
-            }),
-            fetch(`${window.API_BASE_URL}/api/v1/me/withdrawals`, {
-                headers: { Authorization: `Bearer ${token}` }
-            })
-        ]);
+        const res = await fetch(
+            `${window.API_BASE_URL}/api/v1/me/transactions`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
 
-        const deposits = await depRes.json();
-        const withdrawals = await wdRes.json();
+        const ledger = await res.json();
 
-        const normalize = (tx, kind) => ({
+        return ledger.map(tx => ({
             id: tx.id,
             createdAt: new Date(tx.createdAt),
             dateLabel: new Date(tx.createdAt).toLocaleDateString(),
-            type: kind,
+            type: tx.type.charAt(0).toUpperCase() + tx.type.slice(1),
             description:
-                kind === "Deposit"
+                tx.type === "deposit"
                     ? (tx.method || "USDT Deposit")
-                    : (tx.method || "Profit Withdrawal"),
-            amount:
-                kind === "Deposit"
-                    ? Number(tx.amount)
-                    : -Math.abs(Number(tx.amount)),
-            status: tx.status // approved | pending | rejected
-        });
-
-        return [
-            ...deposits.map(d => normalize(d, "Deposit")),
-            ...withdrawals.map(w => normalize(w, "Withdrawal"))
-        ];
+                    : tx.type === "withdrawal"
+                        ? (tx.method || "Profit Withdrawal")
+                        : "Profit Credit",
+            amount: Number(tx.amount),
+            status: tx.status
+        }));
 
     } catch (err) {
         console.error("Transaction load failed:", err);
         return [];
     }
 }
+
 
 // =======================================================
 // TABLE RENDERING (UI UNCHANGED)
