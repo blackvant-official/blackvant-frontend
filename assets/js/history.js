@@ -148,8 +148,12 @@ function applyFilters() {
         if (search && !text.includes(search)) show = false;
         if (from && rowDate < new Date(from)) show = false;
         if (to && rowDate > new Date(to)) show = false;
-        if (type && row.dataset.type !== type) show = false;
-        if (status && row.dataset.status !== status) show = false;
+        if (type && type !== "All Types" && row.dataset.type !== type.toLowerCase()) {
+            show = false;
+        }
+        if (status && status !== "All Status" && row.dataset.status !== status.toLowerCase()) {
+            show = false;
+        }
 
         row.style.display = show ? "" : "none";
         if (show) visible++;
@@ -282,10 +286,10 @@ function setupViewDetails() {
 async function initTransactionHistory() {
     const data = await loadTransactionsFromBackend();
     renderTransactionsTable(data);
-    updateStatistics();
     setupExport();
     setupViewDetails();
     applyFilters();
+    updateStatistics();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
