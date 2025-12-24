@@ -29,6 +29,32 @@ const API = async (endpoint, method = "POST", body = null) => {
         return null;
     }
 };
+// =======================================================
+//        View botton handler
+// =======================================================
+async function handleViewTicket(ticketId) {
+  try {
+    const ticket = await API(`/api/v1/support/ticket/${ticketId}`, "GET");
+
+    let messagesHtml = ticket.messages
+      .map(m => `
+        <div style="margin-bottom:8px;">
+          <strong>${m.sender}:</strong> ${m.message}
+        </div>
+      `)
+      .join("");
+
+    alert(
+      `Ticket: ${ticket.ticketId}\n` +
+      `Status: ${ticket.status}\n\n` +
+      messagesHtml.replace(/<[^>]*>/g, "")
+    );
+
+  } catch (err) {
+    alert("Failed to load ticket details");
+    console.error(err);
+  }
+}
 
 // =======================================================
 //        ORIGINAL SUPPORT PAGE LOGIC (UI unchanged)
@@ -54,14 +80,27 @@ async function loadSupportTickets() {
         const tr = document.createElement("tr");
 
         tr.innerHTML = `
-            <td>#${t.ticketId}</td>
-            <td>${t.subject}</td>
-            <td><span class="status-badge status-${t.status}">${t.status}</span></td>
-            <td>${new Date(t.createdAt).toLocaleDateString()}</td>
-            <td><button class="view-ticket">View</button></td>
+          <td>#${t.ticketId}</td>
+          <td>${t.subject}</td>
+          <td><span class="status-badge status-${t.status}">${t.status}</span></td>
+          <td>${new Date(t.createdAt).toLocaleDateString()}</td>
+          <td>
+            <button class="view-ticket" data-ticket-id="${t.ticketId}">
+              View
+            </button>
+          </td>
         `;
 
+
         tbody.appendChild(tr);
+
+        document.querySelectorAll(".view-ticket").forEach(btn => {
+          btn.onclick = () => {
+            const ticketId = btn.getAttribute("data-ticket-id");
+            handleViewTicket(ticketId);
+          };
+        });
+
     });
 }
 
