@@ -33,6 +33,37 @@ const API = async (endpoint, method = "POST", body = null) => {
 // =======================================================
 //        ORIGINAL SUPPORT PAGE LOGIC (UI unchanged)
 // =======================================================
+async function loadSupportTickets() {
+    const tbody = document.getElementById("ticketsTableBody");
+    if (!tbody) return;
+
+    tbody.innerHTML = "";
+
+    const tickets = await API("/api/v1/support/tickets", "GET");
+    if (!tickets || tickets.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" style="text-align:center; opacity:0.6;">
+                    No support tickets yet
+                </td>
+            </tr>`;
+        return;
+    }
+
+    tickets.forEach(t => {
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+            <td>#${t.ticketId}</td>
+            <td>${t.subject}</td>
+            <td><span class="status-badge status-${t.status}">${t.status}</span></td>
+            <td>${new Date(t.createdAt).toLocaleDateString()}</td>
+            <td><button class="view-ticket">View</button></td>
+        `;
+
+        tbody.appendChild(tr);
+    });
+}
 
 // ======================
 //   FAQ CATEGORY CLICK
@@ -162,7 +193,7 @@ function setupLiveChat() {
     if (!btn) return;
 
     btn.addEventListener("click", () => {
-        alert("Live Chat simulation will open. Backend version coming soon!");
+        alert("Live chat is coming soon. Please use support tickets for now.");
     });
 }
 
@@ -203,10 +234,14 @@ function setupSupportForm() {
         submitBtn.disabled = true;
 
         // Send to backend
+        const priority = document.getElementById("priority").value;
+
         const res = await API("/api/v1/support/ticket", "POST", {
             subject,
-            description
+            description,
+            priority
         });
+
 
         submitBtn.innerHTML = originalText;
         submitBtn.disabled = false;
