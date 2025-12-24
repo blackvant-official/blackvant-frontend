@@ -3,7 +3,7 @@
 // =======================================================
 
 async function getBackendToken() {
-    if (!window.Clerk) return null;
+    if (!window.Clerk || !window.Clerk.session) return null;
     return window.Clerk.session.getToken({ template: "backend" });
 }
 
@@ -272,5 +272,4 @@ document.addEventListener("DOMContentLoaded", () => {
     setupSupportForm();
     setupLiveChat();
     setupEmailSupport();
-    loadSupportTickets(); 
 });

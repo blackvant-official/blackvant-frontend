@@ -269,6 +269,12 @@ document.addEventListener("DOMContentLoaded", function () {
       if (logoutBtn) {
         logoutBtn.onclick = async () => {
           await signOutAndRedirect("login.html");
+
+          // ✅ START SUPPORT PAGE ONLY AFTER CLERK IS READY
+        if (typeof loadSupportTickets === "function") {
+          loadSupportTickets();
+        }
+
         };
       }
     }
