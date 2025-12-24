@@ -219,7 +219,8 @@ function setupSupportForm() {
     form.addEventListener("submit", async e => {
         e.preventDefault();
 
-        const subject = document.getElementById("subject").value.trim();
+        const subjectSelect = document.getElementById("subject");
+        const subject = subjectSelect.options[subjectSelect.selectedIndex].text.trim();
         const description = document.getElementById("description").value.trim();
 
         if (!subject || description.length < 20) {
@@ -256,6 +257,8 @@ function setupSupportForm() {
         );
 
         form.reset();
+        await loadSupportTickets();
+
     });
 }
 
@@ -269,4 +272,5 @@ document.addEventListener("DOMContentLoaded", () => {
     setupSupportForm();
     setupLiveChat();
     setupEmailSupport();
+    loadSupportTickets(); 
 });
