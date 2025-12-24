@@ -216,31 +216,19 @@ function setupTabs() { /* unchanged */ }
 function setupPasswordStrength() { /* unchanged */ }
 function setupPasswordChange() { /* unchanged */ }
 function setupDangerZone() { /* unchanged */ }
-function updateProfileFromClerk() {
-    if (!window.Clerk) return;
+function updateProfileFromClerk(clerk) {
+    if (!clerk) return;
 
     const el = document.getElementById("clerk-account-management");
     if (!el) return;
 
-    function updateProfileFromClerk(clerk) {
-        if (!clerk) return;
+    el.style.display = "block";
 
-        const el = document.getElementById("clerk-account-management");
-        if (!el) return;
+    // Light theme (default, stable)
+    clerk.mountUserProfile(el);
 
-        el.style.display = "block";
-
-        clerk.mountUserProfile(el, {
-            appearance: {
-                baseTheme: "dark"
-            }
-        });
-
-        // ✅ hide fallback ONLY after mount attempt
-        const fallback = document.getElementById("fallback-profile-ui");
-        if (fallback) fallback.style.display = "none";
-    }
-
+    const fallback = document.getElementById("fallback-profile-ui");
+    if (fallback) fallback.style.display = "none";
 }
 
 
