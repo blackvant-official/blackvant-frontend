@@ -35,20 +35,14 @@ const API = async (endpoint, method = "POST", body = null) => {
 async function handleViewTicket(ticketId) {
   try {
     const ticket = await API(`/api/v1/support/ticket/${ticketId}`, "GET");
-
-    let messagesHtml = ticket.messages
-      .map(m => `
-        <div style="margin-bottom:8px;">
-          <strong>${m.sender}:</strong> ${m.message}
-        </div>
-      `)
-      .join("");
-
+    
     alert(
       `Ticket: ${ticket.ticketId}\n` +
+      `Subject: ${ticket.subject}\n` +
       `Status: ${ticket.status}\n\n` +
-      messagesHtml.replace(/<[^>]*>/g, "")
+      `Description:\n${ticket.description}`
     );
+
 
   } catch (err) {
     alert("Failed to load ticket details");
