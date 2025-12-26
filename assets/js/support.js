@@ -77,7 +77,14 @@ async function loadSupportTickets() {
           <td>#${t.ticketId}</td>
           <td>${t.subject}</td>
           <td><span class="status-badge status-${t.status}">${t.status}</span></td>
-          <td>${new Date(t.createdAt).toLocaleDateString()}</td>
+          <td>${new Date(t.createdAt).toLocaleString(undefined, {
+                year: "numeric",
+                month: "short",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit"
+            })
+            }</td>
           <td>
             <button class="view-ticket" data-ticket-id="${t.ticketId}">
               View

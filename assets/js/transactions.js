@@ -397,7 +397,14 @@ async function loadRecentDeposits() {
 
                 const tr = document.createElement("tr");
                 tr.innerHTML = `
-                    <td>${new Date(dep.createdAt).toLocaleDateString()}</td>
+                    <td>${new Date(t.createdAt).toLocaleString(undefined, {
+                            year: "numeric",
+                            month: "short",
+                            day: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit"
+                        })
+                        }</td>
                     <td>${dep.method}</td>
                     <td>$${Number(dep.amount).toFixed(2)}</td>
                     <td>
@@ -454,7 +461,14 @@ async function loadRecentWithdrawals() {
 
                 const tr = document.createElement("tr");
                 tr.innerHTML = `
-                    <td>${new Date(w.createdAt).toLocaleDateString()}</td>
+                    <td>${new Date(t.createdAt).toLocaleString(undefined, {
+                            year: "numeric",
+                            month: "short",
+                            day: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit"
+                        })
+                        }</td>
                     <td>${w.method}</td>
                     <td>$${Number(w.amount).toFixed(2)}</td>
                     <td>

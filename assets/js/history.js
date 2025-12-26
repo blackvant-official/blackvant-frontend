@@ -27,7 +27,14 @@ async function loadTransactionsFromBackend() {
         return ledger.map(tx => ({
             id: tx.id,
             createdAt: new Date(tx.createdAt),
-            dateLabel: new Date(tx.createdAt).toLocaleDateString(),
+            dateLabel: new Date(tx.createdAt).toLocaleString(undefined, {
+                year: "numeric",
+                month: "short",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit"
+            }),
+
             type: tx.type.charAt(0).toUpperCase() + tx.type.slice(1),
             description:
                 tx.type === "deposit"
