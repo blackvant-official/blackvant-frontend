@@ -257,28 +257,20 @@ if (!window.API_BASE_URL) {
 <!-- ✅ Clerk Auth Protection -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-  requireAuth({
-    redirectTo: "login.html",
-    onReady: (user, clerk) => {
-      clerk.mountUserButton(
-        document.getElementById("clerk-user-button"),
-        { afterSignOutUrl: "login.html" }
-      );
-
-      const logoutBtn = document.getElementById("logoutBtn");
-      if (logoutBtn) {
-        logoutBtn.onclick = async () => {
-          await signOutAndRedirect("login.html");
-
-          // ✅ START SUPPORT PAGE ONLY AFTER CLERK IS READY
+    requireAuth({
+      redirectTo: "login.html",
+      onReady: (user, clerk) => {
+        clerk.mountUserButton(
+          document.getElementById("clerk-user-button"),
+          { afterSignOutUrl: "login.html" }
+        );
+    
         if (typeof loadSupportTickets === "function") {
           loadSupportTickets();
         }
-
-        };
       }
-    }
-  });
+    });
+
 });
 </script>
 
