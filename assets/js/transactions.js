@@ -139,20 +139,41 @@ function initializeDepositPage() {
             try {
                 const token = await window.Clerk.session.getToken({ template: "backend" });
 
-                const formData = new FormData();
-                formData.append("amount", amount);
-                formData.append("currency", "USD");
-                formData.append("method", "USDT_TRC20");
-                formData.append("txId", "TX" + Date.now());
-                formData.append("proof", file);
+                // STEP 1 — request signed upload URL
+                const { uploadUrl, storageKey } = await requestUpload({
+                    purpose: "DEPOSIT_PROOF",
+                    file
+                });
 
+                // STEP 2 — upload file directly to S3
+                await putToS3(uploadUrl, file);
+
+                // STEP 3 — confirm upload (persist FileAttachment)
+                await confirmUpload({
+                    storageKey,
+                    purpose: "DEPOSIT_PROOF",
+                    mimeType: file.type,
+                    fileSize: file.size,
+                    originalName: file.name
+                });
+
+                // STEP 4 — submit deposit (NO FILE)
                 const res = await fetch(`${window.API_BASE_URL}/api/v1/me/deposits`, {
                     method: "POST",
                     headers: {
+                        "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`
                     },
-                    body: formData
+                    body: JSON.stringify({
+                        amount,
+                        currency: "USD",
+                        method: "USDT_TRC20",
+                        txId: "TX" + Date.now(),
+                        proofKey: storageKey   // <-- THIS replaces proof file
+                    })
                 });
+
+                
 
                 const data = await res.json();
 
