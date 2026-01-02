@@ -163,16 +163,10 @@ async function fetchMe() {
     console.log("ME:", data);
 
     // ---- BALANCE CARDS ----
-    const investmentEl = document.getElementById("investmentBalance");
-    const profitEl = document.getElementById("profitBalance");
+// ❌ Ledger migration:
+// Balances are no longer read from /me
+// Kept intentionally disabled
 
-    if (investmentEl) {
-      investmentEl.textContent = `$${(data.balances?.investment ?? 0).toFixed(2)}`;
-    }
-
-    if (profitEl) {
-      profitEl.textContent = `$${(data.balances?.profit ?? 0).toFixed(2)}`;
-    }
 
     // ---- PROFIT CARDS ----
     const totalProfitEl = document.getElementById("totalProfit");
@@ -195,31 +189,31 @@ async function fetchMe() {
 // ====== BACKEND INTEGRATION (KEPT, NOT AUTO-CALLED) ======
 
 async function loadUserBalances() {
-    if (!window.Clerk || !window.API_BASE_URL) return;
+    try {
+        const token = await window.getAuthToken();
+        if (!token) return;
 
-    await Clerk.load();
-    const session = Clerk.session;
-    if (!session) return;
+        const res = await fetch(`${window.API_BASE_URL}/api/v1/me/balance`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
 
-    const token = await session.getToken({ template: "backend" });
-    if (!token) return;
+        const data = await res.json();
+        if (!data.success) return;
 
-    const res = await fetch(`${window.API_BASE_URL}/api/v1/me`, {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    });
+        const balance = Number(data.balance.availableBalance || 0).toFixed(2);
 
-    const data = await res.json();
+        const investmentEl = document.getElementById("investmentBalance");
+        const profitEl = document.getElementById("profitBalance");
 
-    if (document.getElementById("investmentBalance"))
-        document.getElementById("investmentBalance").innerText =
-            `$${data.investmentBalance ?? 0}`;
-
-    if (document.getElementById("profitBalance"))
-        document.getElementById("profitBalance").innerText =
-            `$${data.profitBalance ?? 0}`;
+        if (investmentEl) investmentEl.textContent = `$${balance}`;
+        if (profitEl) profitEl.textContent = `$0.00`; // profits ledger comes later
+    } catch (err) {
+        console.error("Ledger balance load failed:", err);
+    }
 }
+
 
 async function loadRecentTransactions() {
     const tbody = document.querySelector(".transactions-table tbody");
@@ -289,17 +283,16 @@ document.addEventListener('DOMContentLoaded', function() {
         onReady: () => {
             setupSidebarClose();
             setupDashboardEventListeners();
-
+        
             if (document.getElementById('performanceChart')) {
                 initializeChart();
                 setupChartFilters();
                 setupChartResize();
                 loadRecentTransactions();
             }
-
-            // ✅ IMPORTANT FIX:
-            // ❌ Do NOT auto-call loadUserBalances() on page load
-            // This avoids Render cold-start 502 + fake CORS errors
+        
+            loadUserBalances(); // ✅ ledger-based balance
         }
     });
+
 });
