@@ -55,27 +55,6 @@ function initializeDepositPage() {
         }
     }
 
-    async function loadWithdrawBalances() {
-      const token = await getBackendToken();
-        
-      const res = await fetch(`${window.API_BASE_URL}/api/v1/me/balance`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-    
-      const data = await res.json();
-      if (!data.success) {
-        throw new Error("Failed to load ledger balance");
-      }
-    
-      const available = Number(data.balance.availableBalance || 0);
-    
-      return {
-        profit: available,   // withdrawals allowed from ledger balance
-        capital: 0           // capital withdrawals still locked
-      };
-    }
-
-
     // Copy wallet address (single, stable implementation)
     const copyBtn = document.getElementById('copyAddressBtn');
     if (copyBtn) {
@@ -512,6 +491,27 @@ async function loadRecentWithdrawals() {
         console.error("Withdrawals load error:", err);
         tbody.innerHTML = `<tr><td colspan="4">Failed to load withdrawals</td></tr>`;
     }
+}
+
+// ===== LEDGER-BASED WITHDRAW BALANCE (GLOBAL) =====
+async function loadWithdrawBalances() {
+  const token = await getBackendToken();
+
+  const res = await fetch(`${window.API_BASE_URL}/api/v1/me/balance`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+
+  const data = await res.json();
+  if (!data.success) {
+    throw new Error("Failed to load ledger balance");
+  }
+
+  const available = Number(data.balance.availableBalance || 0);
+
+  return {
+    profit: available,   // withdrawals use ledger balance
+    capital: 0           // capital still locked
+  };
 }
 
 // ===== INIT =====
