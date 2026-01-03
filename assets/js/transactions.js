@@ -57,18 +57,24 @@ function initializeDepositPage() {
 
     async function loadWithdrawBalances() {
       const token = await getBackendToken();
-
-      const res = await fetch(`${window.API_BASE_URL}/api/v1/me`, {
+        
+      const res = await fetch(`${window.API_BASE_URL}/api/v1/me/balance`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-
+    
       const data = await res.json();
-
+      if (!data.success) {
+        throw new Error("Failed to load ledger balance");
+      }
+    
+      const available = Number(data.balance.availableBalance || 0);
+    
       return {
-        profit: Number(data.profitBalance || 0),
-        capital: 0 // locked in phase 1
+        profit: available,   // withdrawals allowed from ledger balance
+        capital: 0           // capital withdrawals still locked
       };
     }
+
 
     // Copy wallet address (single, stable implementation)
     const copyBtn = document.getElementById('copyAddressBtn');
