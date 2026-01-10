@@ -80,12 +80,7 @@ async function loadChart() {
     return;
   }
 
-  // Prepare data
   const labels = data.map(d => d.date);
-  const values = data.map(d => Number(d.balance));
-
-  const min = Math.min(...values);
-  const max = Math.max(...values);
 
   if (chart) chart.destroy();
 
@@ -93,30 +88,70 @@ async function loadChart() {
     type: "line",
     data: {
       labels,
-      datasets: [{
-        data: values,
-        borderColor: "#2d9cff",
-        backgroundColor: "rgba(45,156,255,0.15)",
-        fill: true,
-        tension: 0.35,
-        pointRadius: 2
-      }]
+      datasets: [
+        {
+          label: "Total Balance",
+          data: data.map(d => d.totalBalance),
+          borderColor: "#2d9cff",
+          backgroundColor: "rgba(45,156,255,0.15)",
+          fill: true,
+          tension: 0.35,
+          pointRadius: 2
+        },
+        {
+          label: "Active Investment",
+          data: data.map(d => d.activeInvestment),
+          borderColor: "#9b8cff",
+          borderDash: [6, 6],
+          fill: false,
+          tension: 0.35,
+          pointRadius: 0
+        },
+        {
+          label: "Total Profit",
+          data: data.map(d => d.totalProfit),
+          borderColor: "#22c55e",
+          fill: false,
+          tension: 0.35,
+          pointRadius: 0
+        },
+        {
+          label: "Daily Profit",
+          data: data.map(d => d.dailyProfit),
+          borderColor: "#f59e0b",
+          borderDash: [4, 4],
+          fill: false,
+          tension: 0,
+          pointRadius: 0
+        }
+      ]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      interaction: {
+        mode: "index",
+        intersect: false
+      },
       plugins: {
-        legend: { display: false }
+        legend: {
+          display: true,
+          position: "top",
+          labels: {
+            usePointStyle: true,
+            pointStyle: "line"
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx =>
+              `${ctx.dataset.label}: $${ctx.parsed.y.toFixed(2)}`
+          }
+        }
       },
       scales: {
-        x: {
-          type: "category"
-        },
         y: {
-          type: "linear",
           beginAtZero: false,
-          suggestedMin: min * 0.995,
-          suggestedMax: max * 1.005,
           ticks: {
             callback: v => `$${v}`
           }
@@ -125,6 +160,7 @@ async function loadChart() {
     }
   });
 }
+
 
 
 // ---------------- INIT ----------------
