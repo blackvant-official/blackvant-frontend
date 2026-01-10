@@ -917,6 +917,49 @@ body {
     height: 300px;
     width: 100%;
 }
+/* ================================
+   Chart Indicators (Professional)
+================================ */
+
+.chart-indicators {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.chart-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.chart-indicator-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.chart-indicator.active {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.chart-indicator.inactive {
+  opacity: 0.45;
+}
+
+.chart-indicator:hover {
+  opacity: 1;
+}
 
 /* Transactions Table */
 .transactions-section {

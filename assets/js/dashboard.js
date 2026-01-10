@@ -68,7 +68,8 @@ async function loadTransactions() {
 let chart;
 async function loadChart() {
   const canvas = $("performanceChart");
-  if (!canvas) return;
+  const indicatorContainer = $("chartIndicators");
+  if (!canvas || !indicatorContainer) return;
 
   const data = await api("/api/v1/me/dashboard/chart?range=30d");
 
@@ -82,66 +83,61 @@ async function loadChart() {
 
   const labels = data.map(d => d.date);
 
+  const datasets = [
+    {
+      label: "Total Balance",
+      data: data.map(d => d.totalBalance),
+      color: "#2d9cff",
+      borderColor: "#2d9cff",
+      backgroundColor: "rgba(45,156,255,0.15)",
+      fill: true,
+      tension: 0.35
+    },
+    {
+      label: "Active Investment",
+      data: data.map(d => d.activeInvestment),
+      color: "#9b8cff",
+      borderColor: "#9b8cff",
+      borderDash: [6, 6],
+      fill: false,
+      tension: 0.35
+    },
+    {
+      label: "Total Profit",
+      data: data.map(d => d.totalProfit),
+      color: "#22c55e",
+      borderColor: "#22c55e",
+      fill: false,
+      tension: 0.35
+    },
+    {
+      label: "Daily Profit",
+      data: data.map(d => d.dailyProfit),
+      color: "#f59e0b",
+      borderColor: "#f59e0b",
+      borderDash: [4, 4],
+      fill: false,
+      tension: 0
+    }
+  ];
+
   if (chart) chart.destroy();
 
   chart = new Chart(canvas.getContext("2d"), {
     type: "line",
     data: {
       labels,
-      datasets: [
-        {
-          label: "Total Balance",
-          data: data.map(d => d.totalBalance),
-          borderColor: "#2d9cff",
-          backgroundColor: "rgba(45,156,255,0.15)",
-          fill: true,
-          tension: 0.35,
-          pointRadius: 2
-        },
-        {
-          label: "Active Investment",
-          data: data.map(d => d.activeInvestment),
-          borderColor: "#9b8cff",
-          borderDash: [6, 6],
-          fill: false,
-          tension: 0.35,
-          pointRadius: 0
-        },
-        {
-          label: "Total Profit",
-          data: data.map(d => d.totalProfit),
-          borderColor: "#22c55e",
-          fill: false,
-          tension: 0.35,
-          pointRadius: 0
-        },
-        {
-          label: "Daily Profit",
-          data: data.map(d => d.dailyProfit),
-          borderColor: "#f59e0b",
-          borderDash: [4, 4],
-          fill: false,
-          tension: 0,
-          pointRadius: 0
-        }
-      ]
+      datasets: datasets.map(d => ({
+        ...d,
+        pointRadius: 0
+      }))
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      interaction: {
-        mode: "index",
-        intersect: false
-      },
+      interaction: { mode: "index", intersect: false },
       plugins: {
-        legend: {
-          display: true,
-          position: "top",
-          labels: {
-            usePointStyle: true,
-            pointStyle: "line"
-          }
-        },
+        legend: { display: false },
         tooltip: {
           callbacks: {
             label: ctx =>
@@ -151,17 +147,37 @@ async function loadChart() {
       },
       scales: {
         y: {
-          beginAtZero: false,
-          ticks: {
-            callback: v => `$${v}`
-          }
+          ticks: { callback: v => `$${v}` }
         }
       }
     }
   });
+
+  // ---------- Custom Indicators ----------
+  indicatorContainer.innerHTML = "";
+
+  chart.data.datasets.forEach((ds, i) => {
+    const pill = document.createElement("div");
+    pill.className = "chart-indicator active";
+
+    pill.innerHTML = `
+      <span class="chart-indicator-dot" style="background:${datasets[i].color}"></span>
+      ${ds.label}
+    `;
+
+    pill.onclick = () => {
+      const meta = chart.getDatasetMeta(i);
+      meta.hidden = meta.hidden === null ? !chart.data.datasets[i].hidden : null;
+
+      pill.classList.toggle("inactive", meta.hidden);
+      pill.classList.toggle("active", !meta.hidden);
+
+      chart.update();
+    };
+
+    indicatorContainer.appendChild(pill);
+  });
 }
-
-
 
 // ---------------- INIT ----------------
 document.addEventListener("DOMContentLoaded", () => {
