@@ -1,72 +1,63 @@
 // =======================================================
-// BLACKVANT — USER DASHBOARD (LEDGER-TRUTHFUL)
-// Source of truth: Ledger only
+// BLACKVANT — FINAL USER DASHBOARD (LEDGER-TRUTHFUL)
 // =======================================================
 
-// -----------------------------
-// UI HELPERS
-// -----------------------------
 function $(id) {
   return document.getElementById(id);
 }
 
-function formatUSD(value) {
-  const n = Number(value || 0);
-  return `$${n.toFixed(2)}`;
+function formatUSD(v) {
+  return `$${Number(v || 0).toFixed(2)}`;
 }
 
-function formatSignedUSD(value) {
-  const n = Number(value || 0);
-  return (n >= 0 ? "+" : "-") + `$${Math.abs(n).toFixed(2)}`;
+function formatSignedUSD(v) {
+  const n = Number(v || 0);
+  return `${n >= 0 ? "+" : "-"}$${Math.abs(n).toFixed(2)}`;
 }
 
-// -----------------------------
-// AUTH TOKEN
-// -----------------------------
+// ---------------- AUTH ----------------
 async function getToken() {
   await waitForClerk();
   return Clerk.session.getToken({ template: "backend" });
 }
 
-// -----------------------------
-// API HELPERS
-// -----------------------------
 async function apiGET(endpoint) {
   const token = await getToken();
   const res = await fetch(`${window.API_BASE_URL}${endpoint}`, {
     headers: { Authorization: `Bearer ${token}` }
   });
 
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || "API error");
-  }
-
+  if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 
 // =======================================================
-// DASHBOARD SUMMARY (BALANCES + PROFITS)
+// SUMMARY (BALANCES + PROFITS)
 // =======================================================
-async function loadDashboardSummary() {
+async function loadSummary() {
   const data = await apiGET("/api/v1/me/dashboard/summary");
 
   $("totalBalance").textContent = formatUSD(data.totalBalance);
-  $("availableBalance").textContent = formatUSD(data.availableBalance);
-  // $("lockedBalance").textContent = formatUSD(data.lockedBalance);
   $("investmentBalance").textContent = formatUSD(data.activeInvestment);
-
   $("totalProfit").textContent = formatSignedUSD(data.totalProfit);
   $("todayProfit").textContent = formatSignedUSD(data.todayProfit);
+
+  // Hide cards that are not meaningful yet
+  hideCard("availableBalance");
+  hideCard("lockedBalance");
 }
-// Temporarily hide Locked Capital card (not implemented yet)
-const lockedCard = $("lockedBalance")?.closest(".card");
-if (lockedCard) lockedCard.style.display = "none";
+
+function hideCard(valueId) {
+  const el = $(valueId);
+  if (!el) return;
+  const card = el.closest(".card");
+  if (card) card.style.display = "none";
+}
 
 // =======================================================
-// RECENT TRANSACTIONS (LEDGER)
+// TRANSACTIONS (LEDGER)
 // =======================================================
-async function loadRecentTransactions() {
+async function loadTransactions() {
   const tbody = document.querySelector(".transactions-table tbody");
   if (!tbody) return;
 
@@ -84,44 +75,41 @@ async function loadRecentTransactions() {
 
     txs
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-      .slice(0, 5)
       .forEach(tx => {
-        const tr = document.createElement("tr");
-
         const sign = tx.direction === "CREDIT" ? "+" : "-";
-        const amount = `${sign}$${Number(tx.amount).toFixed(2)}`;
+        const tr = document.createElement("tr");
 
         tr.innerHTML = `
           <td>${new Date(tx.createdAt).toLocaleDateString()}</td>
           <td>${tx.referenceType}</td>
-          <td>${amount}</td>
-          <td>${tx.status || "completed"}</td>
+          <td>${sign}$${Number(tx.amount).toFixed(2)}</td>
+          <td>${tx.direction}</td>
         `;
 
         tbody.appendChild(tr);
       });
 
   } catch (err) {
-    console.error("Transaction load failed:", err);
+    console.error(err);
     tbody.innerHTML = `<tr><td colspan="4">Failed to load transactions</td></tr>`;
   }
 }
 
 // =======================================================
-// PORTFOLIO PERFORMANCE CHART (LEDGER EQUITY)
+// CHART — LEDGER EQUITY
 // =======================================================
-let performanceChart = null;
+let chart;
 
-async function loadPerformanceChart(range = "30d") {
-  const ctx = $("performanceChart");
-  if (!ctx) return;
+async function loadChart() {
+  const canvas = $("performanceChart");
+  if (!canvas) return;
 
-  const data = await apiGET(`/api/v1/me/dashboard/chart?range=${range}`);
+  const data = await apiGET("/api/v1/me/dashboard/chart?range=60d");
 
   if (!data.length) {
-    ctx.parentElement.innerHTML =
-      `<div style="opacity:.6;text-align:center;padding:40px">
-        No historical data yet
+    canvas.parentElement.innerHTML =
+      `<div style="padding:40px;text-align:center;opacity:.6">
+        Portfolio history will appear once ledger data accumulates.
       </div>`;
     return;
   }
@@ -129,9 +117,9 @@ async function loadPerformanceChart(range = "30d") {
   const labels = data.map(d => d.date);
   const values = data.map(d => Number(d.balance));
 
-  if (performanceChart) performanceChart.destroy();
+  if (chart) chart.destroy();
 
-  performanceChart = new Chart(ctx.getContext("2d"), {
+  chart = new Chart(canvas.getContext("2d"), {
     type: "line",
     data: {
       labels,
@@ -139,7 +127,7 @@ async function loadPerformanceChart(range = "30d") {
         label: "Account Equity",
         data: values,
         borderColor: "#2d9cff",
-        backgroundColor: "rgba(45,156,255,0.1)",
+        backgroundColor: "rgba(45,156,255,0.12)",
         borderWidth: 2,
         fill: true,
         tension: 0.35,
@@ -152,9 +140,7 @@ async function loadPerformanceChart(range = "30d") {
       plugins: { legend: { display: false } },
       scales: {
         y: {
-          ticks: {
-            callback: v => `$${v}`
-          }
+          ticks: { callback: v => `$${v}` }
         }
       }
     }
@@ -167,7 +153,6 @@ async function loadPerformanceChart(range = "30d") {
 function setupSidebar() {
   const btn = $("mobileMenuBtn");
   const sidebar = $("sidebar");
-
   if (!btn || !sidebar) return;
 
   btn.onclick = () => sidebar.classList.toggle("mobile-open");
@@ -192,15 +177,9 @@ document.addEventListener("DOMContentLoaded", () => {
     redirectTo: "login.html",
     onReady: async () => {
       setupSidebar();
-
-      try {
-        await loadDashboardSummary();
-        await loadRecentTransactions();
-        await loadPerformanceChart("30d");
-      } catch (err) {
-        console.error("Dashboard init failed:", err);
-        alert("Failed to load dashboard data.");
-      }
+      await loadSummary();
+      await loadChart();
+      await loadTransactions();
     }
   });
 });
