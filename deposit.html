@@ -7,108 +7,81 @@
   <link rel="stylesheet" href="assets/css/style.css" />
   <script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>
 </head>
-<body class="app-layout">
+<body>
 
-  <!-- Sidebar -->
-  <div id="sidebar"></div>
+<div class="dashboard-container">
 
-  <!-- Main -->
-  <main class="app-main">
-    <header class="page-header">
-      <h1>Deposit Funds</h1>
-      <p class="page-subtitle">
-        Send funds to BlackVant using your own wallet or exchange.
-      </p>
-    </header>
+  <aside class="sidebar"></aside>
+
+  <main class="dashboard-content">
+    <h1>Deposit Funds</h1>
+    <p class="page-subtitle">
+      Send funds to BlackVant using your own wallet or exchange.
+    </p>
 
     <!-- Deposit Instructions -->
-    <section class="card">
+    <div class="card">
       <h3>Deposit Instructions</h3>
 
-      <div class="info-list">
-        <div class="info-item">
-          <strong>Accepted Asset</strong>
-          <span>USDT (TRC20 only)</span>
-        </div>
+      <p><strong>Accepted Asset:</strong> USDT (TRC20 only)</p>
 
-        <div class="info-item">
-          <strong>Deposit Address</strong>
-          <div class="address-row">
-            <code id="depositAddress">TJxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code>
-            <button class="btn-outline btn-sm" id="copyAddressBtn">Copy</button>
-          </div>
-        </div>
+      <p>
+        <strong>Deposit Address:</strong><br />
+        <code id="depositAddress">TJxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code>
+        <button id="copyAddressBtn" class="btn-secondary btn-sm">Copy</button>
+      </p>
 
-        <div class="info-item warning">
-          <strong>Important</strong>
-          <ul>
-            <li>Send <b>USDT on TRC20 network only</b>.</li>
-            <li>Sending other assets or networks may result in permanent loss.</li>
-            <li>Do not send multiple deposits in one transaction.</li>
-            <li>Minimum deposit: <b>$100</b>.</li>
-          </ul>
-        </div>
-      </div>
-    </section>
+      <ul class="info-list">
+        <li>Send USDT on <strong>TRC20 network only</strong>.</li>
+        <li>Sending other assets or networks may result in permanent loss.</li>
+        <li>Do not send multiple deposits in one transaction.</li>
+        <li>Minimum deposit: <strong>$100</strong>.</li>
+      </ul>
+    </div>
 
     <!-- Deposit Form -->
-    <section class="card">
+    <div class="card">
       <h3>Create Deposit Request</h3>
 
       <form id="depositForm">
         <div class="form-group">
-          <label for="depositAmount">Amount (USD)</label>
-          <input
-            type="number"
-            id="depositAmount"
-            min="100"
-            step="0.01"
-            placeholder="Minimum $100"
-            required
-          />
+          <label>Amount (USD)</label>
+          <input type="number" id="depositAmount" min="100" step="0.01" required />
         </div>
 
         <div class="form-group">
-          <label for="txId">Transaction ID (TXID)</label>
-          <input
-            type="text"
-            id="txId"
-            placeholder="Optional but recommended"
-          />
+          <label>Transaction ID (TXID)</label>
+          <input type="text" id="txId" placeholder="Optional but recommended" />
         </div>
 
         <div class="form-group">
           <label>Proof of Payment</label>
           <input type="file" id="proofFile" accept="image/*,.pdf" required />
           <small class="hint">
-            Upload a screenshot or receipt showing transaction details.
-            Required before admin review.
+            Upload a screenshot or receipt. Required before admin review.
           </small>
         </div>
 
-        <div class="info-box">
-          <strong>What happens next?</strong>
-          <p>
-            After submission, your deposit will appear as <b>Pending</b>.
-            Funds are credited <b>only after admin approval</b>.
-            This may take some time depending on verification.
-          </p>
-        </div>
+        <p class="info-text">
+          After submission, your deposit will appear as <strong>Pending</strong>.
+          Funds are credited <strong>only after admin approval</strong>.
+        </p>
 
         <button type="submit" class="btn-primary">
           Submit Deposit Request
         </button>
       </form>
-    </section>
+    </div>
 
     <!-- Deposit History -->
-    <section class="card">
+    <div class="card">
       <h3>Your Deposit History</h3>
 
       <table class="data-table">
         <thead>
           <tr>
             <th>Date</th>
+            <th>Method</th>
             <th>Amount</th>
             <th>Status</th>
             <th>Reason</th>
@@ -116,32 +89,32 @@
         </thead>
         <tbody id="depositHistoryBody">
           <tr>
-            <td colspan="4" style="text-align:center;color:#94a3b8;">
-              Loading deposits…
-            </td>
+            <td colspan="5" style="text-align:center;">Loading deposits…</td>
           </tr>
         </tbody>
       </table>
-    </section>
+    </div>
+
   </main>
+</div>
 
-  <script src="assets/js/config.js"></script>
-  <script src="assets/js/uploads.js"></script>
-  <script src="assets/js/transactions.js"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/uploads.js"></script>
+<script src="assets/js/transactions.js"></script>
 
-  <script>
-    requireAuth({
-      redirectTo: "login.html",
-      onReady: () => {
-        initDepositsPage();
-      }
-    });
+<script>
+  requireAuth({
+    redirectTo: "login.html",
+    onReady: () => initDepositsPage()
+  });
 
-    document.getElementById("copyAddressBtn").onclick = () => {
-      const text = document.getElementById("depositAddress").innerText;
-      navigator.clipboard.writeText(text);
-      alert("Deposit address copied");
-    };
-  </script>
+  document.getElementById("copyAddressBtn").onclick = () => {
+    navigator.clipboard.writeText(
+      document.getElementById("depositAddress").innerText
+    );
+    alert("Deposit address copied");
+  };
+</script>
+
 </body>
 </html>

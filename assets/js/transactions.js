@@ -1,223 +1,92 @@
 // ===== DEPOSIT PAGE FUNCTIONS =====
+async function initDepositsPage() {
+  await loadRecentDeposits();
 
-function initializeDepositPage() {
-    const uploadArea = document.getElementById('uploadArea');
-    const fileInput = document.getElementById('fileInput');
-    const filePreview = document.getElementById('filePreview');
-    const fileName = document.getElementById('fileName');
-    const removeFileBtn = document.getElementById('removeFileBtn');
+  const form = document.getElementById("depositForm");
+  if (!form) return;
 
-    if (uploadArea && fileInput) {
-        uploadArea.addEventListener('click', () => fileInput.click());
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-        uploadArea.addEventListener('dragover', e => {
-            e.preventDefault();
-            uploadArea.classList.add('dragover');
-        });
+    const amount = Number(document.getElementById("depositAmount").value);
+    const txId = document.getElementById("txId").value;
+    const proofFile = document.getElementById("proofFile").files[0];
 
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('dragover');
-        });
-
-        uploadArea.addEventListener('drop', e => {
-            e.preventDefault();
-            uploadArea.classList.remove('dragover');
-            if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
-        });
-
-        fileInput.addEventListener('change', e => {
-            if (e.target.files.length) handleFile(e.target.files[0]);
-        });
-
-        if (removeFileBtn) {
-            removeFileBtn.addEventListener('click', e => {
-                e.stopPropagation();
-                fileInput.value = '';
-                filePreview.classList.remove('show');
-                fileName.textContent = '';
-                validateDepositForm();
-            });
-        }
-
-        function handleFile(file) {
-            const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
-            if (!validTypes.includes(file.type)) {
-                alert('Please upload only JPG, PNG, or PDF files.');
-                return;
-            }
-            if (file.size > 5 * 1024 * 1024) {
-                alert('File size should be less than 5MB.');
-                return;
-            }
-            fileName.textContent = file.name;
-            filePreview.classList.add('show');
-            validateDepositForm();
-        }
+    if (!amount || amount < 100) {
+      alert("Minimum deposit amount is $100");
+      return;
     }
 
-    // Copy wallet address (single, stable implementation)
-    const copyBtn = document.getElementById('copyAddressBtn');
-    if (copyBtn) {
-        copyBtn.addEventListener('click', () => {
-            const textToCopy = copyBtn.getAttribute('data-copy');
-            if (!textToCopy) return;
-
-            const originalText = copyBtn.textContent;
-            const originalBg = copyBtn.style.background;
-
-            function success() {
-                copyBtn.textContent = 'Copied!';
-                copyBtn.style.background = 'var(--accent-green)';
-                setTimeout(() => {
-                    copyBtn.textContent = originalText;
-                    copyBtn.style.background = originalBg || 'var(--accent-blue)';
-                }, 2000);
-            }
-
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(textToCopy).then(success).catch(fallback);
-            } else {
-                fallback();
-            }
-
-            function fallback() {
-                const textarea = document.createElement('textarea');
-                textarea.value = textToCopy;
-                textarea.style.position = 'fixed';
-                textarea.style.left = '-9999px';
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                success();
-            }
-        });
+    if (!proofFile) {
+      alert("Proof of payment is required");
+      return;
     }
 
-    const amountInput = document.getElementById('amount');
-    if (amountInput) amountInput.addEventListener('input', validateDepositForm);
+    const upload = await requestUpload("DEPOSIT_PROOF", proofFile);
+    await uploadToS3(upload.uploadUrl, proofFile);
+    await confirmUpload(upload.fileId);
 
-    const submitBtn = document.getElementById('submitBtn');
+    await api("/api/v1/deposits", {
+      method: "POST",
+      body: JSON.stringify({
+        amount,
+        currency: "USDT",
+        method: "USDT_TRC20",
+        txId,
+        proofKey: upload.storageKey
+      })
+    });
 
-    if (submitBtn) {
-        submitBtn.addEventListener('click', async function (e) {
-            e.preventDefault();
+    alert(
+      `Deposit request submitted.\n\n` +
+      `Amount: $${amount.toFixed(2)}\n` +
+      `Status: PENDING (Awaiting admin approval)\n\n` +
+      `Funds will be credited only after approval.`
+    );
 
-            const amount = parseFloat(amountInput.value) || 0;
-            const file = fileInput.files[0];
-            const minAmount = 100;
-
-            if (amount < minAmount) {
-                alert(`Minimum deposit amount is $${minAmount}`);
-                return;
-            }
-
-            if (!file) {
-                alert('Please upload proof of payment');
-                return;
-            }
-
-            const originalText = this.innerHTML;
-            this.innerHTML = '<span class="spinner"></span> Processing...';
-            this.disabled = true;
-
-            try {
-                const token = await window.Clerk.session.getToken({ template: "backend" });
-
-                // STEP 1 — request signed upload URL
-                const { uploadUrl, storageKey } = await requestUpload({
-                    purpose: "DEPOSIT_PROOF",
-                    file
-                });
-
-                // STEP 2 — upload file directly to S3
-                await putToS3(uploadUrl, file);
-
-                // STEP 3 — confirm upload (persist FileAttachment)
-                await confirmUpload({
-                    storageKey,
-                    purpose: "DEPOSIT_PROOF",
-                    mimeType: file.type,
-                    fileSize: file.size,
-                    originalName: file.name
-                });
-
-                // STEP 4 — submit deposit (NO FILE)
-                const res = await fetch(`${window.API_BASE_URL}/api/v1/me/deposits`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        amount,
-                        currency: "USD",
-                        method: "USDT_TRC20",
-                        txId: "TX" + Date.now(),
-                        proofKey: storageKey   // <-- THIS replaces proof file
-                    })
-                });
-
-                
-
-                const data = await res.json();
-
-                if (!res.ok) {
-                    throw new Error(data.error || "Deposit failed");
-                }
-
-                alert(
-                  `Deposit request submitted.\n\n` +
-                  `Amount: $${amount.toFixed(2)}\n` +
-                  `Status: PENDING (Awaiting admin approval)\n\n` +
-                  `Funds will be credited only after approval.`
-                );
-
-                amountInput.value = '';
-                fileInput.value = '';
-                filePreview.classList.remove('show');
-                fileName.textContent = '';
-
-            } catch (err) {
-                alert(err.message || "Server error");
-            }
-
-            this.innerHTML = originalText;
-            this.disabled = true;
-            validateDepositForm();
-        });
-    }
-
-    validateDepositForm();
+    form.reset();
+    await loadRecentDeposits();
+  });
 }
 
-function validateDepositForm() {
-    const amountInput = document.getElementById('amount');
-    const amountError = document.getElementById('amountError');
-    const submitBtn = document.getElementById('submitBtn');
-    const filePreview = document.getElementById('filePreview');
+async function loadRecentDeposits() {
+  const tbody = document.getElementById("depositHistoryBody");
+  if (!tbody) return;
 
-    if (!amountInput || !submitBtn) return;
+  tbody.innerHTML = "";
 
-    const amount = parseFloat(amountInput.value) || 0;
-    const hasFile = filePreview && filePreview.classList.contains('show');
-    const minAmount = 100;
+  const deposits = await api("/api/v1/deposits");
 
-    let valid = true;
+  if (!deposits.length) {
+    tbody.innerHTML = `<tr><td colspan="5">No deposits yet.</td></tr>`;
+    return;
+  }
 
-    if (amount < minAmount) {
-        amountError?.classList.add('show');
-        amountInput.classList.add('error');
-        valid = false;
-    } else {
-        amountError?.classList.remove('show');
-        amountInput.classList.remove('error');
+  deposits.forEach(dep => {
+    const tr = document.createElement("tr");
+
+    let reason = dep.statusReason || "—";
+    if (dep.status === "pending") {
+      reason = "Awaiting admin review";
     }
 
-    if (!hasFile) valid = false;
+    tr.innerHTML = `
+      <td>${new Date(dep.createdAt).toLocaleString()}</td>
+      <td>${dep.method}</td>
+      <td>$${Number(dep.amount).toFixed(2)}</td>
+      <td>
+        <span class="status-badge ${dep.status}">
+          ${dep.status.toUpperCase()}
+        </span>
+      </td>
+      <td>${reason}</td>
+    `;
 
-    submitBtn.disabled = !valid;
+    tbody.appendChild(tr);
+  });
 }
+
+/* Withdraw logic remains unchanged below */
 
 // ===== WITHDRAW PAGE FUNCTIONS =====
 
