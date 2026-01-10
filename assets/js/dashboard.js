@@ -65,50 +65,66 @@ async function loadTransactions() {
   });
 }
 
-// ---------------- CHART ----------------
-let chart;
-
 async function loadChart() {
   const canvas = $("performanceChart");
+  if (!canvas) return;
+
   const data = await api("/api/v1/me/dashboard/chart?range=30d");
 
-  if (!data.length) {
-    canvas.parentElement.innerHTML =
-      `<div class="chart-empty">
+  if (!data || data.length === 0) {
+    canvas.parentElement.innerHTML = `
+      <div style="padding:40px;text-align:center;opacity:.6">
         Portfolio performance will appear once ledger history grows.
       </div>`;
     return;
   }
 
-  // Ensure at least 2 points for Chart.js
-  if (data.length === 1) {
-    data.unshift({
-      date: data[0].date,
-      balance: data[0].balance
-    });
-  }
+  // Prepare data
+  const labels = data.map(d => d.date);
+  const values = data.map(d => Number(d.balance));
+
+  const min = Math.min(...values);
+  const max = Math.max(...values);
 
   if (chart) chart.destroy();
 
   chart = new Chart(canvas.getContext("2d"), {
     type: "line",
     data: {
-      labels: data.map(d => d.date),
+      labels,
       datasets: [{
-        data: data.map(d => Number(d.balance)),
+        data: values,
         borderColor: "#2d9cff",
         backgroundColor: "rgba(45,156,255,0.15)",
         fill: true,
-        tension: 0.35
+        tension: 0.35,
+        pointRadius: 2
       }]
     },
     options: {
-      plugins: { legend: { display: false } },
       responsive: true,
-      maintainAspectRatio: false
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        x: {
+          type: "category"
+        },
+        y: {
+          type: "linear",
+          beginAtZero: false,
+          suggestedMin: min * 0.995,
+          suggestedMax: max * 1.005,
+          ticks: {
+            callback: v => `$${v}`
+          }
+        }
+      }
     }
   });
 }
+
 
 // ---------------- INIT ----------------
 document.addEventListener("DOMContentLoaded", () => {

@@ -781,30 +781,53 @@ body {
     font-size: 1rem;
 }
 
-/* Cards Grid */
+/* ================================
+   Cards Grid (FINAL, RESPONSIVE)
+================================ */
+
+/* Base grid */
 .cards-grid {
     display: grid;
     gap: 1.5rem;
     margin-bottom: 2rem;
 }
 
-/* Specific grid layouts */
+/* -------------------------------
+   Balance Cards (2 columns)
+-------------------------------- */
 .balance-cards {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+/* -------------------------------
+   Profit Cards (2 columns, centered)
+-------------------------------- */
 .profit-cards {
-    grid-template-columns: repeat(2, 1fr);
-    max-width: calc(50% + 1.5rem);
-    margin: 0 auto 2rem auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 100%;
+    margin-bottom: 2rem;
 }
+
+/* -------------------------------
+   Mobile responsiveness
+-------------------------------- */
+@media (max-width: 768px) {
+    .balance-cards,
+    .profit-cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ================================
+   Card Styling
+================================ */
 
 .card {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 1.5rem;
-    transition: all 0.2s;
+    transition: border-color 0.2s, transform 0.2s;
 }
 
 .card:hover {
@@ -837,6 +860,7 @@ body {
     color: var(--text-muted);
 }
 
+/* Profit coloring */
 .profit-positive {
     color: var(--accent-green);
 }
