@@ -53,12 +53,15 @@ async function loadDashboardSummary() {
 
   $("totalBalance").textContent = formatUSD(data.totalBalance);
   $("availableBalance").textContent = formatUSD(data.availableBalance);
-  $("lockedBalance").textContent = formatUSD(data.lockedBalance);
+  // $("lockedBalance").textContent = formatUSD(data.lockedBalance);
   $("investmentBalance").textContent = formatUSD(data.activeInvestment);
 
   $("totalProfit").textContent = formatSignedUSD(data.totalProfit);
   $("todayProfit").textContent = formatSignedUSD(data.todayProfit);
 }
+// Temporarily hide Locked Capital card (not implemented yet)
+const lockedCard = $("lockedBalance")?.closest(".card");
+if (lockedCard) lockedCard.style.display = "none";
 
 // =======================================================
 // RECENT TRANSACTIONS (LEDGER)
