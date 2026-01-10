@@ -65,6 +65,7 @@ async function loadTransactions() {
   });
 }
 
+let chart;
 async function loadChart() {
   const canvas = $("performanceChart");
   if (!canvas) return;
