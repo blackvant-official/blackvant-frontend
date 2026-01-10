@@ -1,120 +1,245 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="app-loading">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Deposit Funds — BlackVant</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="assets/css/style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Main Styles -->
+  <link rel="stylesheet" href="assets/css/style.css">
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Clerk Styles -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/style.css">
+
+  <!-- Clerk Script -->
+  <script
+    async
+    crossorigin="anonymous"
+    data-clerk-publishable-key="pk_test_Y29taWMta2FuZ2Fyb28tMjMuY2xlcmsuYWNjb3VudHMuZGV2JA"
+    src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js">
+  </script>
+
+  <style>
+    .cl-userButtonTrigger {
+      border: none !important;
+      background: transparent !important;
+    }
+  </style>
 </head>
-<body>
 
-<div class="dashboard-container">
+<body class="dashboard-page">
+  <div class="container">
 
-  <aside class="sidebar"></aside>
+    <!-- Header -->
+    <header class="header">
+      <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+      <a href="dashboard.html" class="logo">BlackVant</a>
 
-  <main class="dashboard-content">
-    <h1>Deposit Funds</h1>
-    <p class="page-subtitle">
-      Send funds to BlackVant using your own wallet or exchange.
-    </p>
+      <div class="user-menu">
+        <div id="clerk-user-button"></div>
+      </div>
+    </header>
 
-    <!-- Deposit Instructions -->
-    <div class="card">
-      <h3>Deposit Instructions</h3>
+    <!-- Main Content -->
+    <div class="main-content">
 
-      <p><strong>Accepted Asset:</strong> USDT (TRC20 only)</p>
+      <!-- Sidebar -->
+      <nav class="sidebar" id="sidebar">
+        <a href="dashboard.html" class="nav-item">
+          <span>📊</span> Dashboard
+        </a>
+        <a href="deposit.html" class="nav-item active">
+          <span>💰</span> Deposit Funds
+        </a>
+        <a href="withdraw.html" class="nav-item">
+          <span>💸</span> Withdraw Earnings
+        </a>
+        <a href="transaction-history.html" class="nav-item">
+          <span>📋</span> Transactions History
+        </a>
+        <a href="profile-settings.html" class="nav-item">
+          <span>👤</span> Profile Settings
+        </a>
+        <a href="support.html" class="nav-item">
+          <span>🆘</span> Support
+        </a>
 
-      <p>
-        <strong>Deposit Address:</strong><br />
-        <code id="depositAddress">TJxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code>
-        <button id="copyAddressBtn" class="btn-secondary btn-sm">Copy</button>
-      </p>
+        <a href="javascript:void(0)" class="nav-item" id="logoutBtn">
+          <span>🚪</span> Logout
+        </a>
+      </nav>
 
-      <ul class="info-list">
-        <li>Send USDT on <strong>TRC20 network only</strong>.</li>
-        <li>Sending other assets or networks may result in permanent loss.</li>
-        <li>Do not send multiple deposits in one transaction.</li>
-        <li>Minimum deposit: <strong>$100</strong>.</li>
-      </ul>
-    </div>
-
-    <!-- Deposit Form -->
-    <div class="card">
-      <h3>Create Deposit Request</h3>
-
-      <form id="depositForm">
-        <div class="form-group">
-          <label>Amount (USD)</label>
-          <input type="number" id="depositAmount" min="100" step="0.01" required />
+      <!-- Deposit Content -->
+      <main class="deposit-content">
+        <!-- Page Header -->
+        <div class="page-header">
+          <h1>Deposit Funds</h1>
+          <p>Add funds to your investment account</p>
         </div>
 
-        <div class="form-group">
-          <label>Transaction ID (TXID)</label>
-          <input type="text" id="txId" placeholder="Optional but recommended" />
+        <!-- Payment Methods - ONLY CRYPTO -->
+        <div class="payment-methods">
+          <div class="methods-grid">
+            <label class="method-option selected" id="cryptoOption">
+              <input type="radio" name="paymentMethod" value="crypto" checked>
+              <div class="method-icon">₿</div>
+              <div class="method-info">
+                <h3>TRC20 (USDT)</h3>
+                <p>Crypto payment</p>
+              </div>
+            </label>
+          </div>
+
+          <!-- Crypto Details -->
+          <div class="method-details">
+            <div class="crypto-details active" id="cryptoDetails">
+              <div class="details-header">
+                <div>
+                  <h3 class="details-title">TRC20 Payment Details</h3>
+                  <p>Send USDT via TRC20 network only</p>
+                </div>
+                <div class="usdt-price" id="usdtPrice">1 USDT = PKR. 295</div>
+              </div>
+
+              <div class="details-grid">
+                <div class="detail-item">
+                  <div class="detail-label">Network</div>
+                  <div class="detail-value">TRC20</div>
+                </div>
+                <div class="detail-item">
+                  <div class="detail-label">Coin</div>
+                  <div class="detail-value">USDT Only</div>
+                </div>
+                <div class="detail-item" style="grid-column: span 2;">
+                  <div class="detail-label">Wallet Address</div>
+                  <div class="detail-value" id="walletAddress">
+                    TAb6RFK1RZ1gCwwgT1CGUJ9jF5cF5s5X5v
+                  </div>
+                  <button
+                    class="copy-btn"
+                    id="copyAddressBtn"
+                    data-copy="TAb6RFK1RZ1gCwwgT1CGUJ9jF5cF5s5X5v">
+                    Copy Address
+                  </button>
+                </div>
+              </div>
+
+              <div class="instructions">
+                <h4>Instructions:</h4>
+                <ul>
+                  <li>Send only USDT via TRC20 network</li>
+                  <li>Minimum deposit: $100 equivalent</li>
+                  <li>Upload transaction hash screenshot</li>
+                  <li>Manual verification required (10–30 minutes)</li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label>Proof of Payment</label>
-          <input type="file" id="proofFile" accept="image/*,.pdf" required />
-          <small class="hint">
-            Upload a screenshot or receipt. Required before admin review.
-          </small>
+        <!-- Deposit Form -->
+        <div class="deposit-form">
+          <div class="form-group">
+            <label class="form-label" for="amount">Amount (USD)</label>
+            <input
+              type="number"
+              id="amount"
+              class="form-input"
+              placeholder="100.00"
+              min="100"
+              step="0.01">
+            <div class="error-message" id="amountError">
+              Minimum deposit amount is $100
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Upload Receipt/Transaction Proof</label>
+            <div class="upload-area" id="uploadArea">
+              <div class="upload-icon">📁</div>
+              <div class="upload-text">Click to upload or drag and drop</div>
+              <div class="upload-hint">JPG, PNG, PDF (Max 5MB)</div>
+              <input
+                type="file"
+                id="fileInput"
+                class="file-input"
+                accept=".jpg,.jpeg,.png,.pdf">
+            </div>
+            <div class="file-preview" id="filePreview">
+              <div class="file-info">
+                <span class="file-name" id="fileName"></span>
+                <button class="remove-file" id="removeFileBtn">×</button>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-primary" id="submitBtn">
+            Submit Deposit Request
+          </button>
         </div>
 
-        <p class="info-text">
-          After submission, your deposit will appear as <strong>Pending</strong>.
-          Funds are credited <strong>only after admin approval</strong>.
-        </p>
+        <!-- Recent Deposits -->
+        <div class="recent-deposits">
+          <div class="section-header">
+            <h2 class="section-title">Recent Deposits</h2>
+          </div>
+          <table class="deposits-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Method</th>
+                <th>Amount</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Demo Transaction Table -->
+            </tbody>
+          </table>
+        </div>
 
-        <button type="submit" class="btn-primary">
-          Submit Deposit Request
-        </button>
-      </form>
+      </main>
     </div>
+  </div>
 
-    <!-- Deposit History -->
-    <div class="card">
-      <h3>Your Deposit History</h3>
+  <!-- Shared Scripts -->
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/dashboard.js"></script>
+  <script src="/assets/js/uploads.js"></script>
+  <script src="assets/js/transactions.js"></script>
 
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Method</th>
-            <th>Amount</th>
-            <th>Status</th>
-            <th>Reason</th>
-          </tr>
-        </thead>
-        <tbody id="depositHistoryBody">
-          <tr>
-            <td colspan="5" style="text-align:center;">Loading deposits…</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      requireAuth({
+        redirectTo: "login.html",
+        onReady: (user, clerk) => {
+          const userBtnEl = document.getElementById("clerk-user-button");
+          if (userBtnEl) {
+            clerk.mountUserButton(userBtnEl, {
+              afterSignOutUrl: "login.html",
+            });
+          }
 
-  </main>
-</div>
+          const userEmailEl = document.getElementById("userEmail");
+          if (user && user.primaryEmailAddress && userEmailEl) {
+            userEmailEl.textContent = user.primaryEmailAddress.emailAddress;
+          }
 
-<script src="assets/js/config.js"></script>
-<script src="assets/js/uploads.js"></script>
-<script src="assets/js/transactions.js"></script>
+          const logoutBtn = document.getElementById("logoutBtn");
+          if (logoutBtn) {
+            logoutBtn.addEventListener("click", async () => {
+              await signOutAndRedirect("login.html");
+            });
+          }
+        },
+      });
+    });
+  </script>
 
-<script>
-  requireAuth({
-    redirectTo: "login.html",
-    onReady: () => initDepositsPage()
-  });
-
-  document.getElementById("copyAddressBtn").onclick = () => {
-    navigator.clipboard.writeText(
-      document.getElementById("depositAddress").innerText
-    );
-    alert("Deposit address copied");
-  };
-</script>
-
+  
 </body>
 </html>
