@@ -166,7 +166,12 @@ function initializeDepositPage() {
                     throw new Error(data.error || "Deposit failed");
                 }
 
-                alert(`Deposit request of $${amount} submitted successfully!\n\nStatus: Pending Review`);
+                alert(
+                  `Deposit request submitted.\n\n` +
+                  `Amount: $${amount.toFixed(2)}\n` +
+                  `Status: PENDING (Awaiting admin approval)\n\n` +
+                  `Funds will be credited only after approval.`
+                );
 
                 amountInput.value = '';
                 fileInput.value = '';
@@ -402,6 +407,12 @@ async function loadRecentDeposits() {
                     "status-failed";
 
                 const tr = document.createElement("tr");
+
+                let statusText =
+                  dep.status === "pending"
+                    ? "Pending (Under Review)"
+                    : dep.status.charAt(0).toUpperCase() + dep.status.slice(1);
+                            
                 tr.innerHTML = `
                     <td>${new Date(dep.createdAt).toLocaleString(undefined, {
                         year: "numeric",
@@ -410,16 +421,17 @@ async function loadRecentDeposits() {
                         hour: "2-digit",
                         minute: "2-digit"
                     })}</td>
-
+                
                     <td>${dep.method}</td>
                     <td>$${Number(dep.amount).toFixed(2)}</td>
                     <td>
                       <span class="status-badge ${statusClass}">
-                        ${dep.status.charAt(0).toUpperCase() + dep.status.slice(1)}
+                        ${statusText}
                       </span>
                     </td>
                 `;
                 tbody.appendChild(tr);
+
             });
 
     } catch (err) {
