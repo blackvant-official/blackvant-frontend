@@ -412,7 +412,7 @@ async function loadRecentDeposits() {
                   dep.status === "pending"
                     ? "Pending (Under Review)"
                     : dep.status.charAt(0).toUpperCase() + dep.status.slice(1);
-                            
+
                 tr.innerHTML = `
                     <td>${new Date(dep.createdAt).toLocaleString(undefined, {
                         year: "numeric",
@@ -509,22 +509,29 @@ async function loadRecentWithdrawals() {
 async function loadWithdrawBalances() {
   const token = await getBackendToken();
 
-  const res = await fetch(`${window.API_BASE_URL}/api/v1/me/balance`, {
+  // We reuse dashboard summary because it is ledger-truthful
+  const res = await fetch(`${window.API_BASE_URL}/api/v1/me/dashboard/summary`, {
     headers: { Authorization: `Bearer ${token}` }
   });
 
   const data = await res.json();
-  if (!data.success) {
-    throw new Error("Failed to load ledger balance");
+  if (!data || typeof data !== "object") {
+    throw new Error("Failed to load withdraw balances");
   }
 
-  const available = Number(data.balance.availableBalance || 0);
+  const totalProfit = Number(data.totalProfit || 0);
+  const activeInvestment = Number(data.activeInvestment || 0);
+
+  // 🔐 FUTURE-READY CAPITAL LOCK (ADMIN CONTROLLED)
+  // For now: capital is NOT locked
+  const capitalLocked = false; // ← later comes from admin settings
 
   return {
-    profit: available,   // withdrawals use ledger balance
-    capital: 0           // capital still locked
+    profit: totalProfit,
+    capital: capitalLocked ? 0 : activeInvestment
   };
 }
+
 
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', function () {
