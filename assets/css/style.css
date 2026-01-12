@@ -1028,6 +1028,23 @@ body {
 .status-pending { background: rgba(255, 200, 0, 0.1); color: #ffc800; }
 .status-failed { background: rgba(255, 74, 74, 0.1); color: var(--accent-red); }
 
+/* === Canonical User Panel Status Badges === */
+.status-approved {
+  background: rgba(0, 217, 90, 0.1);
+  color: var(--accent-green);
+}
+
+.status-pending {
+  background: rgba(255, 200, 0, 0.1);
+  color: #ffc800;
+}
+
+.status-rejected {
+  background: rgba(255, 74, 74, 0.1);
+  color: var(--accent-red);
+}
+
+
 /* ===== DEPOSIT PAGE SPECIFIC ===== */
 
 /* Deposit Content */
@@ -1600,6 +1617,22 @@ select#withdrawSource option {
 .status-processing { background: rgba(45, 156, 255, 0.1); color: var(--accent-blue); }
 .status-completed { background: rgba(0, 217, 90, 0.1); color: var(--accent-green); }
 .status-failed { background: rgba(255, 74, 74, 0.1); color: var(--accent-red); }
+
+/* === Canonical User Panel Status Badges === */
+.status-approved {
+  background: rgba(0, 217, 90, 0.1);
+  color: var(--accent-green);
+}
+
+.status-pending {
+  background: rgba(255, 200, 0, 0.1);
+  color: #ffc800;
+}
+
+.status-rejected {
+  background: rgba(255, 74, 74, 0.1);
+  color: var(--accent-red);
+}
 
 /* ===== TRANSACTION HISTORY PAGE SPECIFIC STYLES ===== */
 
