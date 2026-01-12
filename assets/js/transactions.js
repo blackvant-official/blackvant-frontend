@@ -276,10 +276,10 @@ function initializeWithdrawPage() {
     function updateWithdrawSource() {
         const source = withdrawSourceSelect.value;
         const available = balances[source] || 0;
-        
+
         availableBalanceEl.textContent = `$${available.toFixed(2)}`;
         displayBalanceEl.textContent = `$${available.toFixed(2)}`;
-        
+
         // Safety: never allow capital submit if locked
         if (source === 'capital' && balances.capitalLocked) {
           submitBtn.disabled = true;
@@ -287,7 +287,7 @@ function initializeWithdrawPage() {
         } else {
           submitBtn.title = '';
         }
-    
+
         validateWithdrawForm();
     }
 
@@ -441,10 +441,7 @@ async function loadRecentDeposits() {
             .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
             .slice(0, 5)
             .forEach(dep => {
-                const statusClass =
-                    dep.status === "approved" ? "status-completed" :
-                    dep.status === "pending" ? "status-pending" :
-                    "status-failed";
+                const statusClass = `status-${dep.status}`;
 
                 const tr = document.createElement("tr");
 
