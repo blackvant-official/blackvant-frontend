@@ -441,14 +441,14 @@ async function loadRecentDeposits() {
             .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
             .slice(0, 5)
             .forEach(dep => {
-                const statusClass = `status-${dep.status}`;
+                const statusClass = `status-${dep.status.toLowerCase()}`;
 
                 const tr = document.createElement("tr");
 
                 let statusText =
-                  dep.status === "pending"
+                  dep.status === "PENDING"
                     ? "Pending (Under Review)"
-                    : dep.status.charAt(0).toUpperCase() + dep.status.slice(1);
+                    : dep.status.charAt(0) + dep.status.slice(1).toLowerCase();
 
                 tr.innerHTML = `
                     <td>${new Date(dep.createdAt).toLocaleString(undefined, {
