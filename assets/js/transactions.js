@@ -1,4 +1,5 @@
 // ===== DEPOSIT PAGE FUNCTIONS =====
+let SYSTEM_MIN_DEPOSIT = null;
 
 function initializeDepositPage() {
     const uploadArea = document.getElementById('uploadArea');
@@ -52,6 +53,25 @@ function initializeDepositPage() {
             fileName.textContent = file.name;
             filePreview.classList.add('show');
             validateDepositForm();
+
+            const instructionEl = document.getElementById("minDepositInstruction");
+            const amountInput = document.getElementById("amount");
+            const amountError = document.getElementById("amountError");
+
+            if (SYSTEM_MIN_DEPOSIT !== null) {
+                if (instructionEl) {
+                    instructionEl.textContent = `Minimum deposit: $${SYSTEM_MIN_DEPOSIT} equivalent`;
+                }
+            
+                if (amountInput) {
+                    amountInput.placeholder = SYSTEM_MIN_DEPOSIT.toFixed(2);
+                }
+            
+                if (amountError) {
+                    amountError.textContent = `Minimum deposit amount is $${SYSTEM_MIN_DEPOSIT}`;
+                }
+            }
+
         }
     }
 
@@ -105,16 +125,38 @@ function initializeDepositPage() {
 
             const amount = parseFloat(amountInput.value) || 0;
             const file = fileInput.files[0];
-            const minAmount = 100;
-
-            if (amount < minAmount) {
-                alert(`Minimum deposit amount is $${minAmount}`);
+        
+            if (amount < SYSTEM_MIN_DEPOSIT) {
+                alert(`Minimum deposit amount is $${SYSTEM_MIN_DEPOSIT}`);
                 return;
             }
+
 
             if (!file) {
                 alert('Please upload proof of payment');
                 return;
+            }
+
+            async function loadSystemMinDeposit() {
+                try {
+                    const token = await getBackendToken();
+                
+                    const res = await fetch(
+                        `${window.API_BASE_URL}/api/v1/admin/settings/system`,
+                        { headers: { Authorization: `Bearer ${token}` } }
+                    );
+                
+                    if (!res.ok) throw new Error("Failed to load system settings");
+                
+                    const data = await res.json();
+                    const min = Number(data.minDepositAmount);
+                
+                    SYSTEM_MIN_DEPOSIT = Number.isFinite(min) && min > 0 ? min : 100;
+                
+                } catch (err) {
+                    console.error("Failed to load minimum deposit", err);
+                    SYSTEM_MIN_DEPOSIT = 100; // safe fallback
+                }
             }
 
             const originalText = this.innerHTML;
@@ -201,11 +243,10 @@ function validateDepositForm() {
 
     const amount = parseFloat(amountInput.value) || 0;
     const hasFile = filePreview && filePreview.classList.contains('show');
-    const minAmount = 100;
-
+    
     let valid = true;
 
-    if (amount < minAmount) {
+    if (SYSTEM_MIN_DEPOSIT !== null && amount < SYSTEM_MIN_DEPOSIT) {
         amountError?.classList.add('show');
         amountInput.classList.add('error');
         valid = false;
@@ -575,8 +616,10 @@ async function loadWithdrawBalances() {
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', function () {
     if (document.querySelector('.deposit-content')) {
-        initializeDepositPage();
-        loadRecentDeposits();
+        loadSystemMinDeposit().then(() => {
+            initializeDepositPage();
+            loadRecentDeposits();
+        });
     }
 
     if (document.querySelector('.withdraw-content')) {
