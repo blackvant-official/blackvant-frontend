@@ -226,13 +226,52 @@ function initializeWithdrawPage() {
     const availableBalanceEl = document.getElementById('availableBalance');
     const displayBalanceEl = document.getElementById('displayBalance');
 
-    let balances = { profit: 0, capital: 0 };
+    let balances = { profit: 0, capital: 0, capitalLocked: false, capitalUnlockAt: null };
 
     loadWithdrawBalances().then(b => {
       balances = b;
+
+      handleCapitalLockUI();
       updateWithdrawSource();
     });
 
+    function handleCapitalLockUI() {
+      const capitalOption = withdrawSourceSelect?.querySelector('option[value="capital"]');
+      const lockNotice = document.getElementById('capitalLockNotice');
+      const unlockDateEl = document.getElementById('capitalUnlockDate');
+
+      if (!capitalOption) return;
+
+      if (balances.capitalLocked) {
+        // Disable capital withdrawals
+        capitalOption.disabled = true;
+
+        // Auto-switch to profit
+        withdrawSourceSelect.value = 'profit';
+
+        // Show lock notice
+        if (lockNotice) {
+          lockNotice.style.display = 'block';
+
+          if (balances.capitalUnlockAt && unlockDateEl) {
+            unlockDateEl.textContent = new Date(
+              balances.capitalUnlockAt
+            ).toLocaleDateString(undefined, {
+              year: 'numeric',
+              month: 'short',
+              day: '2-digit'
+            });
+          }
+        }
+      } else {
+        // Capital unlocked
+        capitalOption.disabled = false;
+
+        if (lockNotice) {
+          lockNotice.style.display = 'none';
+        }
+      }
+    }
 
     function updateWithdrawSource() {
         const source = withdrawSourceSelect.value;
@@ -241,8 +280,17 @@ function initializeWithdrawPage() {
         availableBalanceEl.textContent = `$${available.toFixed(2)}`;
         displayBalanceEl.textContent = `$${available.toFixed(2)}`;
         
+        // Safety: never allow capital submit if locked
+        if (source === 'capital' && balances.capitalLocked) {
+          submitBtn.disabled = true;
+          submitBtn.title = 'Investment capital is locked';
+        } else {
+          submitBtn.title = '';
+        }
+    
         validateWithdrawForm();
     }
+
     
     withdrawSourceSelect.addEventListener('change', updateWithdrawSource);
     
@@ -267,14 +315,6 @@ function initializeWithdrawPage() {
         netDisplay.textContent = '$' + net.toFixed(2);
 
         validateWithdrawForm();
-        const source = document.getElementById('withdrawSource')?.value;
-
-        if (source === 'capital') {
-            submitBtn.disabled = true;
-            submitBtn.title = 'Capital withdrawals are currently locked';
-            return false;
-        }
-
     });
 
     walletAddressInput?.addEventListener('input', validateWithdrawForm);
@@ -524,12 +564,14 @@ async function loadWithdrawBalances() {
 
   // 🔐 FUTURE-READY CAPITAL LOCK (ADMIN CONTROLLED)
   // For now: capital is NOT locked
-  const capitalLocked = false; // ← later comes from admin settings
+    const capitalLocked = Boolean(data.capitalLocked);
 
-  return {
-    profit: totalProfit,
-    capital: capitalLocked ? 0 : activeInvestment
-  };
+    return {
+      profit: totalProfit,
+      capital: capitalLocked ? 0 : activeInvestment,
+      capitalLocked,
+      capitalUnlockAt: data.capitalUnlockAt
+    };
 }
 
 
