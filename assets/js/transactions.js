@@ -548,11 +548,15 @@ async function loadRecentWithdrawals() {
     try {
         const token = await getBackendToken();
 
-        const res = await fetch(`${window.API_BASE_URL}/api/v1/me/withdrawals`, {
+        const res = await fetch(
+          `${window.API_BASE_URL}/api/v1/me/withdrawals/recent`,
+          {
             headers: {
-                Authorization: `Bearer ${token}`
+              Authorization: `Bearer ${token}`
             }
-        });
+          }
+        );
+
 
         if (!res.ok) {
             throw new Error("Failed to fetch withdrawals");
