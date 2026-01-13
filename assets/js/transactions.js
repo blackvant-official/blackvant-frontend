@@ -419,19 +419,6 @@ function initializeWithdrawPage() {
         validateWithdrawForm();
     });
 
-    const minRuleEl = document.getElementById("minWithdrawRule");
-    const freqRuleEl = document.getElementById("withdrawFrequencyRule");
-    
-    if (SYSTEM_MIN_WITHDRAW !== null && minRuleEl) {
-      minRuleEl.textContent = `Minimum: $${SYSTEM_MIN_WITHDRAW}`;
-    }
-    
-    if (SYSTEM_WITHDRAW_FREQUENCY_DAYS !== null && freqRuleEl) {
-      freqRuleEl.textContent =
-        `Once every ${SYSTEM_WITHDRAW_FREQUENCY_DAYS} day(s)`;
-    }
-
-
     validateWithdrawForm();
 }
 
@@ -550,6 +537,25 @@ async function loadSystemWithdrawLimits() {
 
   SYSTEM_MIN_WITHDRAW = Number(data.minWithdrawAmount || 10);
   SYSTEM_WITHDRAW_FREQUENCY_DAYS = Number(data.withdrawFrequencyDays || 7);
+}
+
+if (document.querySelector('.withdraw-content')) {
+  loadSystemWithdrawLimits().then(() => {
+    const minRuleEl = document.getElementById("minWithdrawRule");
+    const freqRuleEl = document.getElementById("withdrawFrequencyRule");
+
+    if (minRuleEl) {
+      minRuleEl.textContent = `Minimum: $${SYSTEM_MIN_WITHDRAW}`;
+    }
+
+    if (freqRuleEl) {
+      freqRuleEl.textContent =
+        `Once every ${SYSTEM_WITHDRAW_FREQUENCY_DAYS} day(s)`;
+    }
+
+    initializeWithdrawPage();
+    loadRecentWithdrawals();
+  });
 }
 
 async function loadRecentWithdrawals() {
