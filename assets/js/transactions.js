@@ -673,5 +673,4 @@ document.addEventListener('DOMContentLoaded', async function () {
     initializeWithdrawPage();
     loadRecentWithdrawals();
   }
-
 });
