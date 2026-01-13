@@ -419,11 +419,18 @@ function initializeWithdrawPage() {
         validateWithdrawForm();
     });
 
-    document.getElementById("minWithdrawRule").textContent =
-      `Minimum: $${SYSTEM_MIN_WITHDRAW}`;
+    const minRuleEl = document.getElementById("minWithdrawRule");
+    const freqRuleEl = document.getElementById("withdrawFrequencyRule");
+    
+    if (SYSTEM_MIN_WITHDRAW !== null && minRuleEl) {
+      minRuleEl.textContent = `Minimum: $${SYSTEM_MIN_WITHDRAW}`;
+    }
+    
+    if (SYSTEM_WITHDRAW_FREQUENCY_DAYS !== null && freqRuleEl) {
+      freqRuleEl.textContent =
+        `Once every ${SYSTEM_WITHDRAW_FREQUENCY_DAYS} day(s)`;
+    }
 
-    document.getElementById("withdrawFrequencyRule").textContent =
-      `Once every ${SYSTEM_WITHDRAW_FREQUENCY_DAYS} day(s)`;
 
     validateWithdrawForm();
 }
