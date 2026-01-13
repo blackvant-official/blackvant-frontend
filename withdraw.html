@@ -175,22 +175,33 @@
 document.addEventListener("DOMContentLoaded", function () {
   requireAuth({
     redirectTo: "login.html",
-    onReady: (user, clerk) => {
+    onReady: async (user, clerk) => {
+
+      // Mount user button
       clerk.mountUserButton(
         document.getElementById("clerk-user-button"),
         { afterSignOutUrl: "login.html" }
       );
 
+      // Logout
       const logoutBtn = document.getElementById("logoutBtn");
       if (logoutBtn) {
         logoutBtn.onclick = async () => {
           await signOutAndRedirect("login.html");
         };
       }
+
+      // ✅ WITHDRAW PAGE INIT — AFTER AUTH
+      if (document.querySelector('.withdraw-content')) {
+        await loadSystemWithdrawLimits();
+        initializeWithdrawPage();
+        loadRecentWithdrawals();
+      }
     }
   });
 });
 </script>
+
 
 
 </body>
