@@ -577,10 +577,7 @@ async function loadRecentWithdrawals() {
             .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
             .slice(0, 5)
             .forEach(w => {
-                const statusClass =
-                    w.status === "approved" ? "status-completed" :
-                    w.status === "pending" ? "status-pending" :
-                    "status-failed";
+                const statusClass = `status-${w.status.toLowerCase()}`;
 
                 const tr = document.createElement("tr");
                 tr.innerHTML = `
