@@ -432,7 +432,6 @@ function validateWithdrawForm() {
     const amountInput = document.getElementById('withdrawAmount');
     const walletAddressInput = document.getElementById('walletAddress');
     const submitBtn = document.getElementById('submitBtn');
-    if (SYSTEM_MIN_WITHDRAW !== null && amount < SYSTEM_MIN_WITHDRAW) valid = false;
 
     if (!amountInput || !submitBtn) return false;
 
@@ -441,12 +440,18 @@ function validateWithdrawForm() {
 
     let valid = true;
 
-    if (amount < minWithdraw) valid = false;
-    if (!walletAddress) valid = false;
+    if (SYSTEM_MIN_WITHDRAW !== null && amount < SYSTEM_MIN_WITHDRAW) {
+        valid = false;
+    }
+
+    if (!walletAddress) {
+        valid = false;
+    }
 
     submitBtn.disabled = !valid;
     return valid;
 }
+
 
 async function getBackendToken() {
     const start = Date.now();

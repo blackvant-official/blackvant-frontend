@@ -1477,6 +1477,16 @@ select#withdrawSource option {
     color: var(--accent-green);
 }
 
+.info-box.warning {
+  background: rgba(255, 193, 7, 0.08);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  color: #ffc107;
+  padding: 14px 16px;
+  border-radius: 8px;
+  margin: 16px 0;
+  font-size: 14px;
+}
+
 /* Payment Methods - Some styles already exist, adding specific ones */
 .methods-grid {
     display: grid;
