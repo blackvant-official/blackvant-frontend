@@ -549,7 +549,7 @@ async function loadRecentWithdrawals() {
         const token = await getBackendToken();
 
         const res = await fetch(
-          `${window.API_BASE_URL}/api/v1/me/withdrawals/recent`,
+          `${window.API_BASE_URL}/api/v1/me/withdrawals`,
           {
             headers: {
               Authorization: `Bearer ${token}`
