@@ -539,24 +539,24 @@ async function loadSystemWithdrawLimits() {
   SYSTEM_WITHDRAW_FREQUENCY_DAYS = Number(data.withdrawFrequencyDays || 7);
 }
 
-// if (document.querySelector('.withdraw-content')) {
-//   loadSystemWithdrawLimits().then(() => {
-//     const minRuleEl = document.getElementById("minWithdrawRule");
-//     const freqRuleEl = document.getElementById("withdrawFrequencyRule");
+if (document.querySelector('.withdraw-content')) {
+  loadSystemWithdrawLimits().then(() => {
+    const minRuleEl = document.getElementById("minWithdrawRule");
+    const freqRuleEl = document.getElementById("withdrawFrequencyRule");
 
-//     if (minRuleEl) {
-//       minRuleEl.textContent = `Minimum: $${SYSTEM_MIN_WITHDRAW}`;
-//     }
+    if (minRuleEl) {
+      minRuleEl.textContent = `Minimum: $${SYSTEM_MIN_WITHDRAW}`;
+    }
 
-//     if (freqRuleEl) {
-//       freqRuleEl.textContent =
-//         `Once every ${SYSTEM_WITHDRAW_FREQUENCY_DAYS} day(s)`;
-//     }
+    if (freqRuleEl) {
+      freqRuleEl.textContent =
+        `Once every ${SYSTEM_WITHDRAW_FREQUENCY_DAYS} day(s)`;
+    }
 
-//     initializeWithdrawPage();
-//     loadRecentWithdrawals();
-//   });
-// }
+    initializeWithdrawPage();
+    loadRecentWithdrawals();
+  });
+}
 
 async function loadRecentWithdrawals() {
     const tbody = document.querySelector(".withdrawals-table tbody");
@@ -587,7 +587,7 @@ async function loadRecentWithdrawals() {
             : Array.isArray(result.data)
               ? result.data
               : [];
-
+            
         if (!withdrawals.length) {
           tbody.innerHTML = `<tr><td colspan="4">No withdrawals yet</td></tr>`;
           return;
