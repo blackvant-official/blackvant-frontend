@@ -1,5 +1,8 @@
 // ===== DEPOSIT PAGE FUNCTIONS =====
 let SYSTEM_MIN_DEPOSIT = null;
+let SYSTEM_MIN_WITHDRAW = null;
+let SYSTEM_WITHDRAW_FREQUENCY_DAYS = null;
+
 async function loadSystemMinDeposit() {
     try {
         const token = await getBackendToken();
@@ -416,6 +419,12 @@ function initializeWithdrawPage() {
         validateWithdrawForm();
     });
 
+    document.getElementById("minWithdrawRule").textContent =
+      `Minimum: $${SYSTEM_MIN_WITHDRAW}`;
+
+    document.getElementById("withdrawFrequencyRule").textContent =
+      `Once every ${SYSTEM_WITHDRAW_FREQUENCY_DAYS} day(s)`;
+
     validateWithdrawForm();
 }
 
@@ -423,7 +432,7 @@ function validateWithdrawForm() {
     const amountInput = document.getElementById('withdrawAmount');
     const walletAddressInput = document.getElementById('walletAddress');
     const submitBtn = document.getElementById('submitBtn');
-    const minWithdraw = 10;
+    if (SYSTEM_MIN_WITHDRAW !== null && amount < SYSTEM_MIN_WITHDRAW) valid = false;
 
     if (!amountInput || !submitBtn) return false;
 
@@ -517,6 +526,18 @@ async function loadRecentDeposits() {
         console.error("Failed to load deposits", err);
         tbody.innerHTML = `<tr><td colspan="4">Failed to load deposits</td></tr>`;
     }
+}
+
+async function loadSystemWithdrawLimits() {
+  const token = await getBackendToken();
+  const res = await fetch(
+    `${window.API_BASE_URL}/api/v1/admin/settings/system`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  const data = await res.json();
+
+  SYSTEM_MIN_WITHDRAW = Number(data.minWithdrawAmount || 10);
+  SYSTEM_WITHDRAW_FREQUENCY_DAYS = Number(data.withdrawFrequencyDays || 7);
 }
 
 async function loadRecentWithdrawals() {
@@ -624,7 +645,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (document.querySelector('.withdraw-content')) {
+      loadSystemWithdrawLimits().then(() => {
         initializeWithdrawPage();
         loadRecentWithdrawals();
+      });
     }
 });
