@@ -190,14 +190,6 @@ document.addEventListener("DOMContentLoaded", function () {
           await signOutAndRedirect("login.html");
         };
       }
-
-      // ✅ WITHDRAW PAGE INIT — AFTER AUTH
-      if (document.querySelector('.withdraw-content')) {
-        await loadSystemWithdrawLimits();
-            renderWithdrawRules();
-            initializeWithdrawPage();
-            loadRecentWithdrawals();
-      }
     }
   });
 });

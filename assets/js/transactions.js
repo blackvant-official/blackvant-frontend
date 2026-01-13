@@ -659,11 +659,21 @@ async function loadWithdrawBalances() {
 
 
 // ===== INIT =====
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
+
+  // ===== DEPOSIT PAGE =====
   if (document.querySelector('.deposit-content')) {
-    loadSystemMinDeposit().then(() => {
-      initializeDepositPage();
-      loadRecentDeposits();
-    });
+    await loadSystemMinDeposit();
+    initializeDepositPage();
+    loadRecentDeposits();
   }
+
+  // ===== WITHDRAW PAGE =====
+  if (document.querySelector('.withdraw-content')) {
+    await loadSystemWithdrawLimits();
+    renderWithdrawRules();
+    initializeWithdrawPage();
+    loadRecentWithdrawals();
+  }
+
 });
