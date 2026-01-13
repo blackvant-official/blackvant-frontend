@@ -539,25 +539,6 @@ async function loadSystemWithdrawLimits() {
   SYSTEM_WITHDRAW_FREQUENCY_DAYS = Number(data.withdrawFrequencyDays || 7);
 }
 
-if (document.querySelector('.withdraw-content')) {
-  loadSystemWithdrawLimits().then(() => {
-    const minRuleEl = document.getElementById("minWithdrawRule");
-    const freqRuleEl = document.getElementById("withdrawFrequencyRule");
-
-    if (minRuleEl) {
-      minRuleEl.textContent = `Minimum: $${SYSTEM_MIN_WITHDRAW}`;
-    }
-
-    if (freqRuleEl) {
-      freqRuleEl.textContent =
-        `Once every ${SYSTEM_WITHDRAW_FREQUENCY_DAYS} day(s)`;
-    }
-
-    initializeWithdrawPage();
-    loadRecentWithdrawals();
-  });
-}
-
 async function loadRecentWithdrawals() {
     const tbody = document.querySelector(".withdrawals-table tbody");
     if (!tbody) return;
@@ -629,6 +610,19 @@ async function loadRecentWithdrawals() {
         tbody.innerHTML = `<tr><td colspan="4">Failed to load withdrawals</td></tr>`;
     }
 }
+function renderWithdrawRules() {
+  const minRuleEl = document.getElementById("minWithdrawRule");
+  const freqRuleEl = document.getElementById("withdrawFrequencyRule");
+
+  if (minRuleEl && SYSTEM_MIN_WITHDRAW !== null) {
+    minRuleEl.textContent = `Minimum: $${SYSTEM_MIN_WITHDRAW}`;
+  }
+
+  if (freqRuleEl && SYSTEM_WITHDRAW_FREQUENCY_DAYS !== null) {
+    freqRuleEl.textContent =
+      `Once every ${SYSTEM_WITHDRAW_FREQUENCY_DAYS} day(s)`;
+  }
+}
 
 // ===== LEDGER-BASED WITHDRAW BALANCE (GLOBAL) =====
 async function loadWithdrawBalances() {
@@ -662,10 +656,10 @@ async function loadWithdrawBalances() {
 
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', function () {
-    if (document.querySelector('.deposit-content')) {
-        loadSystemMinDeposit().then(() => {
-            initializeDepositPage();
-            loadRecentDeposits();
-        });
-    }
+  if (document.querySelector('.deposit-content')) {
+    loadSystemMinDeposit().then(() => {
+      initializeDepositPage();
+      loadRecentDeposits();
+    });
+  }
 });
