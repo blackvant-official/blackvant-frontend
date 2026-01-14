@@ -51,7 +51,7 @@ async function loadTransactionsFromBackend() {
               type === "withdrawal" ? "Crypto Withdrawal" :
               "Profit Credit",
             amount: signedAmount,
-            status: tx.status
+            status: tx.status || "approved"
           };
         });
 
@@ -84,7 +84,7 @@ function renderTransactionsTable(transactions) {
 
             tr.dataset.amount = tx.amount;
             tr.dataset.type = tx.type.toLowerCase();
-            tr.dataset.status = tx.status;
+            tr.dataset.status = tx.status || "approved";
             tr.dataset.date = tx.createdAt.toISOString();
 
             tr.innerHTML = `
@@ -93,9 +93,11 @@ function renderTransactionsTable(transactions) {
                 <td>${tx.description}</td>
                 <td>${tx.amount >= 0 ? "$" + tx.amount.toFixed(2) : "-$" + Math.abs(tx.amount).toFixed(2)}</td>
                 <td>
-                    <span class="status-badge status-${tx.status}">
-                        ${tx.status.charAt(0).toUpperCase() + tx.status.slice(1)}
+                    <span class="status-badge status-${tx.status || "approved"}">
+                      ${(tx.status || "approved").charAt(0).toUpperCase() +
+                        (tx.status || "approved").slice(1)}
                     </span>
+
                 </td>
                 <td>
                     <button class="view-details" data-id="${tx.id}">
