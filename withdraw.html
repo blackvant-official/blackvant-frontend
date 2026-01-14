@@ -153,38 +153,34 @@
                 </div>
 
                 <!-- 🔐 OTP Verification (SECURITY BLOCK) -->
-                <div class="otp-section" style="margin-top:16px;">
-                  <div class="form-group">
-                    <button class="btn-outline" id="sendOtpBtn" type="button">
-                      Send OTP to Email
+                <div class="otp-section">
+                  <div class="otp-row">
+                    <button class="btn-outline otp-btn" id="sendOtpBtn" type="button">
+                      Send OTP
                     </button>
-                  </div>
-              
-                  <div class="form-group" style="display:flex; gap:8px;">
+                
                     <input
                       type="text"
                       id="otpInput"
-                      class="form-input"
-                      placeholder="Enter 6-digit OTP"
+                      class="form-input otp-input"
+                      placeholder="6-digit OTP"
                       maxlength="6"
-                      style="flex:1;"
                       disabled
                     />
+                
                     <button
-                      class="btn-outline"
+                      class="btn-outline otp-btn"
                       id="verifyOtpBtn"
                       type="button"
                       disabled
                     >
-                      Verify OTP
+                      Verify
                     </button>
                   </div>
               
-                  <div
-                    id="otpStatus"
-                    style="margin-top:8px; font-size:13px; display:none;"
-                  ></div>
+                  <div id="otpStatus" class="otp-status"></div>
                 </div>
+
 
 
                 <button class="btn-primary" id="submitBtn" disabled>
