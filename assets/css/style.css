@@ -1596,39 +1596,41 @@ select#withdrawSource option {
 }
 
 /* ============================= */
-/* OTP SECTION — PROFESSIONAL */
+/* OTP INLINE ROW (NATIVE LOOK) */
 /* ============================= */
+
 .otp-section {
-  margin-top: 18px;
-  padding: 14px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: 14px;      /* space from amount summary */
+  margin-bottom: 18px;   /* space before submit button */
 }
 
 .otp-row {
   display: grid;
-  grid-template-columns: 140px 1fr 120px;
+  grid-template-columns: 120px 1fr 100px;
   gap: 10px;
   align-items: center;
 }
 
 .otp-btn {
   height: 42px;
-  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .otp-input {
   height: 42px;
+  font-size: 14px;
   text-align: center;
-  letter-spacing: 2px;
-  font-weight: 600;
+  letter-spacing: 1px;
 }
 
 .otp-status {
-  margin-top: 8px;
+  margin-top: 6px;
   font-size: 13px;
   font-weight: 500;
+}
+.amount-section > .btn-primary {
+  margin-top: 10px;
 }
 
 
