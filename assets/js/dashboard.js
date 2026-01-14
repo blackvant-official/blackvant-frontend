@@ -59,6 +59,10 @@ async function loadSummary() {
 // ---------------- TRANSACTIONS ----------------
 async function loadTransactions() {
   const tbody = document.querySelector(".transactions-table tbody");
+
+  // 🛑 Not on dashboard page — silently exit
+  if (!tbody) return;
+
   tbody.innerHTML = "";
 
   const txs = await api("/api/v1/me/transactions");
@@ -81,6 +85,7 @@ async function loadTransactions() {
     tbody.appendChild(tr);
   });
 }
+
 
 let chart;
 async function loadChart() {
