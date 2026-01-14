@@ -1595,6 +1595,29 @@ select#withdrawSource option {
     color: var(--accent-green);
 }
 
+/* ============================= */
+/* OTP SECURITY SECTION */
+/* ============================= */
+.otp-section {
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.otp-section .form-group {
+  margin-bottom: 12px;
+}
+
+.otp-section button {
+  height: 42px;
+}
+
+#otpStatus {
+  font-weight: 500;
+}
+
 /* Recent Withdrawals */
 .recent-withdrawals {
     background: var(--bg-card);
