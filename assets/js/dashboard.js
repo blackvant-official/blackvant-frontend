@@ -32,12 +32,29 @@ async function api(endpoint) {
 
 // ---------------- SUMMARY ----------------
 async function loadSummary() {
+  const totalBalanceEl = $("totalBalance");
+  const investmentBalanceEl = $("investmentBalance");
+  const totalProfitEl = $("totalProfit");
+  const todayProfitEl = $("todayProfit");
+
+  // 🛑 Not on dashboard page — silently exit
+  if (
+    !totalBalanceEl ||
+    !investmentBalanceEl ||
+    !totalProfitEl ||
+    !todayProfitEl
+  ) {
+    return;
+  }
+
   const d = await api("/api/v1/me/dashboard/summary");
-  $("totalBalance").textContent = usd(d.totalBalance);
-  $("investmentBalance").textContent = usd(d.activeInvestment);
-  $("totalProfit").textContent = signed(d.totalProfit);
-  $("todayProfit").textContent = signed(d.todayProfit);
+
+  totalBalanceEl.textContent = usd(d.totalBalance);
+  investmentBalanceEl.textContent = usd(d.activeInvestment);
+  totalProfitEl.textContent = signed(d.totalProfit);
+  todayProfitEl.textContent = signed(d.todayProfit);
 }
+
 
 // ---------------- TRANSACTIONS ----------------
 async function loadTransactions() {
