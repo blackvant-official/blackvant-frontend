@@ -51,7 +51,7 @@ async function loadTransactionsFromBackend() {
               type === "withdrawal" ? "Crypto Withdrawal" :
               "Profit Credit",
             amount: signedAmount,
-            status: "approved" // ledger entries are final truth
+            status: tx.status
           };
         });
 
@@ -172,8 +172,11 @@ function applyFilters() {
         }
         if (status) {
             const statusMap = {
-              completed: "approved"
+              completed: "approved",
+              pending: "pending",
+              rejected: "rejected"
             };
+
 
         
             const mappedStatus = statusMap[status] || status;
