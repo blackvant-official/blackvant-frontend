@@ -136,6 +136,39 @@
                 </div>
 
                 <div class="amount-display">
+                    <!-- OTP Verification -->
+                    <div class="otp-section" style="margin-top:16px;">
+                      <div class="form-group">
+                        <button class="btn-outline" id="sendOtpBtn" type="button">
+                          Send OTP to Email
+                        </button>
+                      </div>
+                  
+                      <div class="form-group" style="display:flex; gap:8px;">
+                        <input
+                          type="text"
+                          id="otpInput"
+                          class="form-input"
+                          placeholder="Enter 6-digit OTP"
+                          maxlength="6"
+                          style="flex:1;"
+                          disabled
+                        />
+                        <button
+                          class="btn-outline"
+                          id="verifyOtpBtn"
+                          type="button"
+                          disabled
+                        >
+                          Verify OTP
+                        </button>
+                      </div>
+                  
+                      <div
+                        id="otpStatus"
+                        style="margin-top:8px; font-size:13px; display:none;"
+                      ></div>
+                    </div>
                     <div class="amount-item"><div class="amount-label">Available Balance</div><div class="amount-value" id="displayBalance">$0.00</div></div>
                     <div class="amount-item"><div class="amount-label">Fee (0.5%)</div><div class="amount-value fee" id="feeAmount">$0.00</div></div>
                     <div class="amount-item"><div class="amount-label">You Will Receive</div><div class="amount-value net" id="netAmount">$0.00</div></div>

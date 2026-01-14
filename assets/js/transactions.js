@@ -2,6 +2,7 @@
 let SYSTEM_MIN_DEPOSIT = null;
 let SYSTEM_MIN_WITHDRAW = null;
 let SYSTEM_WITHDRAW_FREQUENCY_DAYS = null;
+let otpVerified = false;
 
 async function loadSystemMinDeposit() {
     try {
@@ -271,6 +272,98 @@ function initializeWithdrawPage() {
     const availableBalanceEl = document.getElementById('availableBalance');
     const displayBalanceEl = document.getElementById('displayBalance');
     const submitBtn = document.getElementById('submitBtn'); 
+    // ===== OTP ELEMENTS =====
+    const sendOtpBtn = document.getElementById("sendOtpBtn");
+    const verifyOtpBtn = document.getElementById("verifyOtpBtn");
+    const otpInput = document.getElementById("otpInput");
+    const otpStatus = document.getElementById("otpStatus");
+    
+    // Reset OTP state on load
+    otpVerified = false;
+    sendOtpBtn?.addEventListener("click", async () => {
+      try {
+        sendOtpBtn.disabled = true;
+        sendOtpBtn.textContent = "Sending OTP...";
+
+        const token = await getBackendToken();
+
+        const res = await fetch(
+          `${window.API_BASE_URL}/api/v1/me/withdrawals/otp/request`,
+          {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` }
+          }
+        );
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "OTP request failed");
+
+        otpInput.disabled = false;
+        verifyOtpBtn.disabled = false;
+
+        otpStatus.style.display = "block";
+        otpStatus.style.color = "var(--accent-blue)";
+        otpStatus.textContent = "OTP sent to your email.";
+
+      } catch (err) {
+        alert(err.message || "Failed to send OTP");
+        sendOtpBtn.disabled = false;
+      } finally {
+        sendOtpBtn.textContent = "Resend OTP";
+        otpVerified = false;
+        submitBtn.disabled = true;
+      }
+    });
+
+    verifyOtpBtn?.addEventListener("click", async () => {
+      const otp = otpInput.value.trim();
+
+      if (!otp || otp.length !== 6) {
+        alert("Please enter a valid 6-digit OTP");
+        return;
+      }
+
+      try {
+        verifyOtpBtn.disabled = true;
+        verifyOtpBtn.textContent = "Verifying...";
+
+        const token = await getBackendToken();
+
+        const res = await fetch(
+          `${window.API_BASE_URL}/api/v1/me/withdrawals/otp/verify`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({ otp })
+          }
+        );
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "OTP verification failed");
+
+        otpVerified = true;
+
+        otpStatus.style.display = "block";
+        otpStatus.style.color = "var(--accent-green)";
+        otpStatus.textContent = "OTP verified successfully.";
+
+        otpInput.disabled = true;
+        verifyOtpBtn.disabled = true;
+
+        validateWithdrawForm();
+
+      } catch (err) {
+        alert(err.message || "Invalid OTP");
+        otpVerified = false;
+      } finally {
+        verifyOtpBtn.textContent = "Verify OTP";
+      }
+    });
+
+
 
     let balances = { profit: 0, capital: 0, capitalLocked: false, capitalUnlockAt: null };
 
@@ -438,6 +531,10 @@ function validateWithdrawForm() {
 
     if (!walletAddress) {
         valid = false;
+    }
+
+    if (!otpVerified) {
+      valid = false;
     }
 
     submitBtn.disabled = !valid;
