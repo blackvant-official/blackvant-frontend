@@ -24,27 +24,37 @@ async function loadTransactionsFromBackend() {
 
         const ledger = await res.json();
 
-        return ledger.map(tx => ({
+        return ledger.map(tx => {
+          const type =
+            tx.referenceType === "DEPOSIT" ? "deposit" :
+            tx.referenceType === "WITHDRAWAL" ? "withdrawal" :
+            "profit";
+                
+          const signedAmount =
+            tx.direction === "CREDIT"
+              ? Number(tx.amount)
+              : -Number(tx.amount);
+                
+          return {
             id: tx.id,
             createdAt: new Date(tx.createdAt),
             dateLabel: new Date(tx.createdAt).toLocaleString(undefined, {
-                year: "numeric",
-                month: "short",
-                day: "2-digit",
-                hour: "2-digit",
-                minute: "2-digit"
+              year: "numeric",
+              month: "short",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit"
             }),
-
-            type: tx.type.charAt(0).toUpperCase() + tx.type.slice(1),
+            type,
             description:
-                tx.type === "deposit"
-                    ? (tx.method || "USDT Deposit")
-                    : tx.type === "withdrawal"
-                        ? (tx.method || "Profit Withdrawal")
-                        : "Profit Credit",
-            amount: Number(tx.amount),
-            status: tx.status
-        }));
+              type === "deposit" ? "USDT Deposit" :
+              type === "withdrawal" ? "Crypto Withdrawal" :
+              "Profit Credit",
+            amount: signedAmount,
+            status: "approved" // ledger entries are final truth
+          };
+        });
+
 
     } catch (err) {
         console.error("Transaction load failed:", err);
@@ -103,7 +113,9 @@ function renderTransactionsTable(transactions) {
 // =======================================================
 
 function updateStatistics() {
-    const rows = document.querySelectorAll("#transactionsTableBody tr");
+    const rows = Array.from(
+      document.querySelectorAll("#transactionsTableBody tr")
+    ).filter(row => row.style.display !== "none");
 
     let deposits = 0;
     let withdrawals = 0;
@@ -160,11 +172,9 @@ function applyFilters() {
         }
         if (status) {
             const statusMap = {
-                completed: "approved",
-                pending: "pending",
-        failed: "rejected",
-                processing: "pending"
+              completed: "approved"
             };
+
         
             const mappedStatus = statusMap[status] || status;
         
