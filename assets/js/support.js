@@ -369,17 +369,14 @@ async function uploadSupportAttachments(files, ticketId) {
   const uploaded = [];
 
   for (const file of files) {
-    // 1. Request signed upload URL
     const { uploadUrl, storageKey } = await requestUpload({
       purpose: "SUPPORT_MESSAGE",
       file,
       ticketId,
     });
 
-    // 2. Upload to S3
     await putToS3(uploadUrl, file);
 
-    // 3. Confirm upload
     const { attachmentId } = await confirmUpload({
       storageKey,
       purpose: "SUPPORT_MESSAGE",
@@ -391,12 +388,10 @@ async function uploadSupportAttachments(files, ticketId) {
 
     uploaded.push(attachmentId);
   }
-  console.log("Uploading attachment:", file.name);
-  console.log("Files selected:", files.length);
 
   return uploaded;
-
 }
+
 
 // ======================
 // INITIALIZE PAGE
