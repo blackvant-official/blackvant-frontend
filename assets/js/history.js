@@ -141,7 +141,7 @@ function updateStatistics() {
     document.getElementById("totalDeposited").textContent = `$${deposits.toFixed(2)}`;
     document.getElementById("totalWithdrawn").textContent = `$${withdrawals.toFixed(2)}`;
 
-    const net = profits - withdrawals;
+    const net = profits;
     document.getElementById("netProfit").textContent =
         net >= 0 ? `+$${net.toFixed(2)}` : `-$${Math.abs(net).toFixed(2)}`;
 }

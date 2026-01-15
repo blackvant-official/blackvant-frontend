@@ -2860,3 +2860,22 @@ html:not(.app-loading) body {
 .clerk-user-button-avatar {
     background: var(--accent-blue) !important;
 }
+
+/* FINAL FILTER COMPACT OVERRIDE */
+.filters-grid {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
+}
+
+.filters-section {
+  padding: 1rem !important;
+}
+
+.filter-input,
+.filter-select {
+  height: 32px !important;
+  font-size: 0.78rem !important;
+}
+
+.filters-title {
+  font-size: 0.95rem !important;
+}
