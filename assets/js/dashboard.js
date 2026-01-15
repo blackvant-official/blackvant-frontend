@@ -58,9 +58,10 @@ async function loadSummary() {
 
 // ---------------- TRANSACTIONS ----------------
 async function loadTransactions() {
-  const tbody = document.querySelector(".transactions-table tbody");
+  const dashboardRoot = document.querySelector(".dashboard-page");
+  if (!dashboardRoot) return;
 
-  // 🛑 Not on dashboard page — silently exit
+  const tbody = dashboardRoot.querySelector(".transactions-table tbody");
   if (!tbody) return;
 
   tbody.innerHTML = "";
