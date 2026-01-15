@@ -2861,21 +2861,21 @@ html:not(.app-loading) body {
     background: var(--accent-blue) !important;
 }
 
-/* FINAL FILTER COMPACT OVERRIDE */
+/* FINAL COMPACT FILTER OVERRIDE */
 .filters-grid {
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)) !important;
 }
 
 .filters-section {
-  padding: 1rem !important;
+  padding: 0.9rem !important;
 }
 
 .filter-input,
 .filter-select {
-  height: 32px !important;
-  font-size: 0.78rem !important;
+  height: 30px !important;
+  font-size: 0.75rem !important;
 }
 
 .filters-title {
-  font-size: 0.95rem !important;
+  font-size: 0.9rem !important;
 }

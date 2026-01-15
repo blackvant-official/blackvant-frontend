@@ -8,58 +8,43 @@
 // =======================================================
 
 async function loadTransactionsFromBackend() {
-    if (!window.Clerk || !window.API_BASE_URL) return [];
+  if (!window.Clerk || !window.API_BASE_URL) return [];
 
-    try {
-        const token = await window.Clerk.session.getToken({ template: "backend" });
+  try {
+    const token = await window.Clerk.session.getToken({ template: "backend" });
 
-        const res = await fetch(
-            `${window.API_BASE_URL}/api/v1/me/transactions`,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            }
-        );
+    const res = await fetch(
+      `${window.API_BASE_URL}/api/v1/me/transactions`,
+      {
+        headers: { Authorization: `Bearer ${token}` }
+      }
+    );
 
-        const ledger = await res.json();
+    const data = await res.json();
 
-        return ledger.map(tx => {
-          const type =
-            tx.referenceType === "DEPOSIT" ? "deposit" :
-            tx.referenceType === "WITHDRAWAL" ? "withdrawal" :
-            "profit";
-                
-          const signedAmount =
-            tx.direction === "CREDIT"
-              ? Number(tx.amount)
-              : -Number(tx.amount);
-                
-          return {
-            id: tx.id,
-            createdAt: new Date(tx.createdAt),
-            dateLabel: new Date(tx.createdAt).toLocaleString(undefined, {
-              year: "numeric",
-              month: "short",
-              day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit"
-            }),
-            type,
-            description:
-              type === "deposit" ? "USDT Deposit" :
-              type === "withdrawal" ? "Crypto Withdrawal" :
-              "Profit Credit",
-            amount: signedAmount,
-            status: tx.status || "approved"
-          };
-        });
+    return data.map(tx => ({
+      id: tx.id,
+      createdAt: new Date(tx.createdAt),
+      dateLabel: new Date(tx.createdAt).toLocaleString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+      }),
+      type: tx.type,                 // already normalized
+      description:
+        tx.type === "deposit" ? "Deposit" :
+        tx.type === "withdrawal" ? "Withdrawal" :
+        "Profit Credit",
+      amount: Number(tx.amount),     // already signed
+      status: tx.status              // approved | pending | rejected
+    }));
 
-
-    } catch (err) {
-        console.error("Transaction load failed:", err);
-        return [];
-    }
+  } catch (err) {
+    console.error("Transaction load failed:", err);
+    return [];
+  }
 }
 
 
@@ -115,36 +100,40 @@ function renderTransactionsTable(transactions) {
 // =======================================================
 
 function updateStatistics() {
-    const rows = Array.from(
-      document.querySelectorAll("#transactionsTableBody tr")
-    ).filter(row => row.style.display !== "none");
+  const rows = Array.from(
+    document.querySelectorAll("#transactionsTableBody tr")
+  );
 
-    let deposits = 0;
-    let withdrawals = 0;
-    let profits = 0;
-    let approvedCount = 0;
+  let totalCount = rows.length;
+  let deposits = 0;
+  let withdrawals = 0;
+  let profits = 0;
 
-    rows.forEach(row => {
-        if (row.dataset.status !== "approved") return;
+  rows.forEach(row => {
+    const amount = Number(row.dataset.amount);
+    const type = row.dataset.type;
+    const status = row.dataset.status;
 
-        approvedCount++;
+    if (type === "deposit" && status === "approved") {
+      deposits += amount;
+    }
 
-        const amount = Number(row.dataset.amount);
-        const type = row.dataset.type;
+    if (type === "withdrawal" && status === "approved") {
+      withdrawals += Math.abs(amount);
+    }
 
-        if (type === "deposit") deposits += amount;
-        else if (type === "withdrawal") withdrawals += Math.abs(amount);
-        else if (type === "profit") profits += amount;
-    });
+    if (type === "profit" && status === "approved") {
+      profits += amount;
+    }
+  });
 
-    document.getElementById("totalTransactions").textContent = approvedCount;
-    document.getElementById("totalDeposited").textContent = `$${deposits.toFixed(2)}`;
-    document.getElementById("totalWithdrawn").textContent = `$${withdrawals.toFixed(2)}`;
-
-    const net = profits;
-    document.getElementById("netProfit").textContent =
-        net >= 0 ? `+$${net.toFixed(2)}` : `-$${Math.abs(net).toFixed(2)}`;
+  document.getElementById("totalTransactions").textContent = totalCount;
+  document.getElementById("totalDeposited").textContent = `$${deposits.toFixed(2)}`;
+  document.getElementById("totalWithdrawn").textContent = `$${withdrawals.toFixed(2)}`;
+  document.getElementById("netProfit").textContent =
+    profits >= 0 ? `+$${profits.toFixed(2)}` : `-$${Math.abs(profits).toFixed(2)}`;
 }
+
 
 // =======================================================
 // FILTERS (RESTORED)
