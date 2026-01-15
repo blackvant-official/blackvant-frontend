@@ -2974,3 +2974,26 @@ html:not(.app-loading) body {
 }
 
 
+/* ===============================
+   MOBILE SIDEBAR TOGGLE
+================================ */
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -260px;
+    height: 100vh;
+    width: 260px;
+    z-index: 1000;
+    transition: left 0.3s ease;
+  }
+
+  .sidebar.sidebar-open {
+    left: 0;
+  }
+
+  body.no-scroll {
+    overflow: hidden;
+  }
+}
