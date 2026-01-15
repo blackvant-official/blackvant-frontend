@@ -1,6 +1,48 @@
 // =======================================================
 // 🔥 BACKEND HELPERS (Clerk + BlackVant API)
 // =======================================================
+const fileInput = document.getElementById("supportFileInput");
+const preview = document.getElementById("supportFilePreview");
+const uploadArea = document.querySelector(".upload-area");
+
+let selectedFiles = [];
+
+fileInput.addEventListener("change", () => {
+  selectedFiles = Array.from(fileInput.files);
+  renderFilePreview();
+});
+
+function renderFilePreview() {
+  preview.innerHTML = "";
+
+  if (!selectedFiles.length) {
+    preview.classList.remove("show");
+    uploadArea.classList.remove("has-files");
+    return;
+  }
+
+  uploadArea.classList.add("has-files");
+  preview.classList.add("show");
+
+  selectedFiles.forEach((file, index) => {
+    const item = document.createElement("div");
+    item.className = "file-item";
+    item.innerHTML = `
+      ${file.name}
+      <button data-index="${index}" class="remove-file">✕</button>
+    `;
+    preview.appendChild(item);
+  });
+
+  preview.querySelectorAll(".remove-file").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.preventDefault();
+      const i = Number(btn.dataset.index);
+      selectedFiles.splice(i, 1);
+      renderFilePreview();
+    });
+  });
+}
 
 async function getBackendToken() {
     if (!window.Clerk || !window.Clerk.session) return null;
@@ -329,7 +371,7 @@ async function uploadSupportAttachments(files, ticketId) {
   for (const file of files) {
     // 1. Request signed upload URL
     const { uploadUrl, storageKey } = await requestUpload({
-      purpose: "support",
+      purpose: "SUPPORT_MESSAGE",
       file,
       ticketId,
     });
@@ -340,7 +382,7 @@ async function uploadSupportAttachments(files, ticketId) {
     // 3. Confirm upload
     const { attachmentId } = await confirmUpload({
       storageKey,
-      purpose: "support",
+      purpose: "SUPPORT_MESSAGE",
       mimeType: file.type,
       fileSize: file.size,
       originalName: file.name,
@@ -392,52 +434,64 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("supportForm");
   if (!form) return;
 
-  form.addEventListener("submit", async (e) => {
+  document.getElementById("supportForm").addEventListener("submit", async e => {
     e.preventDefault();
-
-    const subject = document.getElementById("issueCategory").value;
-    const description = document.getElementById("issueDescription").value;
+    
+    const subject = document.getElementById("subject").value;
+    const description = document.getElementById("description").value;
     const priority = document.getElementById("priority").value;
-    const files = fileInput?.files || [];
-
-    // 1. Create ticket
-    const res = await API("/api/v1/support/ticket", "POST", {
-      subject,
-      description,
-      priority
-    });
-
-    if (!res?.ticketId) return;
-
-    // 2. Upload attachments
-    if (files.length > 0) {
-      for (const file of files) {
-        console.log("Uploading:", file.name);
-
+    
+    if (!subject || !description) {
+      alert("Please fill required fields.");
+      return;
+    }
+  
+    const submitBtn = document.getElementById("submitSupportBtn");
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Submitting...";
+  
+    try {
+      // 1️⃣ Create ticket
+      const ticketRes = await fetch(`${API_BASE_URL}/api/v1/support/ticket`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ subject, description, priority })
+      });
+    
+      if (!ticketRes.ok) throw new Error(await ticketRes.text());
+      const { ticketId } = await ticketRes.json();
+    
+      // 2️⃣ Upload attachments
+      for (const file of selectedFiles) {
         const { uploadUrl, storageKey } = await requestUpload({
-          purpose: "support",
+          purpose: "SUPPORT_MESSAGE",
           file,
-          ticketId: res.ticketId
+          ticketId
         });
-
+      
         await putToS3(uploadUrl, file);
-
+      
         await confirmUpload({
+          purpose: "SUPPORT_MESSAGE",
           storageKey,
-          purpose: "support",
-          mimeType: file.type,
-          fileSize: file.size,
-          originalName: file.name,
-          ticketId: res.ticketId
+          ticketId
         });
       }
+    
+      alert("Support ticket submitted successfully.");
+      selectedFiles = [];
+      renderFilePreview();
+      loadSupportTickets();
+    
+    } catch (err) {
+      console.error(err);
+      alert("Failed to submit support ticket.");
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Submit Ticket";
     }
-
-    alert("Support ticket submitted successfully");
-    form.reset();
-    preview.innerHTML = "";
-    uploadArea.classList.remove("has-files");
   });
+
     setupFAQCategories();
     setupCommonIssues();
     setupSearch();

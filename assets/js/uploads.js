@@ -8,7 +8,7 @@ async function requestUpload({ purpose, file, depositId, ticketId }) {
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({
-      purpose,
+      purpose: "SUPPORT_MESSAGE",
       mimeType: file.type,
       fileSize: file.size,
       originalName: file.name,
