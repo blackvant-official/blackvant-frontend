@@ -28,11 +28,11 @@ async function loadTransactionsFromBackend() {
         (tx.referenceType === "DEPOSIT" ? "deposit" :
          tx.referenceType === "WITHDRAWAL" ? "withdrawal" :
          "profit");
-        
+
       const normalizedStatus =
         tx.status ||
         (tx.referenceType ? "approved" : "pending");
-        
+
       return {
         id: tx.id,
         createdAt: new Date(tx.createdAt),
@@ -118,34 +118,41 @@ function updateStatistics() {
   );
 
   let totalCount = rows.length;
-  let deposits = 0;
-  let withdrawals = 0;
-  let profits = 0;
+  let approvedDeposits = 0;
+  let approvedWithdrawals = 0;
+  let approvedProfit = 0;
 
   rows.forEach(row => {
     const amount = Number(row.dataset.amount);
     const type = row.dataset.type;
     const status = row.dataset.status;
 
-    if (type === "deposit" && status === "approved") {
-      deposits += amount;
+    if (status !== "approved") return;
+
+    if (type === "deposit") {
+      approvedDeposits += amount;
     }
 
-    if (type === "withdrawal" && status === "approved") {
-      withdrawals += Math.abs(amount);
+    if (type === "withdrawal") {
+      approvedWithdrawals += Math.abs(amount);
     }
 
-    if (type === "profit" && status === "approved") {
-      profits += amount;
+    if (type === "profit") {
+      approvedProfit += amount;
     }
   });
 
   document.getElementById("totalTransactions").textContent = totalCount;
-  document.getElementById("totalDeposited").textContent = `$${deposits.toFixed(2)}`;
-  document.getElementById("totalWithdrawn").textContent = `$${withdrawals.toFixed(2)}`;
+  document.getElementById("totalDeposited").textContent =
+    `$${approvedDeposits.toFixed(2)}`;
+  document.getElementById("totalWithdrawn").textContent =
+    `$${approvedWithdrawals.toFixed(2)}`;
   document.getElementById("netProfit").textContent =
-    profits >= 0 ? `+$${profits.toFixed(2)}` : `-$${Math.abs(profits).toFixed(2)}`;
+    approvedProfit >= 0
+      ? `+$${approvedProfit.toFixed(2)}`
+      : `-$${Math.abs(approvedProfit).toFixed(2)}`;
 }
+
 
 
 // =======================================================
@@ -192,11 +199,13 @@ function applyFilters() {
         
 
         row.dataset.filtered = show ? "true" : "false";
+        row.style.display = show ? "" : "none";
         if (show) visible++;
     });
 
     setupPagination();
     updateTableInfo(visible);
+    updateStatistics();
 }
 
 function setupFilters() {
@@ -340,10 +349,9 @@ async function initTransactionHistory() {
     renderTransactionsTable(data);
     setupExport();
     setupViewDetails();
-    setupFilters();       // ✅ ADD THIS
-    applyFilters();       // initial load
-    updateStatistics();
-    
+    setupFilters();
+    applyFilters();        // applies visibility + pagination
+    updateStatistics();    // stats AFTER filters
     document.querySelector(".transaction-content").style.visibility = "visible";
 }
 
