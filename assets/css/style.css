@@ -2975,25 +2975,38 @@ html:not(.app-loading) body {
 
 
 /* ===============================
-   MOBILE SIDEBAR TOGGLE
+   MOBILE SIDEBAR — FINAL FIX
 ================================ */
 
 @media (max-width: 768px) {
+
+  .main-content {
+    position: relative;
+  }
+
   .sidebar {
-    position: fixed;
+    position: fixed !important;
     top: 0;
-    left: -260px;
+    left: 0;
     height: 100vh;
     width: 260px;
-    z-index: 1000;
-    transition: left 0.3s ease;
+    z-index: 1001;
+
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
   }
 
   .sidebar.sidebar-open {
-    left: 0;
+    transform: translateX(0);
   }
 
   body.no-scroll {
     overflow: hidden;
+  }
+
+  /* Ensure header stays clickable */
+  .header {
+    position: relative;
+    z-index: 1002;
   }
 }
