@@ -36,12 +36,17 @@ async function handleViewTicket(ticketId) {
   try {
     const ticket = await API(`/api/v1/support/ticket/${ticketId}`, "GET");
     
-    alert(
-      `Ticket: ${ticket.ticketId}\n` +
+    const message =
+      `Ticket ID: ${ticket.ticketId}\n` +
       `Subject: ${ticket.subject}\n` +
       `Status: ${ticket.status}\n\n` +
-      `Description:\n${ticket.description}`
+      ticket.description;
+
+    window.open(
+      "data:text/plain;charset=utf-8," + encodeURIComponent(message),
+      "_blank"
     );
+
 
 
   } catch (err) {
@@ -76,7 +81,12 @@ async function loadSupportTickets() {
         tr.innerHTML = `
           <td>#${t.ticketId}</td>
           <td>${t.subject}</td>
-          <td><span class="status-badge status-${t.status}">${t.status}</span></td>
+          <td>
+            <span class="status-badge status-${t.status}">
+              ${t.status.charAt(0).toUpperCase() + t.status.slice(1)}
+            </span>
+          </td>
+
           <td>${new Date(t.createdAt).toLocaleString(undefined, {
                 year: "numeric",
                 month: "short",
