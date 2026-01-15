@@ -77,25 +77,41 @@ const API = async (endpoint, method = "POST", body = null) => {
 async function handleViewTicket(ticketId) {
   try {
     const ticket = await API(`/api/v1/support/ticket/${ticketId}`, "GET");
-    
-    const message =
-      `Ticket ID: ${ticket.ticketId}\n` +
-      `Subject: ${ticket.subject}\n` +
-      `Status: ${ticket.status}\n\n` +
-      ticket.description;
+    if (!ticket) return;
 
-    window.open(
-      "data:text/plain;charset=utf-8," + encodeURIComponent(message),
-      "_blank"
-    );
+    const modal = document.getElementById("ticketModal");
+    const title = document.getElementById("modalTicketTitle");
+    const content = document.getElementById("modalTicketContent");
+    const closeBtn = document.getElementById("closeTicketModal");
 
+    title.textContent = `Ticket #${ticket.ticketId} — ${ticket.subject}`;
 
+    let text =
+      `Status: ${ticket.status}\n` +
+      `Priority: ${ticket.priority}\n` +
+      `Created: ${new Date(ticket.createdAt).toLocaleString()}\n\n` +
+      `Description:\n${ticket.description}\n\n`;
+
+    if (ticket.messages?.length) {
+      text += `Messages:\n`;
+      ticket.messages.forEach(m => {
+        text += `\n[${m.sender}] ${m.message}`;
+      });
+    }
+
+    content.textContent = text;
+    modal.style.display = "flex";
+
+    closeBtn.onclick = () => {
+      modal.style.display = "none";
+    };
 
   } catch (err) {
     alert("Failed to load ticket details");
     console.error(err);
   }
 }
+
 
 // =======================================================
 //        ORIGINAL SUPPORT PAGE LOGIC (UI unchanged)
