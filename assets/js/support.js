@@ -287,12 +287,23 @@ function setupSupportForm() {
         // Send to backend
         const priority = document.getElementById("priority").value;
 
+        const files = document.getElementById("supportFileInput").files;
+
+        // 1. Create ticket FIRST (we need ticketId)
         const res = await API("/api/v1/support/ticket", "POST", {
-            subject,
-            description,
-            priority
+          subject,
+          description,
+          priority
         });
 
+        if (!res) return;
+
+        const ticketId = res.ticketId;
+
+        // 2. Upload attachments (if any)
+        if (files.length > 0) {
+          await uploadSupportAttachments(files, ticketId);
+        }
 
         submitBtn.innerHTML = originalText;
         submitBtn.disabled = false;
@@ -310,6 +321,51 @@ function setupSupportForm() {
         await loadSupportTickets();
 
     });
+}
+
+async function uploadSupportAttachments(files, ticketId) {
+  const uploaded = [];
+
+  for (const file of files) {
+    // 1. Request signed upload URL
+    const { uploadUrl, storageKey } = await requestUpload({
+      purpose: "support",
+      file,
+      ticketId,
+    });
+
+    // 2. Upload to S3
+    await putToS3(uploadUrl, file);
+
+    // 3. Confirm upload
+    const { attachmentId } = await confirmUpload({
+      storageKey,
+      purpose: "support",
+      mimeType: file.type,
+      fileSize: file.size,
+      originalName: file.name,
+      ticketId,
+    });
+
+    uploaded.push(attachmentId);
+  }
+
+  return uploaded;
+}
+
+const fileInput = document.getElementById("supportFileInput");
+const preview = document.getElementById("supportFilePreview");
+
+if (fileInput && preview) {
+  fileInput.addEventListener("change", () => {
+    preview.innerHTML = "";
+    Array.from(fileInput.files).forEach(file => {
+      const div = document.createElement("div");
+      div.className = "file-item";
+      div.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+      preview.appendChild(div);
+    });
+  });
 }
 
 // ======================

@@ -182,10 +182,19 @@
 
                     <div class="form-group">
                         <label class="form-label">Attachments (Optional)</label>
-                        <div class="upload-area disabled">
+                        <div class="upload-area" id="supportUploadArea">
                           <div class="upload-icon">📎</div>
-                          <div class="upload-text">Attachments will be enabled soon</div>
+                          <div class="upload-text">Attach files (PNG, JPG, PDF — max 5MB)</div>
+                          <input
+                            type="file"
+                            id="supportFileInput"
+                            class="file-input"
+                            multiple
+                            accept=".png,.jpg,.jpeg,.pdf"
+                          />
                         </div>
+                        <div id="supportFilePreview" class="file-preview"></div>
+
                         <div id="supportFilePreview" class="file-preview"></div>
                     </div>
 
