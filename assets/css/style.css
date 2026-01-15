@@ -2639,6 +2639,21 @@ input:checked + .toggle-slider:before {
     color: var(--accent-blue);
 }
 
+.upload-area.has-files {
+  border-color: var(--accent-blue);
+  background: rgba(0, 136, 255, 0.05);
+}
+
+.file-preview {
+  margin-top: 0.75rem;
+}
+
+.file-item {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+
 /* Resources */
 .resources {
     margin-top: 2rem;

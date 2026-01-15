@@ -360,20 +360,84 @@ async function uploadSupportAttachments(files, ticketId) {
 // INITIALIZE PAGE
 // ======================
 document.addEventListener("DOMContentLoaded", () => {
-    const fileInput = document.getElementById("supportFileInput");
-    const preview = document.getElementById("supportFilePreview");
+  // =========================
+  // FILE INPUT PREVIEW (FIXED)
+  // =========================
+  const fileInput = document.getElementById("supportFileInput");
+  const preview = document.getElementById("supportFilePreview");
+  const uploadArea = document.querySelector(".upload-area");
 
-    if (fileInput && preview) {
-      fileInput.addEventListener("change", () => {
-        preview.innerHTML = "";
-        Array.from(fileInput.files).forEach(file => {
-          const div = document.createElement("div");
-          div.className = "file-item";
-          div.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
-          preview.appendChild(div);
-        });
+  if (fileInput && preview && uploadArea) {
+    fileInput.addEventListener("change", () => {
+      preview.innerHTML = "";
+
+      if (!fileInput.files.length) return;
+
+      uploadArea.classList.add("has-files");
+
+      Array.from(fileInput.files).forEach(file => {
+        const div = document.createElement("div");
+        div.className = "file-item";
+        div.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+        preview.appendChild(div);
       });
+
+      console.log("Files selected:", fileInput.files.length);
+    });
+  }
+
+  // =========================
+  // SUPPORT FORM SUBMIT
+  // =========================
+  const form = document.getElementById("supportForm");
+  if (!form) return;
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const subject = document.getElementById("issueCategory").value;
+    const description = document.getElementById("issueDescription").value;
+    const priority = document.getElementById("priority").value;
+    const files = fileInput?.files || [];
+
+    // 1. Create ticket
+    const res = await API("/api/v1/support/ticket", "POST", {
+      subject,
+      description,
+      priority
+    });
+
+    if (!res?.ticketId) return;
+
+    // 2. Upload attachments
+    if (files.length > 0) {
+      for (const file of files) {
+        console.log("Uploading:", file.name);
+
+        const { uploadUrl, storageKey } = await requestUpload({
+          purpose: "support",
+          file,
+          ticketId: res.ticketId
+        });
+
+        await putToS3(uploadUrl, file);
+
+        await confirmUpload({
+          storageKey,
+          purpose: "support",
+          mimeType: file.type,
+          fileSize: file.size,
+          originalName: file.name,
+          ticketId: res.ticketId
+        });
+      }
     }
+
+    alert("Support ticket submitted successfully");
+    form.reset();
+    preview.innerHTML = "";
+    uploadArea.classList.remove("has-files");
+  });
     setupFAQCategories();
     setupCommonIssues();
     setupSearch();
