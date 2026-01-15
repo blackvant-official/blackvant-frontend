@@ -22,24 +22,37 @@ async function loadTransactionsFromBackend() {
 
     const data = await res.json();
 
-    return data.map(tx => ({
-      id: tx.id,
-      createdAt: new Date(tx.createdAt),
-      dateLabel: new Date(tx.createdAt).toLocaleString(undefined, {
-        year: "numeric",
-        month: "short",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit"
-      }),
-      type: tx.type,                 // already normalized
-      description:
-        tx.type === "deposit" ? "Deposit" :
-        tx.type === "withdrawal" ? "Withdrawal" :
-        "Profit Credit",
-      amount: Number(tx.amount),     // already signed
-      status: tx.status              // approved | pending | rejected
-    }));
+    return data.map(tx => {
+      const normalizedType =
+        tx.type ||
+        (tx.referenceType === "DEPOSIT" ? "deposit" :
+         tx.referenceType === "WITHDRAWAL" ? "withdrawal" :
+         "profit");
+        
+      const normalizedStatus =
+        tx.status ||
+        (tx.referenceType ? "approved" : "pending");
+        
+      return {
+        id: tx.id,
+        createdAt: new Date(tx.createdAt),
+        dateLabel: new Date(tx.createdAt).toLocaleString(undefined, {
+          year: "numeric",
+          month: "short",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit"
+        }),
+        type: normalizedType,
+        description:
+          normalizedType === "deposit" ? "Deposit" :
+          normalizedType === "withdrawal" ? "Withdrawal" :
+          "Profit Credit",
+        amount: Number(tx.amount),
+        status: normalizedStatus
+      };
+    });
+
 
   } catch (err) {
     console.error("Transaction load failed:", err);
