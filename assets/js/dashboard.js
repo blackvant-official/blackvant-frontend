@@ -72,16 +72,43 @@ async function loadTransactions() {
     return;
   }
 
-  txs.forEach(tx => {
+  // Group by type
+  const grouped = {
+    deposit: [],
+    withdrawal: [],
+    profit: []
+  };
+
+  txs
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .forEach(tx => {
+      if (grouped[tx.type] && grouped[tx.type].length < 2) {
+        grouped[tx.type].push(tx);
+      }
+    });
+
+  // Flatten groups
+  const recent = [
+    ...grouped.deposit,
+    ...grouped.withdrawal,
+    ...grouped.profit
+  ];
+
+  // Render
+  recent.forEach(tx => {
     const tr = document.createElement("tr");
-    const sign = tx.direction === "CREDIT" ? "+" : "-";
 
     tr.innerHTML = `
       <td>${new Date(tx.createdAt).toLocaleDateString()}</td>
-      <td>${tx.referenceType}</td>
-      <td>${sign}$${Number(tx.amount).toFixed(2)}</td>
-      <td>${tx.direction}</td>
+      <td>${tx.type.charAt(0).toUpperCase() + tx.type.slice(1)}</td>
+      <td>${tx.amount >= 0 ? "+" : "-"}$${Math.abs(tx.amount).toFixed(2)}</td>
+      <td>
+        <span class="status-badge status-${tx.status}">
+          ${tx.status.charAt(0).toUpperCase() + tx.status.slice(1)}
+        </span>
+      </td>
     `;
+
     tbody.appendChild(tr);
   });
 }
