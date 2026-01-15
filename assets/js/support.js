@@ -349,29 +349,33 @@ async function uploadSupportAttachments(files, ticketId) {
 
     uploaded.push(attachmentId);
   }
+  console.log("Uploading attachment:", file.name);
+  console.log("Files selected:", files.length);
 
   return uploaded;
+
 }
 
-const fileInput = document.getElementById("supportFileInput");
-const preview = document.getElementById("supportFilePreview");
 
-if (fileInput && preview) {
-  fileInput.addEventListener("change", () => {
-    preview.innerHTML = "";
-    Array.from(fileInput.files).forEach(file => {
-      const div = document.createElement("div");
-      div.className = "file-item";
-      div.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
-      preview.appendChild(div);
-    });
-  });
-}
 
 // ======================
 // INITIALIZE PAGE
 // ======================
 document.addEventListener("DOMContentLoaded", () => {
+    const fileInput = document.getElementById("supportFileInput");
+    const preview = document.getElementById("supportFilePreview");
+
+    if (fileInput && preview) {
+      fileInput.addEventListener("change", () => {
+        preview.innerHTML = "";
+        Array.from(fileInput.files).forEach(file => {
+          const div = document.createElement("div");
+          div.className = "file-item";
+          div.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+          preview.appendChild(div);
+        });
+      });
+    }
     setupFAQCategories();
     setupCommonIssues();
     setupSearch();
