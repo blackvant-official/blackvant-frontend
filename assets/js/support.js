@@ -433,65 +433,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // =========================
   const form = document.getElementById("supportForm");
   if (!form) return;
-
-  document.getElementById("supportForm").addEventListener("submit", async e => {
-    e.preventDefault();
-    
-    const subject = document.getElementById("subject").value;
-    const description = document.getElementById("description").value;
-    const priority = document.getElementById("priority").value;
-    
-    if (!subject || !description) {
-      alert("Please fill required fields.");
-      return;
-    }
-  
-    const submitBtn = document.getElementById("submitSupportBtn");
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Submitting...";
-  
-    try {
-      // 1️⃣ Create ticket
-      const ticketRes = await fetch(`${API_BASE_URL}/api/v1/support/ticket`, {
-        method: "POST",
-        headers: authHeaders(),
-        body: JSON.stringify({ subject, description, priority })
-      });
-    
-      if (!ticketRes.ok) throw new Error(await ticketRes.text());
-      const { ticketId } = await ticketRes.json();
-    
-      // 2️⃣ Upload attachments
-      for (const file of selectedFiles) {
-        const { uploadUrl, storageKey } = await requestUpload({
-          purpose: "SUPPORT_MESSAGE",
-          file,
-          ticketId
-        });
-      
-        await putToS3(uploadUrl, file);
-      
-        await confirmUpload({
-          purpose: "SUPPORT_MESSAGE",
-          storageKey,
-          ticketId
-        });
-      }
-    
-      alert("Support ticket submitted successfully.");
-      selectedFiles = [];
-      renderFilePreview();
-      loadSupportTickets();
-    
-    } catch (err) {
-      console.error(err);
-      alert("Failed to submit support ticket.");
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Submit Ticket";
-    }
-  });
-
     setupFAQCategories();
     setupCommonIssues();
     setupSearch();
