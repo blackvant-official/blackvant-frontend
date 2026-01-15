@@ -356,8 +356,6 @@ async function uploadSupportAttachments(files, ticketId) {
 
 }
 
-
-
 // ======================
 // INITIALIZE PAGE
 // ======================
