@@ -64,43 +64,48 @@
             </div>
 
             <!-- Filters Section -->
-            <div class="filters-bar">
-              <div class="filter-group search-box">
-                <span class="search-icon">🔍</span>
-                <input type="text" id="searchInput" class="filter-input search-input" placeholder="Search">
+            <div class="filters-section">
+              <div class="filters-header">
+                <h2 class="filters-title">Filters</h2>
               </div>
           
-              <div class="filter-group">
-                <input type="date" id="dateFrom" class="filter-input">
+              <div class="filters-bar">
+                <div class="filter-group search-box">
+                  <span class="search-icon">🔍</span>
+                  <input type="text" id="searchInput" class="filter-input search-input" placeholder="Search transactions">
+                </div>
+            
+                <div class="filter-group">
+                  <input type="date" id="dateFrom" class="filter-input">
+                </div>
+            
+                <div class="filter-group">
+                  <input type="date" id="dateTo" class="filter-input">
+                </div>
+            
+                <div class="filter-group">
+                  <select id="typeFilter" class="filter-select">
+                    <option value="">All Types</option>
+                    <option value="profit">Profit</option>
+                    <option value="deposit">Deposit</option>
+                    <option value="withdrawal">Withdrawal</option>
+                  </select>
+                </div>
+            
+                <div class="filter-group">
+                  <select id="statusFilter" class="filter-select">
+                    <option value="">All Status</option>
+                    <option value="completed">Completed</option>
+                    <option value="pending">Pending</option>
+                    <option value="rejected">Rejected</option>
+                  </select>
+                </div>
+            
+                <button class="export-btn" id="exportBtn">Export</button>
+                <button class="btn-primary" id="applyFiltersBtn">Apply</button>
               </div>
-          
-              <div class="filter-group">
-                <input type="date" id="dateTo" class="filter-input">
-              </div>
-          
-              <div class="filter-group">
-                <select id="typeFilter" class="filter-select">
-                  <option value="">All Types</option>
-                  <option value="profit">Profit</option>
-                  <option value="deposit">Deposit</option>
-                  <option value="withdrawal">Withdrawal</option>
-                </select>
-              </div>
-          
-              <div class="filter-group">
-                <select id="statusFilter" class="filter-select">
-                  <option value="">All Status</option>
-                  <option value="completed">Completed</option>
-                  <option value="pending">Pending</option>
-                  <option value="rejected">Rejected</option>
-                </select>
-              </div>
-          
-              <button class="export-btn" id="exportBtn">Export</button>
-              <button class="btn-primary" id="applyFiltersBtn">Apply</button>
             </div>
 
-            
             <!-- Statistics Cards -->
             <div class="stats-grid">
                 <div class="stat-card">
