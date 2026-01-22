@@ -15,6 +15,16 @@ function signed(v) {
   return `${n >= 0 ? "+" : "-"}$${Math.abs(n).toFixed(2)}`;
 }
 
+function applyMaintenanceMode(isOn) {
+    const banner = document.getElementById("maintenanceBanner");
+    if (!banner) return;
+
+    if (isOn) {
+      banner.classList.remove("hidden");
+    } else {
+      banner.classList.add("hidden");
+    }
+  }
 // ---------------- AUTH ----------------
 async function token() {
   await waitForClerk();
@@ -48,18 +58,7 @@ async function loadSummary() {
   }
 
   const d = await api("/api/v1/me/dashboard/summary");
-
-  function applyMaintenanceMode(isOn) {
-    const banner = document.getElementById("maintenanceBanner");
-    if (!banner) return;
-
-    if (isOn) {
-      banner.classList.remove("hidden");
-    } else {
-      banner.classList.add("hidden");
-    }
-  }
-
+  applyMaintenanceMode(!!d.platformMaintenanceMode);
 
 
   totalBalanceEl.textContent = usd(d.totalBalance);
@@ -67,7 +66,6 @@ async function loadSummary() {
   totalProfitEl.textContent = signed(d.totalProfit);
   todayProfitEl.textContent = signed(d.todayProfit);
 }
-applyMaintenanceMode(!!data.platformMaintenanceMode);
 
 // ---------------- TRANSACTIONS ----------------
 async function loadTransactions() {
