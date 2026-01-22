@@ -9,14 +9,15 @@ async function loadSystemMinDeposit() {
         const token = await getBackendToken();
 
         const res = await fetch(
-            `${window.API_BASE_URL}/api/v1/admin/settings/system`,
+            `${window.API_BASE_URL}/api/v1/me/dashboard/summary`,
             { headers: { Authorization: `Bearer ${token}` } }
         );
+
 
         if (!res.ok) throw new Error("Failed to load system settings");
 
         const data = await res.json();
-        const min = Number(data.minDepositAmount);
+        const min = Number(data.minDepositAmount || 100);
 
         SYSTEM_MIN_DEPOSIT = Number.isFinite(min) && min > 0 ? min : 100;
 
@@ -625,7 +626,7 @@ async function loadRecentDeposits() {
 async function loadSystemWithdrawLimits() {
   const token = await getBackendToken();
   const res = await fetch(
-    `${window.API_BASE_URL}/api/v1/admin/settings/system`,
+    `${window.API_BASE_URL}/api/v1/me/dashboard/summary`,
     { headers: { Authorization: `Bearer ${token}` } }
   );
   const data = await res.json();
