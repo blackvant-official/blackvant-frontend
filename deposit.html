@@ -176,7 +176,7 @@
             </div>
           </div>
 
-          <button class="btn-primary" id="submitBtn">
+          <button class="btn-primary" id="submitBtn" disabled>
             Submit Deposit Request
           </button>
         </div>
@@ -217,7 +217,7 @@
     document.addEventListener("DOMContentLoaded", function () {
       requireAuth({
         redirectTo: "login.html",
-        onReady: (user, clerk) => {
+        onReady: async (user, clerk) => {
           const userBtnEl = document.getElementById("clerk-user-button");
           if (userBtnEl) {
             clerk.mountUserButton(userBtnEl, {
@@ -235,6 +235,21 @@
             logoutBtn.addEventListener("click", async () => {
               await signOutAndRedirect("login.html");
             });
+          }
+          // 🔧 Maintenance mode check (after auth)
+          try {
+            const t = await clerk.session.getToken({ template: "backend" });
+            const r = await fetch(`${window.API_BASE_URL}/api/v1/me/dashboard/summary`, {
+              headers: { Authorization: `Bearer ${t}` }
+            });
+            const d = await r.json();
+          
+            if (d.platformMaintenanceMode === false) {
+              const btn = document.getElementById("submitBtn");
+              if (btn) btn.disabled = false;
+            }
+          } catch (_) {
+            // backend still enforces
           }
         },
       });

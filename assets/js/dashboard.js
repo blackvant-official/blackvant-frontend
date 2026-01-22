@@ -49,6 +49,15 @@ async function loadSummary() {
 
   const d = await api("/api/v1/me/dashboard/summary");
 
+  // 🔧 Maintenance mode banner (user-side)
+  if (d.platformMaintenanceMode === true) {
+    const banner = document.getElementById("maintenanceBanner");
+    if (banner) {
+      banner.style.display = "block";
+    }
+  }
+
+
   totalBalanceEl.textContent = usd(d.totalBalance);
   investmentBalanceEl.textContent = usd(d.activeInvestment);
   totalProfitEl.textContent = signed(d.totalProfit);

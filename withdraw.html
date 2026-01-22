@@ -235,6 +235,22 @@ document.addEventListener("DOMContentLoaded", function () {
           await signOutAndRedirect("login.html");
         };
       }
+      // 🔧 Maintenance mode check
+      try {
+        const t = await clerk.session.getToken({ template: "backend" });
+        const r = await fetch(`${window.API_BASE_URL}/api/v1/me/dashboard/summary`, {
+          headers: { Authorization: `Bearer ${t}` }
+        });
+        const d = await r.json();
+      
+        if (d.platformMaintenanceMode === false) {
+          const btn = document.getElementById("submitBtn");
+          if (btn) btn.disabled = false;
+        }
+      } catch (_) {
+        // backend still enforces
+      }
+
     }
   });
 });
