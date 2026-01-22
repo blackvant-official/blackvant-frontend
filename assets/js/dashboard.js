@@ -49,13 +49,17 @@ async function loadSummary() {
 
   const d = await api("/api/v1/me/dashboard/summary");
 
-  // 🔧 Maintenance mode banner (user-side)
-  if (d.platformMaintenanceMode === true) {
+  function applyMaintenanceMode(isOn) {
     const banner = document.getElementById("maintenanceBanner");
-    if (banner) {
-      banner.style.display = "block";
+    if (!banner) return;
+
+    if (isOn) {
+      banner.classList.remove("hidden");
+    } else {
+      banner.classList.add("hidden");
     }
   }
+
 
 
   totalBalanceEl.textContent = usd(d.totalBalance);
@@ -63,7 +67,7 @@ async function loadSummary() {
   totalProfitEl.textContent = signed(d.totalProfit);
   todayProfitEl.textContent = signed(d.todayProfit);
 }
-
+applyMaintenanceMode(!!data.platformMaintenanceMode);
 
 // ---------------- TRANSACTIONS ----------------
 async function loadTransactions() {
