@@ -62,15 +62,15 @@
         <a href="javascript:void(0)" class="nav-item" id="logoutBtn">🚪 Logout</a>
       </nav>
       
-      <div id="maintenanceBanner" class="maintenance-banner hidden">
-        <span>
-          ⚠️ Platform is under maintenance. Deposits and withdrawals are temporarily unavailable.
-        </span>
-      </div>
-      <!-- Main -->
       <!-- Dashboard Content -->
       <main class="dashboard-content">
-
+        
+        <div id="maintenanceBanner" class="maintenance-banner hidden">
+          <span>
+            ⚠️ Platform is under maintenance. Deposits and withdrawals are temporarily unavailable.
+          </span>
+        </div>
+        <!-- Main -->
         <!-- Welcome -->
         <div class="welcome-section">
           <h1 id="welcomeTitle">Welcome back!</h1>
@@ -143,42 +143,6 @@
   <script src="assets/js/sidebar.js"></script>
   <script src="assets/js/dashboard.js"></script>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      requireAuth({
-        redirectTo: "login.html",
-        onReady: (user, clerk) => {
-          // Mount Clerk user button
-          const userBtnEl = document.getElementById("clerk-user-button");
-          if (userBtnEl) {
-            clerk.mountUserButton(userBtnEl, {
-              afterSignOutUrl: "login.html",
-            });
-          }
-
-          // Welcome text + email
-          const welcomeTitle = document.getElementById("welcomeTitle");
-          const userEmail = document.getElementById("userEmail");
-
-          if (user && user.firstName && welcomeTitle) {
-            welcomeTitle.textContent = `Welcome back, ${user.firstName}!`;
-          }
-
-          if (user && user.primaryEmailAddress && userEmail) {
-            userEmail.textContent = user.primaryEmailAddress.emailAddress;
-          }
-
-          // Logout
-          const logoutBtn = document.getElementById("logoutBtn");
-          if (logoutBtn) {
-            logoutBtn.addEventListener("click", async () => {
-              await signOutAndRedirect("login.html");
-            });
-          }
-        },
-      });
-    });
-  </script>
 
 </body>
 </html>
