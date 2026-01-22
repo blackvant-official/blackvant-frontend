@@ -14,17 +14,19 @@ function signed(v) {
   const n = Number(v || 0);
   return `${n >= 0 ? "+" : "-"}$${Math.abs(n).toFixed(2)}`;
 }
+document.documentElement.classList.add("app-loading");
 
 function applyMaintenanceMode(isOn) {
-    const banner = document.getElementById("maintenanceBanner");
-    if (!banner) return;
+  const banner = document.getElementById("maintenanceBanner");
+  if (!banner) return;
 
-    if (isOn) {
-      banner.classList.remove("hidden");
-    } else {
-      banner.classList.add("hidden");
-    }
+  if (isOn) {
+    banner.classList.remove("hidden");
+  } else {
+    banner.classList.add("hidden");
   }
+}
+
 // ---------------- AUTH ----------------
 async function token() {
   await waitForClerk();
@@ -245,9 +247,13 @@ document.addEventListener("DOMContentLoaded", () => {
   requireAuth({
     redirectTo: "login.html",
     onReady: async () => {
-      await loadSummary();
-      await loadChart();
-      await loadTransactions();
+      try {
+        await loadSummary();
+        await loadChart();
+        await loadTransactions();
+      } finally {
+        document.documentElement.classList.remove("app-loading");
+      }
     }
   });
 });
