@@ -246,7 +246,29 @@ async function loadChart() {
 document.addEventListener("DOMContentLoaded", () => {
   requireAuth({
     redirectTo: "login.html",
-    onReady: async () => {
+    onReady: async (user, clerk) => {
+      // ================================
+      // CLERK USER UI (RESTORED)
+      // ================================
+      const userBtnEl = document.getElementById("clerk-user-button");
+      if (userBtnEl && clerk) {
+        clerk.mountUserButton(userBtnEl, {
+          afterSignOutUrl: "login.html",
+        });
+      }
+      
+      // Welcome message with name/email
+      const welcomeTitle = document.getElementById("welcomeTitle");
+      if (welcomeTitle && user) {
+        const name =
+          user.firstName ||
+          user.username ||
+          user.primaryEmailAddress?.emailAddress ||
+          "there";
+      
+        welcomeTitle.textContent = `Welcome back, ${name}!`;
+      }
+
       try {
         await loadSummary();
         await loadChart();
