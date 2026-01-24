@@ -492,7 +492,7 @@ function initializeWithdrawPage() {
             const data = await res.json();
 
             if (!res.ok) {
-                throw new Error(data.error || "Withdrawal failed");
+                throw data;
             }
 
             alert(`✅ Withdrawal request submitted!\n\nAmount: $${amount.toFixed(2)}\nStatus: Pending`);
@@ -503,29 +503,24 @@ function initializeWithdrawPage() {
             netDisplay.textContent = '$0.00';
 
         } catch (err) {
-          try {
-            const data = JSON.parse(err.message);
+          if (err.error === "WITHDRAW_FREQUENCY_LIMIT" && err.details) {
+            const { frequencyDays, periodLabel, nextAllowedAt } = err.details;
           
-            if (data.error === "WITHDRAW_FREQUENCY_LIMIT") {
-              const freq = data.frequencyDays;
-              const next = new Date(data.nextAllowedAt);
-            
-              alert(
-                "⏳ Withdrawal Limit Reached\n\n" +
-                `You can submit one withdrawal every ${freq} day(s).\n\n` +
-                `Your last withdrawal request was made recently.\n` +
-                `You can submit your next withdrawal on:\n\n` +
-                `${next.toLocaleDateString(undefined, {
-                  year: "numeric",
-                  month: "long",
-                  day: "2-digit"
-                })}`
-              );
-              return;
-            }
-          } catch (_) {}
+            alert(
+              "⏳ Withdrawal Limit Reached\n\n" +
+              `You are allowed 1 withdrawal per ${periodLabel}.\n\n` +
+              `You have already submitted a withdrawal in the current ${periodLabel}.\n\n` +
+              `You can submit a new withdrawal on:\n` +
+              `${new Date(nextAllowedAt).toLocaleDateString(undefined, {
+                year: "numeric",
+                month: "long",
+                day: "2-digit"
+              })}`
+            );
+            return;
+          }
         
-          alert(err.message || "Something went wrong. Please try again.");
+          alert("Something went wrong. Please try again.");
         }
 
         this.innerHTML = originalText;
