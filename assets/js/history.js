@@ -21,19 +21,17 @@ async function loadTransactionsFromBackend() {
     );
 
     const data = await res.json();
+    if (!Array.isArray(data)) return [];
 
-    const normalizedType =
-      tx.referenceType === "DEPOSIT"
-        ? "deposit"
-        : tx.referenceType === "WITHDRAWAL"
-        ? "withdrawal"
-        : tx.referenceType === "PROFIT"
-        ? "profit"
-        : "unknown";
-    
-
-        
-      const normalizedStatus = "approved";
+    return data.map(tx => {
+      const normalizedType =
+        tx.referenceType === "DEPOSIT"
+          ? "deposit"
+          : tx.referenceType === "WITHDRAWAL"
+          ? "withdrawal"
+          : tx.referenceType === "PROFIT"
+          ? "profit"
+          : "unknown";
 
       return {
         id: tx.id,
@@ -47,16 +45,15 @@ async function loadTransactionsFromBackend() {
         }),
         type: normalizedType,
         description:
-          normalizedType === "deposit" ? "Deposit" :
-          normalizedType === "withdrawal" ? "Withdrawal" :
-          "Profit Credit",
+          normalizedType === "deposit"
+            ? "Deposit"
+            : normalizedType === "withdrawal"
+            ? "Withdrawal"
+            : "Profit Credit",
         amount: Number(tx.amount),
-        status: normalizedStatus
+        status: "approved"
       };
     });
-
-
-
   } catch (err) {
     console.error("Transaction load failed:", err);
     return [];
