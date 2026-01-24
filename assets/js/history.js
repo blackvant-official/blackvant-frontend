@@ -22,19 +22,18 @@ async function loadTransactionsFromBackend() {
 
     const data = await res.json();
 
-    return data.map(tx => {
-      const normalizedType =
-        tx.referenceType === "DEPOSIT"
-          ? "deposit"
-          : tx.referenceType === "WITHDRAWAL"
-          ? "withdrawal"
-          : "profit";
+    const normalizedType =
+      tx.referenceType === "DEPOSIT"
+        ? "deposit"
+        : tx.referenceType === "WITHDRAWAL"
+        ? "withdrawal"
+        : tx.referenceType === "PROFIT"
+        ? "profit"
+        : "unknown";
+    
 
         
-      const normalizedStatus =
-        tx.direction === "DEBIT" || tx.direction === "CREDIT"
-          ? "approved"
-          : "pending";
+      const normalizedStatus = "approved";
 
       return {
         id: tx.id,
