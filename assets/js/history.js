@@ -24,14 +24,29 @@ async function loadTransactionsFromBackend() {
     if (!Array.isArray(data)) return [];
 
     return data.map(tx => {
-      const normalizedType =
-        tx.referenceType === "DEPOSIT"
-          ? "deposit"
-          : tx.referenceType === "WITHDRAWAL"
-          ? "withdrawal"
-          : tx.referenceType === "PROFIT"
-          ? "profit"
-          : "unknown";
+        let normalizedType = "unknown";
+        let description = "Transaction";
+
+        if (tx.referenceType === "DEPOSIT" && tx.direction === "CREDIT") {
+          normalizedType = "deposit";
+          description = "Deposit";
+        }
+
+        if (tx.referenceType === "WITHDRAWAL" && tx.direction === "DEBIT") {
+          normalizedType = "withdrawal";
+          description = "Withdrawal";
+        }
+
+        if (tx.referenceType === "PROFIT" && tx.direction === "CREDIT") {
+          normalizedType = "profit";
+          description = "Profit Credit";
+        }
+
+        if (tx.referenceType === "WITHDRAWAL" && tx.bucket === "PROFIT") {
+          normalizedType = "withdrawal";
+          description = "Profit Withdrawal";
+        }
+
 
       return {
         id: tx.id,
@@ -44,13 +59,11 @@ async function loadTransactionsFromBackend() {
           minute: "2-digit"
         }),
         type: normalizedType,
-        description:
-          normalizedType === "deposit"
-            ? "Deposit"
-            : normalizedType === "withdrawal"
-            ? "Withdrawal"
-            : "Profit Credit",
-        amount: Number(tx.amount),
+        description,
+        amount:
+          tx.direction === "DEBIT"
+            ? -Number(tx.amount)
+            : Number(tx.amount),
         status: "approved"
       };
     });
@@ -355,4 +368,6 @@ async function initTransactionHistory() {
     document.querySelector(".transaction-content").style.visibility = "visible";
 }
 
+// EXPOSE INIT FOR HTML
+window.initTransactionHistory = initTransactionHistory;
 
