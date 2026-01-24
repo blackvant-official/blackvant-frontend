@@ -701,23 +701,26 @@ async function loadRecentWithdrawals() {
                 const statusClass = `status-${w.status.toLowerCase()}`;
 
                 const tr = document.createElement("tr");
+                const sourceLabel =
+                  w.source === "profit" ? "Profit" :
+                  w.source === "capital" ? "Capital" :
+                  "-";
                 tr.innerHTML = `
-                    <td>${new Date(w.createdAt).toLocaleString(undefined, {
-                        year: "numeric",
-                        month: "short",
-                        day: "2-digit",
-                        hour: "2-digit",
-                        minute: "2-digit"
-                    })}</td>
-
-
-                    <td>${w.method}</td>
-                    <td>$${Number(w.amount).toFixed(2)}</td>
-                    <td>
-                      <span class="status-badge ${statusClass}">
-                        ${w.status.charAt(0).toUpperCase() + w.status.slice(1)}
-                      </span>
-                    </td>
+                  <td>${new Date(w.createdAt).toLocaleString(undefined, {
+                    year: "numeric",
+                    month: "short",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                  })}</td>
+                
+                  <td>${sourceLabel}</td>
+                  <td>$${Number(w.amount).toFixed(2)}</td>
+                  <td>
+                    <span class="status-badge ${statusClass}">
+                      ${w.status.charAt(0).toUpperCase() + w.status.slice(1)}
+                    </span>
+                  </td>
                 `;
                 tbody.appendChild(tr);
             });
