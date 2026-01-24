@@ -22,17 +22,40 @@ async function loadTransactionsFromBackend() {
 
     const data = await res.json();
 
-    return data.map(tx => {
+    // 🔒 Ledger-safe deduplication (latest state wins)
+    const byReference = new Map();
+      
+    data.forEach(tx => {
+      const ref =
+        tx.referenceId || tx.reference || tx.id;
+    
+      const existing = byReference.get(ref);
+    
+      // Prefer approved > pending > rejected
+      if (!existing) {
+        byReference.set(ref, tx);
+      } else {
+        const priority = { approved: 3, pending: 2, rejected: 1 };
+        const currentScore = priority[tx.status] || 0;
+        const existingScore = priority[existing.status] || 0;
+      
+        if (currentScore >= existingScore) {
+          byReference.set(ref, tx);
+        }
+      }
+    });
+    
+    return Array.from(byReference.values()).map(tx => {
       const normalizedType =
         tx.type ||
         (tx.referenceType === "DEPOSIT" ? "deposit" :
          tx.referenceType === "WITHDRAWAL" ? "withdrawal" :
          "profit");
-
+        
       const normalizedStatus =
         tx.status ||
         (tx.referenceType ? "approved" : "pending");
-
+        
       return {
         id: tx.id,
         createdAt: new Date(tx.createdAt),
@@ -52,6 +75,7 @@ async function loadTransactionsFromBackend() {
         status: normalizedStatus
       };
     });
+
 
 
   } catch (err) {
