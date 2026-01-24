@@ -503,7 +503,29 @@ function initializeWithdrawPage() {
             netDisplay.textContent = '$0.00';
 
         } catch (err) {
-            alert(err.message || "Server error");
+          try {
+            const data = JSON.parse(err.message);
+          
+            if (data.error === "WITHDRAW_FREQUENCY_LIMIT") {
+              const freq = data.frequencyDays;
+              const next = new Date(data.nextAllowedAt);
+            
+              alert(
+                "⏳ Withdrawal Limit Reached\n\n" +
+                `You can submit one withdrawal every ${freq} day(s).\n\n` +
+                `Your last withdrawal request was made recently.\n` +
+                `You can submit your next withdrawal on:\n\n` +
+                `${next.toLocaleDateString(undefined, {
+                  year: "numeric",
+                  month: "long",
+                  day: "2-digit"
+                })}`
+              );
+              return;
+            }
+          } catch (_) {}
+        
+          alert(err.message || "Something went wrong. Please try again.");
         }
 
         this.innerHTML = originalText;
