@@ -2,6 +2,7 @@
 let SYSTEM_MIN_DEPOSIT = null;
 let SYSTEM_MIN_WITHDRAW = null;
 let SYSTEM_WITHDRAW_FREQUENCY_DAYS = null;
+let SYSTEM_WITHDRAW_FREQUENCY_ENABLED = true;
 let otpVerified = false;
 
 async function loadSystemMinDeposit() {
@@ -655,10 +656,16 @@ async function loadSystemWithdrawLimits() {
   const data = await res.json();
 
   SYSTEM_MIN_WITHDRAW = Number(data.minWithdrawAmount || 10);
+
   SYSTEM_WITHDRAW_FREQUENCY_DAYS =
     typeof data.withdrawFrequencyDays === "number"
       ? data.withdrawFrequencyDays
       : null;
+
+  SYSTEM_WITHDRAW_FREQUENCY_ENABLED =
+    typeof data.withdrawFrequencyEnabled === "boolean"
+      ? data.withdrawFrequencyEnabled
+      : true; // fallback
 }
 
 
