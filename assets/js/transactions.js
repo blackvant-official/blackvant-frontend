@@ -656,10 +656,14 @@ async function loadSystemWithdrawLimits() {
 
   const frequencyEnabled = data.withdrawFrequencyEnabled !== false;
     if (!frequencyEnabled) {
-    freqRuleEl.textContent = "No withdrawal frequency limit (temporary)";
-    return;
+      withdrawFrequencyRule.textContent =
+        "No withdrawal frequency limit (temporarily disabled)";
+    } else {
+      withdrawFrequencyRule.textContent =
+        `Once every ${SYSTEM_WITHDRAW_FREQUENCY_DAYS} day(s)`;
+    }
   }
-  }
+
 
 async function loadRecentWithdrawals() {
     const tbody = document.querySelector(".withdrawals-table tbody");
@@ -739,6 +743,7 @@ async function loadRecentWithdrawals() {
         tbody.innerHTML = `<tr><td colspan="4">Failed to load withdrawals</td></tr>`;
     }
 }
+const frequencyEnabled = data.withdrawFrequencyEnabled !== false;
 function renderWithdrawRules() {
   const minRuleEl = document.getElementById("minWithdrawRule");
   const freqRuleEl = document.getElementById("withdrawFrequencyRule");
