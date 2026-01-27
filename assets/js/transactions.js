@@ -750,7 +750,9 @@ function renderWithdrawRules() {
   }
 
   if (freqRuleEl) {
-    if (SYSTEM_WITHDRAW_FREQUENCY_DAYS === 1) {
+    if (SYSTEM_WITHDRAW_FREQUENCY_ENABLED === false) {
+      freqRuleEl.textContent = "Withdrawals are currently unlimited";
+    } else if (SYSTEM_WITHDRAW_FREQUENCY_DAYS === 1) {
       freqRuleEl.textContent = "Once per day";
     } else if (SYSTEM_WITHDRAW_FREQUENCY_DAYS === 7) {
       freqRuleEl.textContent = "Once per week";
