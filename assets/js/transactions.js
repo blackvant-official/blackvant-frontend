@@ -649,8 +649,17 @@ async function loadSystemWithdrawLimits() {
   const data = await res.json();
 
   SYSTEM_MIN_WITHDRAW = Number(data.minWithdrawAmount || 10);
-  SYSTEM_WITHDRAW_FREQUENCY_DAYS = Number(data.withdrawFrequencyDays || 7);
-}
+  SYSTEM_WITHDRAW_FREQUENCY_DAYS =
+    typeof data.withdrawFrequencyDays === "number"
+      ? data.withdrawFrequencyDays
+      : null;
+
+  const frequencyEnabled = data.withdrawFrequencyEnabled !== false;
+    if (!frequencyEnabled) {
+    freqRuleEl.textContent = "No withdrawal frequency limit (temporary)";
+    return;
+  }
+  }
 
 async function loadRecentWithdrawals() {
     const tbody = document.querySelector(".withdrawals-table tbody");
@@ -738,9 +747,17 @@ function renderWithdrawRules() {
     minRuleEl.textContent = `Minimum: $${SYSTEM_MIN_WITHDRAW}`;
   }
 
-  if (freqRuleEl && SYSTEM_WITHDRAW_FREQUENCY_DAYS !== null) {
-    freqRuleEl.textContent =
-      `Once every ${SYSTEM_WITHDRAW_FREQUENCY_DAYS} day(s)`;
+  if (freqRuleEl) {
+    if (SYSTEM_WITHDRAW_FREQUENCY_DAYS === 1) {
+      freqRuleEl.textContent = "Once per day";
+    } else if (SYSTEM_WITHDRAW_FREQUENCY_DAYS === 7) {
+      freqRuleEl.textContent = "Once per week";
+    } else if (typeof SYSTEM_WITHDRAW_FREQUENCY_DAYS === "number") {
+      freqRuleEl.textContent =
+        `Once every ${SYSTEM_WITHDRAW_FREQUENCY_DAYS} days`;
+    } else {
+      freqRuleEl.textContent = "Withdrawal frequency loading…";
+    }
   }
 }
 
