@@ -642,10 +642,16 @@ async function loadRecentDeposits() {
 
 async function loadSystemWithdrawLimits() {
   const token = await getBackendToken();
+
   const res = await fetch(
     `${window.API_BASE_URL}/api/v1/me/dashboard/summary`,
     { headers: { Authorization: `Bearer ${token}` } }
   );
+
+  if (!res.ok) {
+    throw new Error("Failed to load withdraw limits");
+  }
+
   const data = await res.json();
 
   SYSTEM_MIN_WITHDRAW = Number(data.minWithdrawAmount || 10);
@@ -653,16 +659,8 @@ async function loadSystemWithdrawLimits() {
     typeof data.withdrawFrequencyDays === "number"
       ? data.withdrawFrequencyDays
       : null;
+}
 
-  const frequencyEnabled = data.withdrawFrequencyEnabled !== false;
-    if (!frequencyEnabled) {
-      withdrawFrequencyRule.textContent =
-        "No withdrawal frequency limit (temporarily disabled)";
-    } else {
-      withdrawFrequencyRule.textContent =
-        `Once every ${SYSTEM_WITHDRAW_FREQUENCY_DAYS} day(s)`;
-    }
-  }
 
 
 async function loadRecentWithdrawals() {
@@ -743,7 +741,6 @@ async function loadRecentWithdrawals() {
         tbody.innerHTML = `<tr><td colspan="4">Failed to load withdrawals</td></tr>`;
     }
 }
-const frequencyEnabled = data.withdrawFrequencyEnabled !== false;
 function renderWithdrawRules() {
   const minRuleEl = document.getElementById("minWithdrawRule");
   const freqRuleEl = document.getElementById("withdrawFrequencyRule");
