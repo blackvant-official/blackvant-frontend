@@ -1,9 +1,10 @@
 // assets/js/auth.js
 // Centralized Clerk auth helpers for all pages
 
-window.CLERK_PUBLISHABLE_KEY =
-  window.CLERK_PUBLISHABLE_KEY ||
-  "pk_test_Y29taWMta2FuZ2Fyb28tMjMuY2xlcmsuYWNjb3VudHMuZGV2JA";
+if (!window.CLERK_PUBLISHABLE_KEY) {
+  throw new Error("CLERK_PUBLISHABLE_KEY is not defined");
+}
+
 
 // -------------------------------------------------
 // WAIT FOR CLERK (HARD SAFE)
