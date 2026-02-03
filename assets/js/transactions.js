@@ -748,26 +748,28 @@ async function loadRecentWithdrawals() {
         tbody.innerHTML = `<tr><td colspan="4">Failed to load withdrawals</td></tr>`;
     }
 }
+
 function renderWithdrawRules() {
   const minRuleEl = document.getElementById("minWithdrawRule");
   const freqRuleEl = document.getElementById("withdrawFrequencyRule");
 
-  if (minRuleEl && SYSTEM_MIN_WITHDRAW !== null) {
-    minRuleEl.textContent = `Minimum: $${SYSTEM_MIN_WITHDRAW}`;
+  // ===== Minimum =====
+  if (minRuleEl) {
+    if (typeof SYSTEM_MIN_WITHDRAW === "number") {
+      minRuleEl.textContent = `Minimum: $${SYSTEM_MIN_WITHDRAW}`;
+    } else {
+      minRuleEl.textContent = "Minimum: not specified";
+    }
   }
 
   if (!freqRuleEl) return;
 
-  // 🔐 Unlimited withdrawals (explicit or implicit)
-  if (
-    SYSTEM_WITHDRAW_FREQUENCY_ENABLED === false ||
-    SYSTEM_WITHDRAW_FREQUENCY_DAYS === null
-  ) {
+  // ===== Frequency =====
+  if (SYSTEM_WITHDRAW_FREQUENCY_DAYS === null) {
     freqRuleEl.textContent = "Withdrawals are currently unlimited";
     return;
   }
 
-  // 🔁 Explicit limits
   if (SYSTEM_WITHDRAW_FREQUENCY_DAYS === 1) {
     freqRuleEl.textContent = "Once per day";
     return;
@@ -778,15 +780,10 @@ function renderWithdrawRules() {
     return;
   }
 
-  if (typeof SYSTEM_WITHDRAW_FREQUENCY_DAYS === "number") {
-    freqRuleEl.textContent =
-      `Once every ${SYSTEM_WITHDRAW_FREQUENCY_DAYS} days`;
-    return;
-  }
-
-  // 🚨 Defensive fallback (should never happen now)
-  freqRuleEl.textContent = "Withdrawal frequency unavailable";
+  freqRuleEl.textContent =
+    `Once every ${SYSTEM_WITHDRAW_FREQUENCY_DAYS} days`;
 }
+
 
 
 // ===== LEDGER-BASED WITHDRAW BALANCE (GLOBAL) =====
