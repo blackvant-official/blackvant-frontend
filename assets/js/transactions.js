@@ -756,21 +756,38 @@ function renderWithdrawRules() {
     minRuleEl.textContent = `Minimum: $${SYSTEM_MIN_WITHDRAW}`;
   }
 
-  if (freqRuleEl) {
-    if (SYSTEM_WITHDRAW_FREQUENCY_ENABLED === false) {
-      freqRuleEl.textContent = "Withdrawals are currently unlimited";
-    } else if (SYSTEM_WITHDRAW_FREQUENCY_DAYS === 1) {
-      freqRuleEl.textContent = "Once per day";
-    } else if (SYSTEM_WITHDRAW_FREQUENCY_DAYS === 7) {
-      freqRuleEl.textContent = "Once per week";
-    } else if (typeof SYSTEM_WITHDRAW_FREQUENCY_DAYS === "number") {
-      freqRuleEl.textContent =
-        `Once every ${SYSTEM_WITHDRAW_FREQUENCY_DAYS} days`;
-    } else {
-      freqRuleEl.textContent = "Withdrawal frequency loading…";
-    }
+  if (!freqRuleEl) return;
+
+  // 🔐 Unlimited withdrawals (explicit or implicit)
+  if (
+    SYSTEM_WITHDRAW_FREQUENCY_ENABLED === false ||
+    SYSTEM_WITHDRAW_FREQUENCY_DAYS === null
+  ) {
+    freqRuleEl.textContent = "Withdrawals are currently unlimited";
+    return;
   }
+
+  // 🔁 Explicit limits
+  if (SYSTEM_WITHDRAW_FREQUENCY_DAYS === 1) {
+    freqRuleEl.textContent = "Once per day";
+    return;
+  }
+
+  if (SYSTEM_WITHDRAW_FREQUENCY_DAYS === 7) {
+    freqRuleEl.textContent = "Once per week";
+    return;
+  }
+
+  if (typeof SYSTEM_WITHDRAW_FREQUENCY_DAYS === "number") {
+    freqRuleEl.textContent =
+      `Once every ${SYSTEM_WITHDRAW_FREQUENCY_DAYS} days`;
+    return;
+  }
+
+  // 🚨 Defensive fallback (should never happen now)
+  freqRuleEl.textContent = "Withdrawal frequency unavailable";
 }
+
 
 // ===== LEDGER-BASED WITHDRAW BALANCE (GLOBAL) =====
 async function loadWithdrawBalances() {
