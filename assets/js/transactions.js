@@ -655,18 +655,18 @@ async function loadSystemWithdrawLimits() {
 
   const data = await res.json();
 
-  SYSTEM_MIN_WITHDRAW = Number(data.minWithdrawAmount || 10);
+  // ✅ single source of truth
+  SYSTEM_MIN_WITHDRAW =
+    typeof data.minWithdrawAmount === "number"
+      ? data.minWithdrawAmount
+      : null;
 
   SYSTEM_WITHDRAW_FREQUENCY_DAYS =
     typeof data.withdrawFrequencyDays === "number"
       ? data.withdrawFrequencyDays
       : null;
-
-  SYSTEM_WITHDRAW_FREQUENCY_ENABLED =
-    typeof data.withdrawFrequencyEnabled === "boolean"
-      ? data.withdrawFrequencyEnabled
-      : true; // fallback
 }
+
 
 
 
