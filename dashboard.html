@@ -1,159 +1,166 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" class="app-loading">
-<head>
-  <meta charset="UTF-8">
-  <title>Dashboard — BlackVant</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="/assets/js/clerk-config.js"></script>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Dashboard — BlackVant</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="/assets/js/clerk-config.js"></script>
 
-  <!-- Main Styles -->
-  <link rel="stylesheet" href="assets/css/style.css">
+    <!-- Main Styles -->
+    <link rel="stylesheet" href="assets/css/style.css" />
 
-  <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Font -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
-  <!-- Clerk Styles -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/style.css">
+    <!-- Clerk Styles -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/style.css"
+    />
 
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- Clerk Script -->
-  <script
-    async
-    crossorigin="anonymous"
-    data-clerk-publishable-key="pk_live_Y2xlcmsuYmxhY2t2YW50LmNvbSQ"
-    src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js">
-  </script>
+    <!-- Clerk Script -->
+    <script
+      async
+      crossorigin="anonymous"
+      data-clerk-publishable-key="pk_live_Y2xlcmsuYmxhY2t2YW50LmNvbSQ"
+      src="https://clerk.blackvant.com/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
+    ></script>
 
-  <style>
-    .cl-userButtonTrigger {
-      border: none !important;
-      background: transparent !important;
-    }
-  </style>
-</head>
+    <style>
+      .cl-userButtonTrigger {
+        border: none !important;
+        background: transparent !important;
+      }
+    </style>
+  </head>
 
-<body class="dashboard-page">
+  <body class="dashboard-page">
+    <div class="container">
+      <!-- Header -->
+      <header class="header">
+        <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+        <a href="dashboard.html" class="logo">BlackVant</a>
 
-  <div class="container">
-
-    <!-- Header -->
-    <header class="header">
-      <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
-      <a href="dashboard.html" class="logo">BlackVant</a>
-
-      <div class="user-menu">
-        <div id="clerk-user-button"></div>
-      </div>
-    </header>
-
-    <div class="main-content">
-      
-      
-      <!-- Sidebar -->
-      <nav class="sidebar" id="sidebar">
-        <a href="dashboard.html" class="nav-item active">📊 Dashboard</a>
-        <a href="deposit.html" class="nav-item">💰 Deposit Funds</a>
-        <a href="withdraw.html" class="nav-item">💸 Withdraw Earnings</a>
-        <a href="transaction-history.html" class="nav-item">📋 Transactions History</a>
-        <a href="profile-settings.html" class="nav-item">👤 Profile Settings</a>
-        <a href="support.html" class="nav-item">🆘 Support</a>
-        
-        <a href="javascript:void(0)" class="nav-item" id="logoutBtn">🚪 Logout</a>
-      </nav>
-      
-      <!-- Dashboard Content -->
-      <main class="dashboard-content">
-        
-        <div id="maintenanceBanner" class="maintenance-banner hidden">
-          <span>
-            ⚠️ Platform is under maintenance. Deposits and withdrawals are temporarily unavailable.
-          </span>
+        <div class="user-menu">
+          <div id="clerk-user-button"></div>
         </div>
-        <!-- Main -->
-        <!-- Welcome -->
-        <div class="welcome-section">
-          <h1 id="welcomeTitle">Welcome back!</h1>
-          <p>Here's your investment portfolio overview</p>
-        </div>
+      </header>
 
-        <!-- Balance Cards -->
-        <div class="cards-grid balance-cards">
-          <div class="card">
-            <div class="card-title">Total Balance</div>
-            <div class="card-value" id="totalBalance">$0.00</div>
-          </div>
-        
-          <div class="card">
-            <div class="card-title">Active Investment</div>
-            <div class="card-value" id="investmentBalance">$0.00</div>
-          </div>
-        </div>
-        
-        <!-- Profit Cards -->
-        <div class="cards-grid profit-cards">
-          <div class="card">
-            <div class="card-title">Total Profit</div>
-            <div class="card-value positive" id="totalProfit">+$0.00</div>
-          </div>
-        
-          <div class="card">
-            <div class="card-title">Today's Profit</div>
-            <div class="card-value positive" id="todayProfit">+$0.00</div>
-          </div>
-        </div>
+      <div class="main-content">
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+          <a href="dashboard.html" class="nav-item active">📊 Dashboard</a>
+          <a href="deposit.html" class="nav-item">💰 Deposit Funds</a>
+          <a href="withdraw.html" class="nav-item">💸 Withdraw Earnings</a>
+          <a href="transaction-history.html" class="nav-item"
+            >📋 Transactions History</a
+          >
+          <a href="profile-settings.html" class="nav-item"
+            >👤 Profile Settings</a
+          >
+          <a href="support.html" class="nav-item">🆘 Support</a>
 
+          <a href="javascript:void(0)" class="nav-item" id="logoutBtn"
+            >🚪 Logout</a
+          >
+        </nav>
 
-        <!-- Chart -->
-        <div class="chart-section">
-          <h2 class="chart-title">Portfolio Performance</h2>
-                
-          <!-- Chart Indicators -->
-          <div class="chart-indicators" id="chartIndicators"></div>
-                
-          <div class="chart-wrapper">
-            <canvas id="performanceChart"></canvas>
+        <!-- Dashboard Content -->
+        <main class="dashboard-content">
+          <div id="maintenanceBanner" class="maintenance-banner hidden">
+            <span>
+              ⚠️ Platform is under maintenance. Deposits and withdrawals are
+              temporarily unavailable.
+            </span>
           </div>
-        </div>
+          <!-- Main -->
+          <!-- Welcome -->
+          <div class="welcome-section">
+            <h1 id="welcomeTitle">Welcome back!</h1>
+            <p>Here's your investment portfolio overview</p>
+          </div>
 
+          <!-- Balance Cards -->
+          <div class="cards-grid balance-cards">
+            <div class="card">
+              <div class="card-title">Total Balance</div>
+              <div class="card-value" id="totalBalance">$0.00</div>
+            </div>
 
-        <!-- Transactions -->
-        <div class="transactions-section">
-          <h2>Recent Transactions</h2>
-          <table class="transactions-table" id="dashboardTransactionsTable">
-            <thead>
-              <tr>
-                <th>Date</th><th>Type</th><th>Amount</th><th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- <tr><td>Dec 15</td><td>Profit</td><td>+$45</td><td>Completed</td></tr>
+            <div class="card">
+              <div class="card-title">Active Investment</div>
+              <div class="card-value" id="investmentBalance">$0.00</div>
+            </div>
+          </div>
+
+          <!-- Profit Cards -->
+          <div class="cards-grid profit-cards">
+            <div class="card">
+              <div class="card-title">Total Profit</div>
+              <div class="card-value positive" id="totalProfit">+$0.00</div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">Today's Profit</div>
+              <div class="card-value positive" id="todayProfit">+$0.00</div>
+            </div>
+          </div>
+
+          <!-- Chart -->
+          <div class="chart-section">
+            <h2 class="chart-title">Portfolio Performance</h2>
+
+            <!-- Chart Indicators -->
+            <div class="chart-indicators" id="chartIndicators"></div>
+
+            <div class="chart-wrapper">
+              <canvas id="performanceChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Transactions -->
+          <div class="transactions-section">
+            <h2>Recent Transactions</h2>
+            <table class="transactions-table" id="dashboardTransactionsTable">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Type</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- <tr><td>Dec 15</td><td>Profit</td><td>+$45</td><td>Completed</td></tr>
               <tr><td>Dec 10</td><td>Withdraw</td><td>-$200</td><td>Completed</td></tr> -->
-            </tbody>
-          </table>
-        </div>
-
-      </main>
+              </tbody>
+            </table>
+          </div>
+        </main>
+      </div>
     </div>
-  </div>
 
-  <!-- Scripts -->
-  <script src="assets/js/config.js"></script>
-  <script src="assets/js/auth.js"></script>
-  <script src="assets/js/sidebar.js"></script>
-  <script src="assets/js/dashboard.js"></script>
+    <!-- Scripts -->
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/sidebar.js"></script>
+    <script src="assets/js/dashboard.js"></script>
 
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  const logoutBtn = document.getElementById("logoutBtn");
-  if (logoutBtn) {
-    logoutBtn.onclick = async () => {
-      await signOutAndRedirect("login.html");
-    };
-  }
-});
-</script>
-
-</body>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (logoutBtn) {
+          logoutBtn.onclick = async () => {
+            await signOutAndRedirect("login.html");
+          };
+        }
+      });
+    </script>
+  </body>
 </html>
