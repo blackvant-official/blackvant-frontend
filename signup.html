@@ -79,15 +79,15 @@
           return;
         }
 
-        clerk.mountSignIn(document.getElementById("clerk-signin"), {
+        clerk.mountSignUp(document.getElementById("clerk-signup"), {
           appearance: { baseTheme: "dark" },
 
-          routing: "hash", // ⭐ THIS IS THE FIX
+          routing: "hash",
 
-          signUpUrl: "signup.html",
+          signInUrl: "login.html",
 
-          afterSignInUrl: "dashboard.html",
           afterSignUpUrl: "dashboard.html",
+          afterSignInUrl: "dashboard.html",
         });
       });
     </script>
