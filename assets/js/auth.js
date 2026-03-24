@@ -2,9 +2,10 @@
 // Centralized Clerk auth helpers for all pages
 
 if (!window.CLERK_PUBLISHABLE_KEY) {
-  throw new Error("CLERK_PUBLISHABLE_KEY is not defined");
+  console.warn(
+    "CLERK_PUBLISHABLE_KEY not set in config (using HTML script instead)",
+  );
 }
-
 
 // -------------------------------------------------
 // WAIT FOR CLERK (HARD SAFE)
@@ -43,9 +44,7 @@ async function getAuthToken() {
   const session = clerk.session;
   if (!session) return null;
 
-  return await session
-    .getToken({ template: "backend" })
-    .catch(() => null);
+  return await session.getToken({ template: "backend" }).catch(() => null);
 }
 
 // -------------------------------------------------
