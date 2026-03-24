@@ -215,6 +215,7 @@
     </div>
 
     <!-- Shared Scripts -->
+    <script src="assets/js/app-init.js"></script>
     <script src="assets/js/config.js"></script>
     <script src="assets/js/auth.js"></script>
     <script src="assets/js/sidebar.js"></script>
@@ -223,49 +224,7 @@
     <script src="assets/js/transactions.js"></script>
 
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        requireAuth({
-          redirectTo: "login.html",
-          onReady: async (user, clerk) => {
-            // const userBtnEl = document.getElementById("clerk-user-button");
-            // if (userBtnEl) {
-            //   clerk.mountUserButton(userBtnEl, {
-            //     afterSignOutUrl: "login.html",
-            //   });
-            // }
-
-            const userEmailEl = document.getElementById("userEmail");
-            if (user && user.primaryEmailAddress && userEmailEl) {
-              userEmailEl.textContent = user.primaryEmailAddress.emailAddress;
-            }
-
-            const logoutBtn = document.getElementById("logoutBtn");
-            if (logoutBtn) {
-              logoutBtn.addEventListener("click", async () => {
-                await signOutAndRedirect("login.html");
-              });
-            }
-            // 🔧 Maintenance mode check (after auth)
-            try {
-              const t = await clerk.session.getToken({ template: "backend" });
-              const r = await fetch(
-                `${window.API_BASE_URL}/api/v1/me/dashboard/summary`,
-                {
-                  headers: { Authorization: `Bearer ${t}` },
-                },
-              );
-              const d = await r.json();
-
-              if (d.platformMaintenanceMode === false) {
-                const btn = document.getElementById("submitBtn");
-                if (btn) btn.disabled = false;
-              }
-            } catch (_) {
-              // backend still enforces
-            }
-          },
-        });
-      });
+      document.addEventListener("DOMContentLoaded", function () {});
     </script>
   </body>
 </html>

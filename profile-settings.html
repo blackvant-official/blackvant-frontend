@@ -88,7 +88,7 @@
         </main>
       </div>
     </div>
-
+    <script src="assets/js/app-init.js"></script>
     <script src="assets/js/config.js"></script>
     <script src="assets/js/auth.js"></script>
     <script src="assets/js/sidebar.js"></script>
@@ -97,39 +97,7 @@
 
     <!-- ✅ FINAL Clerk Logic -->
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        requireAuth({
-          redirectTo: "login.html",
-          onReady: (user, clerk) => {
-            // clerk.mountUserButton(
-            //   document.getElementById("clerk-user-button"),
-            //   {
-            //     afterSignOutUrl: "login.html",
-            //   },
-            // );
-
-            const logoutBtn = document.getElementById("logoutBtn");
-            if (logoutBtn) {
-              logoutBtn.onclick = async () => {
-                await signOutAndRedirect("login.html");
-              };
-            }
-
-            // ✅ START PROFILE LOGIC ONLY AFTER AUTH IS READY
-            if (document.querySelector(".profile-content")) {
-              loadUserProfile();
-              setupTabs();
-              setupPasswordStrength();
-              setupPersonalInfo();
-              setupPasswordChange();
-              setupPaymentMethods();
-              setupToggleSwitches();
-              setupDangerZone();
-              updateProfileFromClerk(clerk);
-            }
-          },
-        });
-      });
+      document.addEventListener("DOMContentLoaded", function () {});
     </script>
   </body>
 </html>

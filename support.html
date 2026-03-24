@@ -1,304 +1,335 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Support - BlackVant</title>
     <script src="/assets/js/clerk-config.js"></script>
 
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
     <!-- ✅ Correct Clerk Script (same as deposit/withdraw/dashboard) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/style.css">
-    <script 
-        async 
-        crossorigin="anonymous"
-        data-clerk-publishable-key="pk_live_Y2xlcmsuYmxhY2t2YW50LmNvbSQ"
-        src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js">
-    </script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/style.css"
+    />
+    <script
+      async
+      crossorigin="anonymous"
+      data-clerk-publishable-key="pk_live_Y2xlcmsuYmxhY2t2YW50LmNvbSQ"
+      src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
+    ></script>
 
     <style>
-        .cl-user-button {
-            background: transparent !important;
-            border: none !important;
-        }
-        .cl-user-button-avatar {
-            background: var(--accent-blue) !important;
-        }
+      .cl-user-button {
+        background: transparent !important;
+        border: none !important;
+      }
+      .cl-user-button-avatar {
+        background: var(--accent-blue) !important;
+      }
     </style>
-</head>
+  </head>
 
-<body class="dashboard-page">
-<div class="container">
-    
-    <!-- Header -->
-    <header class="header">
+  <body class="dashboard-page">
+    <div class="container">
+      <!-- Header -->
+      <header class="header">
         <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
         <a href="dashboard.html" class="logo"><span>BlackVant</span></a>
         <div class="user-menu">
-            <div id="clerk-user-button"></div>
-            <div class="user-avatar" id="fallbackAvatar" style="display:none;">JD</div>
+          <div id="clerk-user-button"></div>
+          <div class="user-avatar" id="fallbackAvatar" style="display: none">
+            JD
+          </div>
         </div>
-    </header>
+      </header>
 
-    <!-- Main Content -->
-    <div class="main-content">
-
+      <!-- Main Content -->
+      <div class="main-content">
         <!-- Sidebar -->
         <nav class="sidebar" id="sidebar">
-            <a href="dashboard.html" class="nav-item"><span>📊</span> Dashboard</a>
-            <a href="deposit.html" class="nav-item"><span>💰</span> Deposit Funds</a>
-            <a href="withdraw.html" class="nav-item"><span>💸</span> Withdraw Earnings</a>
-            <a href="transaction-history.html" class="nav-item"><span>📋</span> Transactions History</a>
-            <a href="profile-settings.html" class="nav-item"><span>👤</span> Profile Settings</a>
-            <a href="support.html" class="nav-item active"><span>🆘</span> Support</a>
-            <a href="javascript:void(0)" class="nav-item" id="logoutBtn"><span>🚪</span> Logout</a>
+          <a href="dashboard.html" class="nav-item"
+            ><span>📊</span> Dashboard</a
+          >
+          <a href="deposit.html" class="nav-item"
+            ><span>💰</span> Deposit Funds</a
+          >
+          <a href="withdraw.html" class="nav-item"
+            ><span>💸</span> Withdraw Earnings</a
+          >
+          <a href="transaction-history.html" class="nav-item"
+            ><span>📋</span> Transactions History</a
+          >
+          <a href="profile-settings.html" class="nav-item"
+            ><span>👤</span> Profile Settings</a
+          >
+          <a href="support.html" class="nav-item active"
+            ><span>🆘</span> Support</a
+          >
+          <a href="javascript:void(0)" class="nav-item" id="logoutBtn"
+            ><span>🚪</span> Logout</a
+          >
         </nav>
 
         <!-- Support Content -->
         <main class="support-content">
+          <!-- Page Header -->
+          <div class="page-header">
+            <h1>Support Center</h1>
+            <p>Get help and contact our support team</p>
+          </div>
 
-            <!-- Page Header -->
-            <div class="page-header">
-                <h1>Support Center</h1>
-                <p>Get help and contact our support team</p>
+          <!-- Quick Help Section -->
+          <div class="quick-help">
+            <div class="section-header">
+              <h2 class="section-title">Quick Help</h2>
+              <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input
+                  type="text"
+                  class="search-input"
+                  id="faqSearch"
+                  placeholder="Search FAQs..."
+                />
+              </div>
             </div>
 
-            <!-- Quick Help Section -->
-            <div class="quick-help">
-                <div class="section-header">
-                    <h2 class="section-title">Quick Help</h2>
-                    <div class="search-box">
-                        <span class="search-icon">🔍</span>
-                        <input type="text" class="search-input" id="faqSearch" placeholder="Search FAQs...">
-                    </div>
+            <div class="faq-categories">
+              <div class="faq-category" data-category="account">
+                <div class="category-icon">👤</div>
+                <div class="category-title">Account & Login</div>
+                <div class="category-desc">
+                  Password reset, 2FA, account access
                 </div>
+              </div>
+              <div class="faq-category" data-category="crypto">
+                <div class="category-icon">₿</div>
+                <div class="category-title">Crypto Transactions</div>
+                <div class="category-desc">
+                  TRC20 deposits, withdrawals, fees
+                </div>
+              </div>
+              <div class="faq-category" data-category="investment">
+                <div class="category-icon">📈</div>
+                <div class="category-title">Investment & Profits</div>
+                <div class="category-desc">
+                  Daily returns, profit calculation
+                </div>
+              </div>
+              <div class="faq-category" data-category="security">
+                <div class="category-icon">🔒</div>
+                <div class="category-title">Security & Verification</div>
+                <div class="category-desc">Wallet security, KYC process</div>
+              </div>
+            </div>
+          </div>
 
-                <div class="faq-categories">
-                    <div class="faq-category" data-category="account">
-                        <div class="category-icon">👤</div>
-                        <div class="category-title">Account & Login</div>
-                        <div class="category-desc">Password reset, 2FA, account access</div>
-                    </div>
-                    <div class="faq-category" data-category="crypto">
-                        <div class="category-icon">₿</div>
-                        <div class="category-title">Crypto Transactions</div>
-                        <div class="category-desc">TRC20 deposits, withdrawals, fees</div>
-                    </div>
-                    <div class="faq-category" data-category="investment">
-                        <div class="category-icon">📈</div>
-                        <div class="category-title">Investment & Profits</div>
-                        <div class="category-desc">Daily returns, profit calculation</div>
-                    </div>
-                    <div class="faq-category" data-category="security">
-                        <div class="category-icon">🔒</div>
-                        <div class="category-title">Security & Verification</div>
-                        <div class="category-desc">Wallet security, KYC process</div>
-                    </div>
-                </div>
+          <!-- Contact Methods -->
+          <div class="contact-methods">
+            <div class="contact-card">
+              <div class="contact-icon">💬</div>
+              <h3 class="contact-title">Live Chat</h3>
+              <p class="contact-desc">Real-time chat with our support team</p>
+              <div class="response-time">Typically replies in 2 minutes</div>
+              <button class="btn-primary" id="liveChatBtn">Start Chat</button>
             </div>
 
-            <!-- Contact Methods -->
-            <div class="contact-methods">
-                <div class="contact-card">
-                    <div class="contact-icon">💬</div>
-                    <h3 class="contact-title">Live Chat</h3>
-                    <p class="contact-desc">Real-time chat with our support team</p>
-                    <div class="response-time">Typically replies in 2 minutes</div>
-                    <button class="btn-primary" id="liveChatBtn">Start Chat</button>
-                </div>
+            <div class="contact-card">
+              <div class="contact-icon">✉️</div>
+              <h3 class="contact-title">Email Support</h3>
+              <p class="contact-desc">Send us an email with your questions</p>
+              <div class="contact-detail">support@blackvant.com</div>
+              <div class="response-time">Typically replies in 4 hours</div>
+              <button class="btn-primary" id="emailSupportBtn">
+                Send Email
+              </button>
+            </div>
+          </div>
 
-                <div class="contact-card">
-                    <div class="contact-icon">✉️</div>
-                    <h3 class="contact-title">Email Support</h3>
-                    <p class="contact-desc">Send us an email with your questions</p>
-                    <div class="contact-detail">support@blackvant.com</div>
-                    <div class="response-time">Typically replies in 4 hours</div>
-                    <button class="btn-primary" id="emailSupportBtn">Send Email</button>
-                </div>
+          <!-- Common Issues -->
+          <div class="common-issues">
+            <div class="section-header">
+              <h2 class="section-title">Common Issues</h2>
             </div>
 
-            <!-- Common Issues -->
-            <div class="common-issues">
-                <div class="section-header">
-                    <h2 class="section-title">Common Issues</h2>
+            <div class="issues-grid">
+              <div class="issue-item">
+                <div class="issue-question">
+                  <span>❓</span> How do I reset my password?
                 </div>
-
-                <div class="issues-grid">
-                    <div class="issue-item">
-                        <div class="issue-question"><span>❓</span> How do I reset my password?</div>
-                        <div class="issue-answer">
-                            Go to Profile Settings → Security Settings → Change Password. You'll need your current password to set a new one.
-                        </div>
-                    </div>
-
-                    <div class="issue-item">
-                        <div class="issue-question"><span>❓</span> Why is my crypto deposit not showing?</div>
-                        <div class="issue-answer">
-                            TRC20 deposits may take 10–30 minutes. Ensure you sent USDT via TRC20 and uploaded the transaction hash.
-                        </div>
-                    </div>
-
-                    <div class="issue-item">
-                        <div class="issue-question"><span>❓</span> How long do withdrawals take?</div>
-                        <div class="issue-answer">
-                            Withdrawals are processed within 24–48 hours after manual verification.
-                        </div>
-                    </div>
-
-                    <div class="issue-item">
-                        <div class="issue-question"><span>❓</span> What is the TRC20 withdrawal fee?</div>
-                        <div class="issue-answer">
-                            A 0.5% fee applies to cover blockchain fees and processing.
-                        </div>
-                    </div>
+                <div class="issue-answer">
+                  Go to Profile Settings → Security Settings → Change Password.
+                  You'll need your current password to set a new one.
                 </div>
+              </div>
+
+              <div class="issue-item">
+                <div class="issue-question">
+                  <span>❓</span> Why is my crypto deposit not showing?
+                </div>
+                <div class="issue-answer">
+                  TRC20 deposits may take 10–30 minutes. Ensure you sent USDT
+                  via TRC20 and uploaded the transaction hash.
+                </div>
+              </div>
+
+              <div class="issue-item">
+                <div class="issue-question">
+                  <span>❓</span> How long do withdrawals take?
+                </div>
+                <div class="issue-answer">
+                  Withdrawals are processed within 24–48 hours after manual
+                  verification.
+                </div>
+              </div>
+
+              <div class="issue-item">
+                <div class="issue-question">
+                  <span>❓</span> What is the TRC20 withdrawal fee?
+                </div>
+                <div class="issue-answer">
+                  A 0.5% fee applies to cover blockchain fees and processing.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Support Ticket Form -->
+          <div class="contact-form-section">
+            <div class="section-header">
+              <h2 class="section-title">Submit a Support Ticket</h2>
             </div>
 
-            <!-- Support Ticket Form -->
-            <div class="contact-form-section">
-                <div class="section-header">
-                    <h2 class="section-title">Submit a Support Ticket</h2>
-                </div>
+            <form id="supportForm">
+              <div class="form-group">
+                <label class="form-label">Subject</label>
+                <select class="form-select" id="subject" required>
+                  <option value="">Select an issue category</option>
+                  <option value="account">Account & Login Issue</option>
+                  <option value="deposit">Crypto Deposit Problem</option>
+                  <option value="withdrawal">Crypto Withdrawal Problem</option>
+                  <option value="profit">Profit Calculation</option>
+                  <option value="security">Security Concern</option>
+                  <option value="other">Other Issue</option>
+                </select>
+              </div>
 
-                <form id="supportForm">
-                    <div class="form-group">
-                        <label class="form-label">Subject</label>
-                        <select class="form-select" id="subject" required>
-                            <option value="">Select an issue category</option>
-                            <option value="account">Account & Login Issue</option>
-                            <option value="deposit">Crypto Deposit Problem</option>
-                            <option value="withdrawal">Crypto Withdrawal Problem</option>
-                            <option value="profit">Profit Calculation</option>
-                            <option value="security">Security Concern</option>
-                            <option value="other">Other Issue</option>
-                        </select>
-                    </div>
+              <div class="form-group">
+                <label class="form-label">Description</label>
+                <textarea
+                  class="form-textarea"
+                  id="description"
+                  placeholder="Describe your issue..."
+                  required
+                ></textarea>
+              </div>
 
-                    <div class="form-group">
-                        <label class="form-label">Description</label>
-                        <textarea class="form-textarea" id="description" placeholder="Describe your issue..." required></textarea>
-                    </div>
+              <div class="form-group">
+                <label class="form-label">Attachments (Optional)</label>
+                <label class="upload-area" for="supportFileInput">
+                  <div class="upload-icon">📎</div>
+                  <div class="upload-text">
+                    Attach files (PNG, JPG, PDF — max 5MB)
+                  </div>
+                </label>
 
-                    <div class="form-group">
-                        <label class="form-label">Attachments (Optional)</label>
-                        <label class="upload-area" for="supportFileInput">
-                          <div class="upload-icon">📎</div>
-                          <div class="upload-text">Attach files (PNG, JPG, PDF — max 5MB)</div>
-                        </label>
-                        
-                        <input
-                          type="file"
-                          id="supportFileInput"
-                          class="file-input"
-                          multiple
-                          accept=".png,.jpg,.jpeg,.pdf"
-                        />
-                        
-                        <div id="supportFilePreview" class="file-preview"></div>
+                <input
+                  type="file"
+                  id="supportFileInput"
+                  class="file-input"
+                  multiple
+                  accept=".png,.jpg,.jpeg,.pdf"
+                />
 
-                    </div>
+                <div id="supportFilePreview" class="file-preview"></div>
+              </div>
 
-                    <div class="form-group">
-                        <label class="form-label">Priority</label>
-                        <select class="form-select" id="priority">
-                            <option value="normal">Normal</option>
-                            <option value="urgent">Urgent (Account access issues)</option>
-                        </select>
-                    </div>
+              <div class="form-group">
+                <label class="form-label">Priority</label>
+                <select class="form-select" id="priority">
+                  <option value="normal">Normal</option>
+                  <option value="urgent">Urgent (Account access issues)</option>
+                </select>
+              </div>
 
-                    <button type="submit" class="btn-primary" id="submitSupportBtn">
-                        Submit Ticket
-                    </button>
-                </form>
+              <button type="submit" class="btn-primary" id="submitSupportBtn">
+                Submit Ticket
+              </button>
+            </form>
+          </div>
+
+          <!-- Support Tickets Table -->
+          <div class="support-tickets">
+            <div class="section-header">
+              <h2 class="section-title">My Support Tickets</h2>
             </div>
 
-            <!-- Support Tickets Table -->
-            <div class="support-tickets">
-                <div class="section-header">
-                    <h2 class="section-title">My Support Tickets</h2>
-                </div>
+            <table class="tickets-table">
+              <thead>
+                <tr>
+                  <th>Ticket ID</th>
+                  <th>Subject</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="ticketsTableBody">
+                <!-- Tickets will be loaded from backend -->
+              </tbody>
+            </table>
+          </div>
 
-                <table class="tickets-table">
-                    <thead>
-                        <tr>
-                            <th>Ticket ID</th>
-                            <th>Subject</th>
-                            <th>Status</th>
-                            <th>Date</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ticketsTableBody">
-                        <!-- Tickets will be loaded from backend -->
-                    </tbody>
-
-                </table>
+          <!-- Resources -->
+          <div class="resources">
+            <div class="resources-title">Helpful Resources</div>
+            <div class="resource-links">
+              <a href="#terms" class="resource-link">Terms of Service</a>
+              <a href="#privacy" class="resource-link">Privacy Policy</a>
+              <a href="#crypto-guide" class="resource-link">Crypto Guide</a>
+              <a href="#security-tips" class="resource-link">Security Tips</a>
             </div>
-
-            <!-- Resources -->
-            <div class="resources">
-                <div class="resources-title">Helpful Resources</div>
-                <div class="resource-links">
-                    <a href="#terms" class="resource-link">Terms of Service</a>
-                    <a href="#privacy" class="resource-link">Privacy Policy</a>
-                    <a href="#crypto-guide" class="resource-link">Crypto Guide</a>
-                    <a href="#security-tips" class="resource-link">Security Tips</a>
-                </div>
-            </div>
-
+          </div>
         </main>
+      </div>
     </div>
-</div>
 
-<!-- Scripts -->
-<script src="assets/js/config.js"></script>
-<script>
-if (!window.API_BASE_URL) {
-  console.error("API_BASE_URL missing");
-  alert("System configuration error. Please reload.");
-}
-</script>
-<script src="assets/js/auth.js"></script>
-<script src="assets/js/sidebar.js"></script>
-<script src="assets/js/uploads.js"></script>
-<script src="assets/js/support.js"></script>
-
-
-<!-- ✅ Clerk Auth Protection -->
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    requireAuth({
-      redirectTo: "login.html",
-      onReady: (user, clerk) => {
-        // clerk.mountUserButton(
-        //   document.getElementById("clerk-user-button"),
-        //   { afterSignOutUrl: "login.html" }
-        // );
-    
-        if (typeof loadSupportTickets === "function") {
-          loadSupportTickets();
-        }
+    <!-- Scripts -->
+    <script src="assets/js/config.js"></script>
+    <script>
+      if (!window.API_BASE_URL) {
+        console.error("API_BASE_URL missing");
+        alert("System configuration error. Please reload.");
       }
-    });
+    </script>
+    <script src="assets/js/app-init.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/sidebar.js"></script>
+    <script src="assets/js/uploads.js"></script>
+    <script src="assets/js/support.js"></script>
 
-});
-</script>
+    <!-- ✅ Clerk Auth Protection -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {});
+    </script>
 
-<!-- Ticket View Modal -->
-<div id="ticketModal" class="modal-overlay" style="display:none;">
-  <div class="modal">
-    <div class="modal-header">
-      <h3 id="modalTicketTitle">Ticket</h3>
-      <button id="closeTicketModal">✕</button>
+    <!-- Ticket View Modal -->
+    <div id="ticketModal" class="modal-overlay" style="display: none">
+      <div class="modal">
+        <div class="modal-header">
+          <h3 id="modalTicketTitle">Ticket</h3>
+          <button id="closeTicketModal">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <pre id="modalTicketContent"></pre>
+        </div>
+      </div>
     </div>
-
-    <div class="modal-body">
-      <pre id="modalTicketContent"></pre>
-    </div>
-  </div>
-</div>
-
-</body>
+  </body>
 </html>

@@ -205,6 +205,7 @@
       </div>
     </div>
 
+    <script src="assets/js/app-init.js"></script>
     <script src="assets/js/config.js"></script>
     <script src="assets/js/auth.js"></script>
     <script src="assets/js/sidebar.js"></script>
@@ -213,29 +214,7 @@
 
     <!-- ✅ Correct Clerk initialization (same as Deposit page) -->
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        requireAuth({
-          redirectTo: "login.html",
-          onReady: (user, clerk) => {
-            // clerk.mountUserButton(
-            //   document.getElementById("clerk-user-button"),
-            //   { afterSignOutUrl: "login.html" },
-            // );
-
-            const logoutBtn = document.getElementById("logoutBtn");
-            if (logoutBtn) {
-              logoutBtn.onclick = async () => {
-                await signOutAndRedirect("login.html");
-              };
-            }
-
-            // ✅ START TRANSACTION HISTORY ONLY AFTER AUTH IS READY
-            if (document.querySelector(".transaction-content")) {
-              initTransactionHistory();
-            }
-          },
-        });
-      });
+      document.addEventListener("DOMContentLoaded", function () {});
     </script>
   </body>
 </html>
