@@ -101,12 +101,12 @@
         requireAuth({
           redirectTo: "login.html",
           onReady: (user, clerk) => {
-            clerk.mountUserButton(
-              document.getElementById("clerk-user-button"),
-              {
-                afterSignOutUrl: "login.html",
-              },
-            );
+            // clerk.mountUserButton(
+            //   document.getElementById("clerk-user-button"),
+            //   {
+            //     afterSignOutUrl: "login.html",
+            //   },
+            // );
 
             const logoutBtn = document.getElementById("logoutBtn");
             if (logoutBtn) {

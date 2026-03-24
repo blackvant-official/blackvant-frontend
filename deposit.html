@@ -227,12 +227,12 @@
         requireAuth({
           redirectTo: "login.html",
           onReady: async (user, clerk) => {
-            const userBtnEl = document.getElementById("clerk-user-button");
-            if (userBtnEl) {
-              clerk.mountUserButton(userBtnEl, {
-                afterSignOutUrl: "login.html",
-              });
-            }
+            // const userBtnEl = document.getElementById("clerk-user-button");
+            // if (userBtnEl) {
+            //   clerk.mountUserButton(userBtnEl, {
+            //     afterSignOutUrl: "login.html",
+            //   });
+            // }
 
             const userEmailEl = document.getElementById("userEmail");
             if (user && user.primaryEmailAddress && userEmailEl) {
