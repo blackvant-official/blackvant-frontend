@@ -13,7 +13,6 @@
 
     <!-- Clerk Script -->
     <script
-      async
       crossorigin="anonymous"
       data-clerk-publishable-key="pk_test_Y29taWMta2FuZ2Fyb28tMjMuY2xlcmsuYWNjb3VudHMuZGV2JA"
       src="https://comic-kangaroo-23.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js"
@@ -69,10 +68,9 @@
     <script src="assets/js/auth.js"></script>
 
     <script>
-      document.addEventListener("DOMContentLoaded", async function () {
+      window.addEventListener("load", async function () {
         const clerk = await waitForClerk();
 
-        // If already logged in → go dashboard
         if (clerk.user) {
           window.location.href = "dashboard.html";
           return;
@@ -80,11 +78,8 @@
 
         clerk.mountSignUp(document.getElementById("clerk-signup"), {
           appearance: { baseTheme: "dark" },
-
           routing: "hash",
-
           signInUrl: "login.html",
-
           afterSignUpUrl: "dashboard.html",
           afterSignInUrl: "dashboard.html",
         });
