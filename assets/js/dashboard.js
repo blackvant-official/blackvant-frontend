@@ -244,16 +244,26 @@ async function loadChart() {
 
 // ---------------- INIT ----------------
 window.initDashboard = function(user, clerk) {
-    setupSidebarClose();
-    setupDashboardEventListeners();
 
-    if (document.getElementById('performanceChart')) {
-        initializeChart();
-        setupChartFilters();
-        setupChartResize();
-        loadRecentTransactions();
+    // SAFE CALLS (prevent crash)
+    if (typeof setupSidebarClose === "function") {
+        setupSidebarClose();
     }
 
-    loadUserBalances();
+    if (typeof setupDashboardEventListeners === "function") {
+        setupDashboardEventListeners();
+    }
+
+    // REMOVE OLD UNKNOWN FUNCTIONS ❌
+    // initializeChart();
+    // setupChartFilters();
+    // setupChartResize();
+    // loadRecentTransactions();
+    // loadUserBalances();
+
+    // ✅ USE YOUR ACTUAL WORKING FUNCTIONS
+    loadSummary();
+    loadTransactions();
+    loadChart();
 };
 
