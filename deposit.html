@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <title>Deposit Funds — BlackVant</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="/assets/js/clerk-config.js"></script>
+    <script src="assets/js/clerk-config.js"></script>
 
     <!-- Main Styles -->
     <link rel="stylesheet" href="assets/css/style.css" />
@@ -25,8 +25,8 @@
     <script
       async
       crossorigin="anonymous"
-      data-clerk-publishable-key="pk_live_Y2xlcmsuYmxhY2t2YW50LmNvbSQ"
-      src="https://clerk.blackvant.com/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
+      data-clerk-publishable-key="pk_test_Y29taWMta2FuZ2Fyb28tMjMuY2xlcmsuYWNjb3VudHMuZGV2JA"
+      src="https://comic-kangaroo-23.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js"
     ></script>
 
     <style>
@@ -219,12 +219,23 @@
     <script src="assets/js/auth.js"></script>
     <script src="assets/js/sidebar.js"></script>
     <script src="assets/js/dashboard.js"></script>
-    <script src="/assets/js/uploads.js"></script>
+    <script src="assets/js/uploads.js"></script>
     <script src="assets/js/transactions.js"></script>
-    <script src="assets/js/app-init.js"></script>
 
     <script>
-      document.addEventListener("DOMContentLoaded", function () {});
+      document.addEventListener("DOMContentLoaded", function () {
+        requireAuth({
+          redirectTo: "login.html",
+
+          onReady: (user, clerk) => {
+            clerk.mountUserButton(document.getElementById("clerk-user-button"));
+
+            if (window.initTransactions) {
+              window.initTransactions(user, clerk);
+            }
+          },
+        });
+      });
     </script>
   </body>
 </html>

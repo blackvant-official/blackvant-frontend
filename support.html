@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Support - BlackVant</title>
-    <script src="/assets/js/clerk-config.js"></script>
+    <script src="assets/js/clerk-config.js"></script>
 
     <link rel="stylesheet" href="assets/css/style.css" />
     <link
@@ -20,8 +20,8 @@
     <script
       async
       crossorigin="anonymous"
-      data-clerk-publishable-key="pk_live_Y2xlcmsuYmxhY2t2YW50LmNvbSQ"
-      src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
+      data-clerk-publishable-key="pk_test_Y29taWMta2FuZ2Fyb28tMjMuY2xlcmsuYWNjb3VudHMuZGV2JA"
+      src="https://comic-kangaroo-23.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js"
     ></script>
 
     <style>
@@ -311,11 +311,22 @@
     <script src="assets/js/sidebar.js"></script>
     <script src="assets/js/uploads.js"></script>
     <script src="assets/js/support.js"></script>
-    <script src="assets/js/app-init.js"></script>
 
     <!-- ✅ Clerk Auth Protection -->
     <script>
-      document.addEventListener("DOMContentLoaded", function () {});
+      document.addEventListener("DOMContentLoaded", function () {
+        requireAuth({
+          redirectTo: "login.html",
+
+          onReady: (user, clerk) => {
+            clerk.mountUserButton(document.getElementById("clerk-user-button"));
+
+            if (window.initSupport) {
+              window.initSupport(user, clerk);
+            }
+          },
+        });
+      });
     </script>
 
     <!-- Ticket View Modal -->
