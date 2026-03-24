@@ -817,20 +817,14 @@ async function loadWithdrawBalances() {
 
 
 // ===== INIT =====
-document.addEventListener('DOMContentLoaded', async function () {
+window.initTransactions = function(user, clerk) {
+    if (document.querySelector('.deposit-content')) {
+        initializeDepositPage();
+        loadRecentDeposits();
+    }
 
-  // ===== DEPOSIT PAGE =====
-  if (document.querySelector('.deposit-content')) {
-    await loadSystemMinDeposit();
-    initializeDepositPage();
-    loadRecentDeposits();
-  }
-
-  // ===== WITHDRAW PAGE =====
-  if (document.querySelector('.withdraw-content')) {
-    await loadSystemWithdrawLimits();
-    renderWithdrawRules();
-    initializeWithdrawPage();
-    loadRecentWithdrawals();
-  }
-});
+    if (document.querySelector('.withdraw-content')) {
+        initializeWithdrawPage();
+        loadRecentWithdrawals();
+    }
+};

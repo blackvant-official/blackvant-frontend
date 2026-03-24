@@ -236,3 +236,14 @@ function updateProfileFromClerk(clerk) {
 // INITIALIZE PAGE
 // =======================================================
 
+window.initProfile = function(user, clerk) {
+    loadUserProfile();
+    setupTabs();
+    setupPasswordStrength();
+    setupPersonalInfo();
+    setupPasswordChange();
+    setupPaymentMethods();
+    setupToggleSwitches();
+    setupDangerZone();
+    updateProfileFromClerk(clerk);
+};
