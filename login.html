@@ -16,7 +16,6 @@
 
     <!-- Clerk Script -->
     <script
-      async
       crossorigin="anonymous"
       data-clerk-publishable-key="pk_test_Y29taWMta2FuZ2Fyb28tMjMuY2xlcmsuYWNjb3VudHMuZGV2JA"
       src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@6/dist/clerk.browser.js"
@@ -87,23 +86,18 @@
     </footer>
 
     <script src="assets/js/config.js"></script>
-    <script src="assets/js/auth.js"></script>
+    <!-- <script src="assets/js/auth.js"></script> -->
 
     <script>
       window.addEventListener("load", async function () {
-        const clerk = await waitForClerk();
+        await window.Clerk.load();
 
-        if (clerk.user) {
-          window.location.href = "dashboard.html";
-          return;
-        }
+        console.log("Clerk loaded:", window.Clerk);
+        console.log("mountSignIn:", window.Clerk.mountSignIn);
 
-        clerk.mountSignIn(document.getElementById("clerk-signin"), {
-          appearance: { baseTheme: "dark" },
+        window.Clerk.mountSignIn(document.getElementById("clerk-signin"), {
           routing: "hash",
-          signUpUrl: "signup.html",
           afterSignInUrl: "dashboard.html",
-          afterSignUpUrl: "dashboard.html",
         });
       });
     </script>
