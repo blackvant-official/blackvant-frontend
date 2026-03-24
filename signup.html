@@ -70,18 +70,24 @@
     <script src="assets/js/auth.js"></script>
 
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        requireGuest({
-          redirectTo: "dashboard.html",
+      document.addEventListener("DOMContentLoaded", async function () {
+        const clerk = await waitForClerk();
 
-          onReady: async (user, clerk) => {
-            clerk.mountSignUp(document.getElementById("clerk-signup"), {
-              appearance: { baseTheme: "dark" }, // ⭐ native dark mode
-              afterSignUpUrl: "dashboard.html",
-              afterSignInUrl: "dashboard.html",
-              signInUrl: "login.html",
-            });
-          },
+        // If already logged in → go dashboard
+        if (clerk.user) {
+          window.location.href = "dashboard.html";
+          return;
+        }
+
+        clerk.mountSignIn(document.getElementById("clerk-signin"), {
+          appearance: { baseTheme: "dark" },
+
+          routing: "hash", // ⭐ THIS IS THE FIX
+
+          signUpUrl: "signup.html",
+
+          afterSignInUrl: "dashboard.html",
+          afterSignUpUrl: "dashboard.html",
         });
       });
     </script>
