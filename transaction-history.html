@@ -1,213 +1,239 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Transactions History - BlackVant</title>
 
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
     <!-- ✅ Correct Clerk setup (same as Deposit page) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/style.css">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/style.css"
+    />
     <script
-        async
-        crossorigin="anonymous"
-        data-clerk-publishable-key="pk_test_Y29taWMta2FuZ2Fyb28tMjMuY2xlcmsuYWNjb3VudHMuZGV2JA"
-        src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js">
-    </script>
+      crossorigin="anonymous"
+      data-clerk-publishable-key="pk_test_Y29taWMta2FuZ2Fyb28tMjMuY2xlcmsuYWNjb3VudHMuZGV2JA"
+      src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@4/dist/clerk.browser.js"
+    ></script>
 
     <style>
-        .cl-user-button {
-            background: transparent !important;
-            border: none !important;
-        }
-        .cl-user-button-avatar {
-            background: var(--accent-blue) !important;
-        }
+      .cl-user-button {
+        background: transparent !important;
+        border: none !important;
+      }
+      .cl-user-button-avatar {
+        background: var(--accent-blue) !important;
+      }
     </style>
-</head>
+  </head>
 
-<body class="dashboard-page">
-<div class="container">
-
-    <!-- Header -->
-    <header class="header">
+  <body class="dashboard-page">
+    <div class="container">
+      <!-- Header -->
+      <header class="header">
         <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
         <a href="dashboard.html" class="logo"><span>BlackVant</span></a>
 
         <div class="user-menu">
-            <div id="clerk-user-button"></div>
-            <div id="fallbackAvatar" class="user-avatar" style="display:none;">JD</div>
+          <div id="clerk-user-button"></div>
+          <div id="fallbackAvatar" class="user-avatar" style="display: none">
+            JD
+          </div>
         </div>
-    </header>
+      </header>
 
-    <div class="main-content">
-
+      <div class="main-content">
         <!-- Sidebar -->
         <nav class="sidebar" id="sidebar">
-            <a href="dashboard.html" class="nav-item"><span>📊</span> Dashboard</a>
-            <a href="deposit.html" class="nav-item"><span>💰</span> Deposit Funds</a>
-            <a href="withdraw.html" class="nav-item"><span>💸</span> Withdraw Earnings</a>
-            <a href="transaction-history.html" class="nav-item active"><span>📋</span> Transactions History</a>
-            <a href="profile-settings.html" class="nav-item"><span>👤</span> Profile Settings</a>
-            <a href="support.html" class="nav-item"><span>🆘</span> Support</a>
-            <a href="javascript:void(0)" class="nav-item" id="logoutBtn"><span>🚪</span> Logout</a>
+          <a href="dashboard.html" class="nav-item"
+            ><span>📊</span> Dashboard</a
+          >
+          <a href="deposit.html" class="nav-item"
+            ><span>💰</span> Deposit Funds</a
+          >
+          <a href="withdraw.html" class="nav-item"
+            ><span>💸</span> Withdraw Earnings</a
+          >
+          <a href="transaction-history.html" class="nav-item active"
+            ><span>📋</span> Transactions History</a
+          >
+          <a href="profile-settings.html" class="nav-item"
+            ><span>👤</span> Profile Settings</a
+          >
+          <a href="support.html" class="nav-item"><span>🆘</span> Support</a>
+          <a href="javascript:void(0)" class="nav-item" id="logoutBtn"
+            ><span>🚪</span> Logout</a
+          >
         </nav>
 
         <!-- ALL YOUR ORIGINAL UI (UNCHANGED) -->
-        <main class="transaction-content" style="visibility: hidden;">
+        <main class="transaction-content" style="visibility: hidden">
+          <div class="page-header">
+            <h1>Transactions History</h1>
+            <p>Complete record of all your transactions</p>
+          </div>
 
-            <div class="page-header">
-                <h1>Transactions History</h1>
-                <p>Complete record of all your transactions</p>
+          <!-- Filters Section -->
+          <div class="filters-section">
+            <div class="filters-header">
+              <h2 class="filters-title">Filters</h2>
             </div>
 
-            <!-- Filters Section -->
-            <div class="filters-section">
-              <div class="filters-header">
-                <h2 class="filters-title">Filters</h2>
+            <div class="filters-bar">
+              <div class="filter-group search-box">
+                <span class="search-icon">🔍</span>
+                <input
+                  type="text"
+                  id="searchInput"
+                  class="filter-input search-input"
+                  placeholder="Search transactions"
+                />
               </div>
-          
-              <div class="filters-bar">
-                <div class="filter-group search-box">
-                  <span class="search-icon">🔍</span>
-                  <input type="text" id="searchInput" class="filter-input search-input" placeholder="Search transactions">
-                </div>
-            
-                <div class="filter-group">
-                  <input type="date" id="dateFrom" class="filter-input">
-                </div>
-            
-                <div class="filter-group">
-                  <input type="date" id="dateTo" class="filter-input">
-                </div>
-            
-                <div class="filter-group">
-                  <select id="typeFilter" class="filter-select">
-                    <option value="">All Types</option>
-                    <option value="profit">Profit</option>
-                    <option value="deposit">Deposit</option>
-                    <option value="withdrawal">Withdrawal</option>
-                  </select>
-                </div>
-            
-                <div class="filter-group">
-                  <select id="statusFilter" class="filter-select">
-                    <option value="">All Status</option>
-                    <option value="completed">Completed</option>
-                    <option value="pending">Pending</option>
-                    <option value="rejected">Rejected</option>
-                  </select>
-                </div>
-            
-                <button class="export-btn" id="exportBtn">Export</button>
-                <button class="btn-primary" id="applyFiltersBtn">Apply</button>
+
+              <div class="filter-group">
+                <input type="date" id="dateFrom" class="filter-input" />
+              </div>
+
+              <div class="filter-group">
+                <input type="date" id="dateTo" class="filter-input" />
+              </div>
+
+              <div class="filter-group">
+                <select id="typeFilter" class="filter-select">
+                  <option value="">All Types</option>
+                  <option value="profit">Profit</option>
+                  <option value="deposit">Deposit</option>
+                  <option value="withdrawal">Withdrawal</option>
+                </select>
+              </div>
+
+              <div class="filter-group">
+                <select id="statusFilter" class="filter-select">
+                  <option value="">All Status</option>
+                  <option value="completed">Completed</option>
+                  <option value="pending">Pending</option>
+                  <option value="rejected">Rejected</option>
+                </select>
+              </div>
+
+              <button class="export-btn" id="exportBtn">Export</button>
+              <button class="btn-primary" id="applyFiltersBtn">Apply</button>
+            </div>
+          </div>
+
+          <!-- Statistics Cards -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon">📊</div>
+              <div class="stat-value" id="totalTransactions">—</div>
+              <div class="stat-label">Total Transactions</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">💰</div>
+              <div class="stat-value" id="totalDeposited">-</div>
+              <div class="stat-label">Approved Total Deposited</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">💸</div>
+              <div class="stat-value" id="totalWithdrawn">-</div>
+              <div class="stat-label">Approved Total Withdrawn</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">📈</div>
+              <div
+                class="stat-value"
+                id="netProfit"
+                style="color: var(--accent-green)"
+              >
+                -
+              </div>
+              <div class="stat-label">Approved Net Profit</div>
+            </div>
+          </div>
+
+          <!-- Transactions Table (unchanged) -->
+          <div class="transactions-table-section">
+            <div class="table-header">
+              <h2 class="table-title">All Transactions</h2>
+              <div class="table-info" id="tableInfo">
+                Showing 1-10 of 47 transactions
               </div>
             </div>
 
-            <!-- Statistics Cards -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon">📊</div>
-                    <div class="stat-value" id="totalTransactions">—</div>
-                    <div class="stat-label">Total Transactions</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">💰</div>
-                    <div class="stat-value" id="totalDeposited">-</div>
-                    <div class="stat-label">Approved Total Deposited</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">💸</div>
-                    <div class="stat-value" id="totalWithdrawn">-</div>
-                    <div class="stat-label">Approved Total Withdrawn</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">📈</div>
-                    <div class="stat-value" id="netProfit" style="color: var(--accent-green);">-</div>
-                    <div class="stat-label">Approved Net Profit</div>
-                </div>
+            <table class="transactions-table">
+              <thead>
+                <tr>
+                  <th>Date & Time</th>
+                  <th>Type</th>
+                  <th>Description</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+
+              <tbody id="transactionsTableBody">
+                <!-- 🔥 All original rows remain exactly the same (not removed) -->
+                <!-- paste your original rows here exactly as given -->
+              </tbody>
+            </table>
+
+            <div class="pagination">
+              <div class="pagination-info" id="paginationInfo">Page 1 of 5</div>
+              <div class="pagination-controls">
+                <button class="pagination-btn" id="prevBtn" disabled>
+                  Previous
+                </button>
+                <button class="pagination-btn active" data-page="1">1</button>
+                <button class="pagination-btn" data-page="2">2</button>
+                <button class="pagination-btn" data-page="3">3</button>
+                <button class="pagination-btn" data-page="4">4</button>
+                <button class="pagination-btn" data-page="5">5</button>
+                <button class="pagination-btn" id="nextBtn">Next</button>
+              </div>
             </div>
-            
-            <!-- Transactions Table (unchanged) -->
-            <div class="transactions-table-section">
-                <div class="table-header">
-                    <h2 class="table-title">All Transactions</h2>
-                    <div class="table-info" id="tableInfo">Showing 1-10 of 47 transactions</div>
-                </div>
-
-                <table class="transactions-table">
-                    <thead>
-                        <tr>
-                            <th>Date & Time</th>
-                            <th>Type</th>
-                            <th>Description</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-
-                    <tbody id="transactionsTableBody">
-                        <!-- 🔥 All original rows remain exactly the same (not removed) -->
-                        <!-- paste your original rows here exactly as given -->
-                    </tbody>
-                </table>
-
-                <div class="pagination">
-                    <div class="pagination-info" id="paginationInfo">Page 1 of 5</div>
-                    <div class="pagination-controls">
-                        <button class="pagination-btn" id="prevBtn" disabled>Previous</button>
-                        <button class="pagination-btn active" data-page="1">1</button>
-                        <button class="pagination-btn" data-page="2">2</button>
-                        <button class="pagination-btn" data-page="3">3</button>
-                        <button class="pagination-btn" data-page="4">4</button>
-                        <button class="pagination-btn" data-page="5">5</button>
-                        <button class="pagination-btn" id="nextBtn">Next</button>
-                    </div>
-                </div>
-            </div>
-
+          </div>
         </main>
+      </div>
     </div>
-</div>
 
-<script src="assets/js/config.js"></script>
-<script src="assets/js/auth.js"></script>
-<script src="assets/js/sidebar.js"></script>
-<script src="assets/js/dashboard.js"></script>
-<script src="assets/js/history.js"></script>
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/sidebar.js"></script>
+    <script src="assets/js/dashboard.js"></script>
+    <script src="assets/js/history.js"></script>
 
-<!-- ✅ Correct Clerk initialization (same as Deposit page) -->
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  requireAuth({
-    redirectTo: "login.html",
-    onReady: (user, clerk) => {
+    <!-- ✅ Correct Clerk initialization (same as Deposit page) -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        requireAuth({
+          redirectTo: "login.html",
+          onReady: (user, clerk) => {
+            clerk.mountUserButton(
+              document.getElementById("clerk-user-button"),
+              { afterSignOutUrl: "login.html" },
+            );
 
-      clerk.mountUserButton(
-        document.getElementById("clerk-user-button"),
-        { afterSignOutUrl: "login.html" }
-      );
+            const logoutBtn = document.getElementById("logoutBtn");
+            if (logoutBtn) {
+              logoutBtn.onclick = async () => {
+                await signOutAndRedirect("login.html");
+              };
+            }
 
-      const logoutBtn = document.getElementById("logoutBtn");
-      if (logoutBtn) {
-        logoutBtn.onclick = async () => {
-          await signOutAndRedirect("login.html");
-        };
-      }
-
-      // ✅ START TRANSACTION HISTORY ONLY AFTER AUTH IS READY
-      if (document.querySelector(".transaction-content")) {
-        initTransactionHistory();
-      }
-    }
-  });
-});
-</script>
-
-
-
-</body>
+            // ✅ START TRANSACTION HISTORY ONLY AFTER AUTH IS READY
+            if (document.querySelector(".transaction-content")) {
+              initTransactionHistory();
+            }
+          },
+        });
+      });
+    </script>
+  </body>
 </html>
