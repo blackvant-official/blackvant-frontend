@@ -96,18 +96,15 @@
 
     <script>
       document.addEventListener("DOMContentLoaded", function () {
-        requireGuest({
-          redirectTo: "dashboard.html",
+        window.addEventListener("load", async function () {
+          await Clerk.load();
 
-          onReady: async (user, clerk) => {
-            await clerk.load();
-
-            clerk.mountSignIn(document.getElementById("clerk-signin"), {
-              appearance: { baseTheme: "dark" }, // ⭐ native dark mode
-              afterSignInUrl: "dashboard.html",
-              afterSignUpUrl: "dashboard.html",
-            });
-          },
+          Clerk.mountSignIn(document.getElementById("clerk-signin"), {
+            appearance: { baseTheme: "dark" },
+            routing: "hash",
+            afterSignInUrl: "dashboard.html",
+            afterSignUpUrl: "dashboard.html",
+          });
         });
       });
     </script>
