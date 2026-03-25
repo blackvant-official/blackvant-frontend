@@ -17,14 +17,14 @@ function signed(v) {
 
 // ---------------- AUTH ----------------
 async function token() {
-  await waitForClerk();
-  return Clerk.session.getToken({ template: "backend" });
+  return await getAuthToken(); // from auth.js
 }
 
 async function api(endpoint) {
   const t = await token();
+  if (!t) throw new Error("No auth token");
   const r = await fetch(`${window.API_BASE_URL}${endpoint}`, {
-    headers: { Authorization: `Bearer ${t}` }
+    headers: { Authorization: `Bearer ${t}` },
   });
   if (!r.ok) throw new Error(await r.text());
   return r.json();
@@ -55,7 +55,6 @@ async function loadSummary() {
   todayProfitEl.textContent = signed(d.todayProfit);
 }
 
-
 // ---------------- TRANSACTIONS ----------------
 async function loadTransactions() {
   const dashboardRoot = document.querySelector(".dashboard-page");
@@ -77,26 +76,22 @@ async function loadTransactions() {
   const grouped = {
     deposit: [],
     withdrawal: [],
-    profit: []
+    profit: [],
   };
 
   txs
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    .forEach(tx => {
+    .forEach((tx) => {
       if (grouped[tx.type] && grouped[tx.type].length < 2) {
         grouped[tx.type].push(tx);
       }
     });
 
   // Flatten groups
-  const recent = [
-    ...grouped.deposit,
-    ...grouped.withdrawal,
-    ...grouped.profit
-  ];
+  const recent = [...grouped.deposit, ...grouped.withdrawal, ...grouped.profit];
 
   // Render
-  recent.forEach(tx => {
+  recent.forEach((tx) => {
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
@@ -114,7 +109,6 @@ async function loadTransactions() {
   });
 }
 
-
 let chart;
 async function loadChart() {
   const canvas = $("performanceChart");
@@ -131,44 +125,44 @@ async function loadChart() {
     return;
   }
 
-  const labels = data.map(d => d.date);
+  const labels = data.map((d) => d.date);
 
   const datasets = [
     {
       label: "Total Balance",
-      data: data.map(d => d.totalBalance),
+      data: data.map((d) => d.totalBalance),
       color: "#2d9cff",
       borderColor: "#2d9cff",
       backgroundColor: "rgba(45,156,255,0.15)",
       fill: true,
-      tension: 0.35
+      tension: 0.35,
     },
     {
       label: "Active Investment",
-      data: data.map(d => d.activeInvestment),
+      data: data.map((d) => d.activeInvestment),
       color: "#9b8cff",
       borderColor: "#9b8cff",
       borderDash: [6, 6],
       fill: false,
-      tension: 0.35
+      tension: 0.35,
     },
     {
       label: "Total Profit",
-      data: data.map(d => d.totalProfit),
+      data: data.map((d) => d.totalProfit),
       color: "#22c55e",
       borderColor: "#22c55e",
       fill: false,
-      tension: 0.35
+      tension: 0.35,
     },
     {
       label: "Daily Profit",
-      data: data.map(d => d.dailyProfit),
+      data: data.map((d) => d.dailyProfit),
       color: "#f59e0b",
       borderColor: "#f59e0b",
       borderDash: [4, 4],
       fill: false,
-      tension: 0
-    }
+      tension: 0,
+    },
   ];
 
   if (chart) chart.destroy();
@@ -177,10 +171,10 @@ async function loadChart() {
     type: "line",
     data: {
       labels,
-      datasets: datasets.map(d => ({
+      datasets: datasets.map((d) => ({
         ...d,
-        pointRadius: 0
-      }))
+        pointRadius: 0,
+      })),
     },
     options: {
       responsive: true,
@@ -190,17 +184,16 @@ async function loadChart() {
         legend: { display: false },
         tooltip: {
           callbacks: {
-            label: ctx =>
-              `${ctx.dataset.label}: $${ctx.parsed.y.toFixed(2)}`
-          }
-        }
+            label: (ctx) => `${ctx.dataset.label}: $${ctx.parsed.y.toFixed(2)}`,
+          },
+        },
       },
       scales: {
         y: {
-          ticks: { callback: v => `$${v}` }
-        }
-      }
-    }
+          ticks: { callback: (v) => `$${v}` },
+        },
+      },
+    },
   });
 
   // ---------- Custom Indicators ----------
@@ -217,7 +210,8 @@ async function loadChart() {
 
     pill.onclick = () => {
       const meta = chart.getDatasetMeta(i);
-      meta.hidden = meta.hidden === null ? !chart.data.datasets[i].hidden : null;
+      meta.hidden =
+        meta.hidden === null ? !chart.data.datasets[i].hidden : null;
 
       pill.classList.toggle("inactive", meta.hidden);
       pill.classList.toggle("active", !meta.hidden);
@@ -237,6 +231,6 @@ document.addEventListener("DOMContentLoaded", () => {
       await loadSummary();
       await loadChart();
       await loadTransactions();
-    }
+    },
   });
 });

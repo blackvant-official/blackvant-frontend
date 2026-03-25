@@ -42,9 +42,16 @@ async function getAuthToken() {
   const session = clerk.session;
   if (!session) return null;
 
-  return await session
+  const token = await session
     .getToken({ template: "backend" })
     .catch(() => null);
+
+  if (!token) {
+    console.warn("Token not ready yet");
+    return null;
+  }
+
+  return token;
 }
 
 // -------------------------------------------------
