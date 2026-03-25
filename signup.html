@@ -1,89 +1,83 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Sign Up - BlackVant</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!DOCTYPE html>
+<html lang="en" class="app-loading">
+<head>
+  <meta charset="UTF-8">
+  <title>Sign Up - BlackVant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="assets/css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
 
-    <!-- Clerk Script -->
-    <script
-      crossorigin="anonymous"
-      data-clerk-publishable-key="pk_test_dG9wLXdhbGxleWUtOTkuY2xlcmsuYWNjb3VudHMuZGV2JA"
-      src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@4/dist/clerk.browser.js"
-    ></script>
+  <!-- Clerk Styles -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/style.css">
 
-    <!-- REMOVE forced overrides -->
-    <style>
-      body {
-        font-family: Inter, sans-serif;
-        background: #0f1117;
-        color: white;
-        margin: 0;
-      }
+  <!-- Clerk Script -->
+  <script async crossorigin="anonymous"
+    data-clerk-publishable-key="pk_test_Y29taWMta2FuZ2Fyb28tMjMuY2xlcmsuYWNjb3VudHMuZGV2JA"
+    src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js">
+  </script>
 
-      .form-container {
-        max-width: 420px;
-        margin: 80px auto;
-        background: #151925;
-        padding: 2.5rem;
-        border-radius: 12px;
-        text-align: center;
-        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
-      }
+  <!-- REMOVE forced overrides -->
+  <style>
+    body {
+      font-family: Inter, sans-serif;
+      background: #0f1117;
+      color: white;
+      margin: 0;
+    }
 
-      /* DO NOT override Clerk fields/buttons */
-    </style>
-  </head>
+    .form-container {
+      max-width: 420px;
+      margin: 80px auto;
+      background: #151925;
+      padding: 2.5rem;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+    }
 
-  <body class="auth-page">
-    <div class="form-container">
-      <h1>Create Account</h1>
-      <p>Join BlackVant and start your journey</p>
+    /* DO NOT override Clerk fields/buttons */
+  </style>
+</head>
 
-      <div id="clerk-signup"></div>
+<body>
 
-      <p style="margin-top: 20px">
-        Already have an account?
-        <a href="login.html" class="signin-link">Sign In</a>
-      </p>
-    </div>
+  <div class="form-container">
+    <h1>Create Account</h1>
+    <p>Join BlackVant and start your journey</p>
 
-    <footer
-      style="
-        text-align: center;
-        color: #94a3b8;
-        margin-top: 60px;
-        font-size: 14px;
-      "
-    >
-      © 2025 BlackVant. All rights reserved.
-    </footer>
+    <div id="clerk-signup"></div>
 
-    <script src="assets/js/auth.js"></script>
+    <p style="margin-top:20px;">
+      Already have an account?
+      <a href="login.html" class="signin-link">Sign In</a>
+    </p>
+  </div>
 
-    <script>
-      window.addEventListener("load", async function () {
-        const clerk = await waitForClerk();
+  <footer style="text-align:center;color:#94a3b8;margin-top:60px;font-size:14px;">
+    © 2025 BlackVant. All rights reserved.
+  </footer>
 
-        if (clerk.user) {
-          window.location.href = "dashboard.html";
-          return;
-        }
+  <script src="assets/js/auth.js"></script>
 
-        clerk.mountSignUp(document.getElementById("clerk-signup"), {
-          appearance: { baseTheme: "dark" },
-          routing: "hash",
-          signInUrl: "login.html",
-          afterSignUpUrl: "dashboard.html",
-          afterSignInUrl: "dashboard.html",
-        });
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      requireGuest({
+        redirectTo: "dashboard.html",
+
+        onReady: async (user, clerk) => {
+          await clerk.load();
+
+          clerk.mountSignUp(document.getElementById("clerk-signup"), {
+            appearance: { baseTheme: "dark" },  // ⭐ native dark mode
+            afterSignUpUrl: "dashboard.html",
+            afterSignInUrl: "dashboard.html",
+            signInUrl: "login.html",
+          });
+        },
       });
-    </script>
-  </body>
+    });
+  </script>
+
+</body>
 </html>

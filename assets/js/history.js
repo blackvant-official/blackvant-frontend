@@ -21,32 +21,17 @@ async function loadTransactionsFromBackend() {
     );
 
     const data = await res.json();
-    if (!Array.isArray(data)) return [];
 
     return data.map(tx => {
-        let normalizedType = "unknown";
-        let description = "Transaction";
+      const normalizedType =
+        tx.type ||
+        (tx.referenceType === "DEPOSIT" ? "deposit" :
+         tx.referenceType === "WITHDRAWAL" ? "withdrawal" :
+         "profit");
 
-        if (tx.referenceType === "DEPOSIT" && tx.direction === "CREDIT") {
-          normalizedType = "deposit";
-          description = "Deposit";
-        }
-
-        if (tx.referenceType === "WITHDRAWAL" && tx.direction === "DEBIT") {
-          normalizedType = "withdrawal";
-          description = "Withdrawal";
-        }
-
-        if (tx.referenceType === "PROFIT" && tx.direction === "CREDIT") {
-          normalizedType = "profit";
-          description = "Profit Credit";
-        }
-
-        if (tx.referenceType === "WITHDRAWAL" && tx.bucket === "PROFIT") {
-          normalizedType = "withdrawal";
-          description = "Profit Withdrawal";
-        }
-
+      const normalizedStatus =
+        tx.status ||
+        (tx.referenceType ? "approved" : "pending");
 
       return {
         id: tx.id,
@@ -59,14 +44,16 @@ async function loadTransactionsFromBackend() {
           minute: "2-digit"
         }),
         type: normalizedType,
-        description,
-        amount:
-          tx.direction === "DEBIT"
-            ? -Number(tx.amount)
-            : Number(tx.amount),
-        status: "approved"
+        description:
+          normalizedType === "deposit" ? "Deposit" :
+          normalizedType === "withdrawal" ? "Withdrawal" :
+          "Profit Credit",
+        amount: Number(tx.amount),
+        status: normalizedStatus
       };
     });
+
+
   } catch (err) {
     console.error("Transaction load failed:", err);
     return [];
@@ -368,6 +355,4 @@ async function initTransactionHistory() {
     document.querySelector(".transaction-content").style.visibility = "visible";
 }
 
-// EXPOSE INIT FOR HTML
-window.initTransactionHistory = initTransactionHistory;
 

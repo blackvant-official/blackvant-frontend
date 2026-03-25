@@ -1,11 +1,9 @@
 // assets/js/auth.js
 // Centralized Clerk auth helpers for all pages
 
-if (!window.CLERK_PUBLISHABLE_KEY) {
-  console.warn(
-    "CLERK_PUBLISHABLE_KEY not set in config (using HTML script instead)",
-  );
-}
+window.CLERK_PUBLISHABLE_KEY =
+  window.CLERK_PUBLISHABLE_KEY ||
+  "pk_test_Y29taWMta2FuZ2Fyb28tMjMuY2xlcmsuYWNjb3VudHMuZGV2JA";
 
 // -------------------------------------------------
 // WAIT FOR CLERK (HARD SAFE)
@@ -44,7 +42,9 @@ async function getAuthToken() {
   const session = clerk.session;
   if (!session) return null;
 
-  return await session.getToken({ template: "backend" }).catch(() => null);
+  return await session
+    .getToken({ template: "backend" })
+    .catch(() => null);
 }
 
 // -------------------------------------------------

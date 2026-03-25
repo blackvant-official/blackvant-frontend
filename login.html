@@ -1,105 +1,107 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Sign In — BlackVant</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!DOCTYPE html>
+<html lang="en" class="app-loading">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sign In — BlackVant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Main Styles -->
-    <link rel="stylesheet" href="assets/css/style.css" />
+  <!-- Main Styles -->
+  <link rel="stylesheet" href="assets/css/style.css">
 
-    <!-- Google Font -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Clerk Script -->
-    <script
-      crossorigin="anonymous"
-      data-clerk-publishable-key="pk_test_dG9wLXdhbGxleWUtOTkuY2xlcmsuYWNjb3VudHMuZGV2JA"
-      src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@4/dist/clerk.browser.js"
-    ></script>
+  <!-- Clerk Styles -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/style.css">
 
-    <!-- REMOVE all forced dark CSS -->
-    <style>
-      body.auth-page {
-        font-family: Inter, sans-serif;
-        background: #0f1117;
-        color: #e5e7eb;
-      }
+  <!-- Clerk Script -->
+  <script async crossorigin="anonymous"
+    data-clerk-publishable-key="pk_test_Y29taWMta2FuZ2Fyb28tMjMuY2xlcmsuYWNjb3VudHMuZGV2JA"
+    src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js">
+  </script>
 
-      .clerk-container {
-        max-width: 420px;
-        margin: 0 auto;
-        padding: 2rem;
-      }
+  <!-- REMOVE all forced dark CSS -->
+  <style>
+    body.auth-page {
+      font-family: Inter, sans-serif;
+      background: #0f1117;
+      color: #e5e7eb;
+    }
 
-      /* KEEP your original page styles — DO NOT override Clerk here */
-    </style>
-  </head>
+    .clerk-container {
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
 
-  <body class="auth-page">
-    <!-- Header -->
-    <header class="header">
-      <div class="logo">BlackVant</div>
-    </header>
+    /* KEEP your original page styles — DO NOT override Clerk here */
+  </style>
+</head>
 
-    <!-- Main -->
-    <main class="main">
-      <div class="form-container clerk-container">
-        <div class="form-header">
-          <h1>Sign In</h1>
-          <p>Access your secure dashboard</p>
-        </div>
+<body class="auth-page">
 
-        <div id="clerk-signin"></div>
+  <!-- Header -->
+  <header class="header">
+    <div class="logo">BlackVant</div>
+  </header>
 
-        <noscript>
-          <div
-            style="
-              color: #ff4a4a;
-              background: rgba(255, 74, 74, 0.1);
-              padding: 1rem;
-              border-radius: 8px;
-            "
-          >
-            JavaScript is required to sign in.
-          </div>
-        </noscript>
+  <!-- Main -->
+  <main class="main">
+    <div class="form-container clerk-container">
 
-        <div class="signup-prompt">
-          Don’t have an account?
-          <a href="signup.html" class="signup-link">Sign Up</a>
-        </div>
+      <div class="form-header">
+        <h1>Sign In</h1>
+        <p>Access your secure dashboard</p>
       </div>
-    </main>
 
-    <!-- Footer -->
-    <footer class="footer">
-      <div class="footer-links">
-        <a href="#">Privacy</a>
-        <a href="#">Terms</a>
-        <a href="support.html">Support</a>
+      <div id="clerk-signin"></div>
+
+      <noscript>
+        <div style="color:#ff4a4a;background:rgba(255,74,74,.1);padding:1rem;border-radius:8px;">
+          JavaScript is required to sign in.
+        </div>
+      </noscript>
+
+      <div class="signup-prompt">
+        Don’t have an account?
+        <a href="signup.html" class="signup-link">Sign Up</a>
       </div>
-      <div class="copyright">© 2025 BlackVant. All rights reserved.</div>
-    </footer>
 
-    <script src="assets/js/config.js"></script>
-    <!-- <script src="assets/js/auth.js"></script> -->
+    </div>
+  </main>
 
-    <script>
-      window.addEventListener("load", async function () {
-        await window.Clerk.load();
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="support.html">Support</a>
+    </div>
+    <div class="copyright">
+      © 2025 BlackVant. All rights reserved.
+    </div>
+  </footer>
 
-        console.log("Clerk loaded:", window.Clerk);
-        console.log("mountSignIn:", window.Clerk.mountSignIn);
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/auth.js"></script>
 
-        window.Clerk.mountSignIn(document.getElementById("clerk-signin"), {
-          routing: "hash",
-          afterSignInUrl: "dashboard.html",
-        });
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      requireGuest({
+        redirectTo: "dashboard.html",
+
+        onReady: async (user, clerk) => {
+          await clerk.load();
+
+          clerk.mountSignIn(document.getElementById("clerk-signin"), {
+            appearance: { baseTheme: "dark" },  // ⭐ native dark mode
+            afterSignInUrl: "dashboard.html",
+            afterSignUpUrl: "dashboard.html",
+          });
+        },
       });
-    </script>
-  </body>
+    });
+  </script>
+
+</body>
 </html>

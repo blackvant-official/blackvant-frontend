@@ -412,12 +412,42 @@ async function uploadSupportAttachments(files, ticketId) {
 // ======================
 // INITIALIZE PAGE
 // ======================
-window.initSupport = function(user, clerk) {
+document.addEventListener("DOMContentLoaded", () => {
+  // =========================
+  // FILE INPUT PREVIEW (FIXED)
+  // =========================
+  const fileInput = document.getElementById("supportFileInput");
+  const preview = document.getElementById("supportFilePreview");
+  const uploadArea = document.querySelector(".upload-area");
+
+  if (fileInput && preview && uploadArea) {
+    fileInput.addEventListener("change", () => {
+      preview.innerHTML = "";
+
+      if (!fileInput.files.length) return;
+
+      uploadArea.classList.add("has-files");
+
+      Array.from(fileInput.files).forEach(file => {
+        const div = document.createElement("div");
+        div.className = "file-item";
+        div.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+        preview.appendChild(div);
+      });
+
+      console.log("Files selected:", fileInput.files.length);
+    });
+  }
+
+  // =========================
+  // SUPPORT FORM SUBMIT
+  // =========================
+  const form = document.getElementById("supportForm");
+  if (!form) return;
     setupFAQCategories();
     setupCommonIssues();
     setupSearch();
     setupSupportForm();
     setupLiveChat();
     setupEmailSupport();
-    loadSupportTickets();
-};
+});

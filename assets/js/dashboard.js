@@ -14,18 +14,6 @@ function signed(v) {
   const n = Number(v || 0);
   return `${n >= 0 ? "+" : "-"}$${Math.abs(n).toFixed(2)}`;
 }
-document.documentElement.classList.add("app-loading");
-
-function applyMaintenanceMode(isOn) {
-  const banner = document.getElementById("maintenanceBanner");
-  if (!banner) return;
-
-  if (isOn) {
-    banner.classList.remove("hidden");
-  } else {
-    banner.classList.add("hidden");
-  }
-}
 
 // ---------------- AUTH ----------------
 async function token() {
@@ -60,14 +48,13 @@ async function loadSummary() {
   }
 
   const d = await api("/api/v1/me/dashboard/summary");
-  applyMaintenanceMode(!!d.platformMaintenanceMode);
-
 
   totalBalanceEl.textContent = usd(d.totalBalance);
   investmentBalanceEl.textContent = usd(d.activeInvestment);
   totalProfitEl.textContent = signed(d.totalProfit);
   todayProfitEl.textContent = signed(d.todayProfit);
 }
+
 
 // ---------------- TRANSACTIONS ----------------
 async function loadTransactions() {
@@ -243,27 +230,13 @@ async function loadChart() {
 }
 
 // ---------------- INIT ----------------
-window.initDashboard = function(user, clerk) {
-
-    // SAFE CALLS (prevent crash)
-    if (typeof setupSidebarClose === "function") {
-        setupSidebarClose();
+document.addEventListener("DOMContentLoaded", () => {
+  requireAuth({
+    redirectTo: "login.html",
+    onReady: async () => {
+      await loadSummary();
+      await loadChart();
+      await loadTransactions();
     }
-
-    if (typeof setupDashboardEventListeners === "function") {
-        setupDashboardEventListeners();
-    }
-
-    // REMOVE OLD UNKNOWN FUNCTIONS ❌
-    // initializeChart();
-    // setupChartFilters();
-    // setupChartResize();
-    // loadRecentTransactions();
-    // loadUserBalances();
-
-    // ✅ USE YOUR ACTUAL WORKING FUNCTIONS
-    loadSummary();
-    loadTransactions();
-    loadChart();
-};
-
+  });
+});

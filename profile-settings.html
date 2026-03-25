@@ -1,112 +1,121 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Profile Settings - BlackVant</title>
 
     <link rel="stylesheet" href="assets/css/style.css" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
     <!-- ✅ Correct Clerk CDN (same as working deposit page) -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/style.css"
-    />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/style.css" />
     <script
-      crossorigin="anonymous"
-      data-clerk-publishable-key="pk_test_dG9wLXdhbGxleWUtOTkuY2xlcmsuYWNjb3VudHMuZGV2JA"
-      src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@4/dist/clerk.browser.js"
-    ></script>
+        async
+        crossorigin="anonymous"
+        data-clerk-publishable-key="pk_test_Y29taWMta2FuZ2Fyb08tMjMuY2xlcmsuYWNjb3VudHMuZGV2JA"
+        src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js">
+    </script>
 
     <style>
-      .cl-user-button {
-        background: transparent !important;
-        border: none !important;
-      }
-      .cl-user-button-avatar {
-        background: var(--accent-blue) !important;
-      }
+        .cl-user-button { background: transparent !important; border: none !important; }
+        .cl-user-button-avatar { background: var(--accent-blue) !important; }
     </style>
-  </head>
+</head>
 
-  <body class="dashboard-page">
-    <div class="container">
-      <!-- Header -->
-      <header class="header">
+<body class="dashboard-page">
+<div class="container">
+
+    <!-- Header -->
+    <header class="header">
         <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
         <a href="dashboard.html" class="logo"><span>BlackVant</span></a>
 
         <div class="user-menu">
-          <div id="clerk-user-button"></div>
-          <div id="fallbackAvatar" class="user-avatar" style="display: none">
-            JD
-          </div>
+            <div id="clerk-user-button"></div>
+            <div id="fallbackAvatar" class="user-avatar" style="display:none;">JD</div>
         </div>
-      </header>
+    </header>
 
-      <div class="main-content">
+    <div class="main-content">
+
         <!-- Sidebar -->
         <nav class="sidebar" id="sidebar">
-          <a href="dashboard.html" class="nav-item"
-            ><span>📊</span> Dashboard</a
-          >
-          <a href="deposit.html" class="nav-item"
-            ><span>💰</span> Deposit Funds</a
-          >
-          <a href="withdraw.html" class="nav-item"
-            ><span>💸</span> Withdraw Earnings</a
-          >
-          <a href="transaction-history.html" class="nav-item"
-            ><span>📋</span>Transactions History</a
-          >
-          <a href="profile-settings.html" class="nav-item active"
-            ><span>👤</span>Profile Settings</a
-          >
-          <a href="support.html" class="nav-item"><span>🆘</span> Support</a>
-          <a href="javascript:void(0)" class="nav-item" id="logoutBtn"
-            ><span>🚪</span> Logout</a
-          >
+            <a href="dashboard.html" class="nav-item"><span>📊</span> Dashboard</a>
+            <a href="deposit.html" class="nav-item"><span>💰</span> Deposit Funds</a>
+            <a href="withdraw.html" class="nav-item"><span>💸</span> Withdraw Earnings</a>
+            <a href="transaction-history.html" class="nav-item"><span>📋</span>Transactions History</a>
+            <a href="profile-settings.html" class="nav-item active"><span>👤</span>Profile Settings</a>
+            <a href="support.html" class="nav-item"><span>🆘</span> Support</a>
+            <a href="javascript:void(0)" class="nav-item" id="logoutBtn"><span>🚪</span> Logout</a>
         </nav>
 
         <main class="profile-content">
-          <!-- Clerk User Profile Component -->
-          <div id="clerk-account-management" style="display: none"></div>
 
-          <!-- Fallback UI (only shows if Clerk fails) -->
-          <div id="fallback-profile-ui">
-            <div class="card">
-              <h3>Profile Settings</h3>
-              <p>Loading your profile…</p>
+            <!-- Clerk User Profile Component -->
+            <div id="clerk-account-management" style="display:none;"></div>
+
+            <!-- Fallback UI (only shows if Clerk fails) -->
+            <div id="fallback-profile-ui">
+                <div class="card">
+                    <h3>Profile Settings</h3>
+                    <p>Loading your profile…</p>
+                </div>
             </div>
-          </div>
+
+
         </main>
-      </div>
     </div>
-    <script src="assets/js/config.js"></script>
-    <script src="assets/js/auth.js"></script>
-    <script src="assets/js/sidebar.js"></script>
-    <script src="assets/js/dashboard.js"></script>
-    <script src="assets/js/profile.js"></script>
+</div>
 
-    <!-- ✅ FINAL Clerk Logic -->
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        requireAuth({
-          redirectTo: "login.html",
+<script src="assets/js/config.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/sidebar.js"></script>
+<script src="assets/js/dashboard.js"></script>
+<script src="assets/js/profile.js"></script>
 
-          onReady: (user, clerk) => {
-            clerk.mountUserButton(document.getElementById("clerk-user-button"));
+<!-- ✅ FINAL Clerk Logic -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  requireAuth({
+    redirectTo: "login.html",
+    onReady: (user, clerk) => {
 
-            if (window.initProfile) {
-              window.initProfile(user, clerk);
-            }
-          },
-        });
-      });
-    </script>
-  </body>
+      clerk.mountUserButton(
+        document.getElementById("clerk-user-button"),
+        {
+          afterSignOutUrl: "login.html"
+        }
+      );
+
+
+
+
+      const logoutBtn = document.getElementById("logoutBtn");
+      if (logoutBtn) {
+        logoutBtn.onclick = async () => {
+          await signOutAndRedirect("login.html");
+        };
+      }
+    
+      // ✅ START PROFILE LOGIC ONLY AFTER AUTH IS READY
+      if (document.querySelector('.profile-content')) {
+        loadUserProfile();
+        setupTabs();
+        setupPasswordStrength();
+        setupPersonalInfo();
+        setupPasswordChange();
+        setupPaymentMethods();
+        setupToggleSwitches();
+        setupDangerZone();
+        updateProfileFromClerk(clerk);
+      }
+    }
+
+  });
+});
+</script>
+
+
+</body>
 </html>

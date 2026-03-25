@@ -2,7 +2,6 @@
 let SYSTEM_MIN_DEPOSIT = null;
 let SYSTEM_MIN_WITHDRAW = null;
 let SYSTEM_WITHDRAW_FREQUENCY_DAYS = null;
-let SYSTEM_WITHDRAW_FREQUENCY_ENABLED = true;
 let otpVerified = false;
 
 async function loadSystemMinDeposit() {
@@ -10,15 +9,14 @@ async function loadSystemMinDeposit() {
         const token = await getBackendToken();
 
         const res = await fetch(
-            `${window.API_BASE_URL}/api/v1/me/dashboard/summary`,
+            `${window.API_BASE_URL}/api/v1/admin/settings/system`,
             { headers: { Authorization: `Bearer ${token}` } }
         );
-
 
         if (!res.ok) throw new Error("Failed to load system settings");
 
         const data = await res.json();
-        const min = Number(data.minDepositAmount || 100);
+        const min = Number(data.minDepositAmount);
 
         SYSTEM_MIN_DEPOSIT = Number.isFinite(min) && min > 0 ? min : 100;
 
@@ -493,7 +491,7 @@ function initializeWithdrawPage() {
             const data = await res.json();
 
             if (!res.ok) {
-                throw data;
+                throw new Error(data.error || "Withdrawal failed");
             }
 
             alert(`✅ Withdrawal request submitted!\n\nAmount: $${amount.toFixed(2)}\nStatus: Pending`);
@@ -504,24 +502,7 @@ function initializeWithdrawPage() {
             netDisplay.textContent = '$0.00';
 
         } catch (err) {
-          if (err.error === "WITHDRAW_FREQUENCY_LIMIT" && err.details) {
-            const { frequencyDays, periodLabel, nextAllowedAt } = err.details;
-          
-            alert(
-              "⏳ Withdrawal Limit Reached\n\n" +
-              `You are allowed 1 withdrawal per ${periodLabel}.\n\n` +
-              `You have already submitted a withdrawal in the current ${periodLabel}.\n\n` +
-              `You can submit a new withdrawal on:\n` +
-              `${new Date(nextAllowedAt).toLocaleDateString(undefined, {
-                year: "numeric",
-                month: "long",
-                day: "2-digit"
-              })}`
-            );
-            return;
-          }
-        
-          alert("Something went wrong. Please try again.");
+            alert(err.message || "Server error");
         }
 
         this.innerHTML = originalText;
@@ -643,32 +624,15 @@ async function loadRecentDeposits() {
 
 async function loadSystemWithdrawLimits() {
   const token = await getBackendToken();
-
   const res = await fetch(
-    `${window.API_BASE_URL}/api/v1/me/dashboard/summary`,
+    `${window.API_BASE_URL}/api/v1/admin/settings/system`,
     { headers: { Authorization: `Bearer ${token}` } }
   );
-
-  if (!res.ok) {
-    throw new Error("Failed to load withdraw limits");
-  }
-
   const data = await res.json();
 
-  // ✅ single source of truth
-  SYSTEM_MIN_WITHDRAW =
-    typeof data.minWithdrawAmount === "number"
-      ? data.minWithdrawAmount
-      : null;
-
-  SYSTEM_WITHDRAW_FREQUENCY_DAYS =
-    typeof data.withdrawFrequencyDays === "number"
-      ? data.withdrawFrequencyDays
-      : null;
+  SYSTEM_MIN_WITHDRAW = Number(data.minWithdrawAmount || 10);
+  SYSTEM_WITHDRAW_FREQUENCY_DAYS = Number(data.withdrawFrequencyDays || 7);
 }
-
-
-
 
 async function loadRecentWithdrawals() {
     const tbody = document.querySelector(".withdrawals-table tbody");
@@ -719,26 +683,23 @@ async function loadRecentWithdrawals() {
                 const statusClass = `status-${w.status.toLowerCase()}`;
 
                 const tr = document.createElement("tr");
-                const sourceLabel =
-                  w.source === "profit" ? "Profit" :
-                  w.source === "capital" ? "Capital" :
-                  "-";
                 tr.innerHTML = `
-                  <td>${new Date(w.createdAt).toLocaleString(undefined, {
-                    year: "numeric",
-                    month: "short",
-                    day: "2-digit",
-                    hour: "2-digit",
-                    minute: "2-digit"
-                  })}</td>
-                
-                  <td>${sourceLabel}</td>
-                  <td>$${Number(w.amount).toFixed(2)}</td>
-                  <td>
-                    <span class="status-badge ${statusClass}">
-                      ${w.status.charAt(0).toUpperCase() + w.status.slice(1)}
-                    </span>
-                  </td>
+                    <td>${new Date(w.createdAt).toLocaleString(undefined, {
+                        year: "numeric",
+                        month: "short",
+                        day: "2-digit",
+                        hour: "2-digit",
+                        minute: "2-digit"
+                    })}</td>
+
+
+                    <td>${w.method}</td>
+                    <td>$${Number(w.amount).toFixed(2)}</td>
+                    <td>
+                      <span class="status-badge ${statusClass}">
+                        ${w.status.charAt(0).toUpperCase() + w.status.slice(1)}
+                      </span>
+                    </td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -748,43 +709,19 @@ async function loadRecentWithdrawals() {
         tbody.innerHTML = `<tr><td colspan="4">Failed to load withdrawals</td></tr>`;
     }
 }
-
 function renderWithdrawRules() {
   const minRuleEl = document.getElementById("minWithdrawRule");
   const freqRuleEl = document.getElementById("withdrawFrequencyRule");
 
-  // ===== Minimum =====
-  if (minRuleEl) {
-    if (typeof SYSTEM_MIN_WITHDRAW === "number") {
-      minRuleEl.textContent = `Minimum: $${SYSTEM_MIN_WITHDRAW}`;
-    } else {
-      minRuleEl.textContent = "Minimum: not specified";
-    }
+  if (minRuleEl && SYSTEM_MIN_WITHDRAW !== null) {
+    minRuleEl.textContent = `Minimum: $${SYSTEM_MIN_WITHDRAW}`;
   }
 
-  if (!freqRuleEl) return;
-
-  // ===== Frequency =====
-  if (SYSTEM_WITHDRAW_FREQUENCY_DAYS === null) {
-    freqRuleEl.textContent = "Withdrawals are currently unlimited";
-    return;
+  if (freqRuleEl && SYSTEM_WITHDRAW_FREQUENCY_DAYS !== null) {
+    freqRuleEl.textContent =
+      `Once every ${SYSTEM_WITHDRAW_FREQUENCY_DAYS} day(s)`;
   }
-
-  if (SYSTEM_WITHDRAW_FREQUENCY_DAYS === 1) {
-    freqRuleEl.textContent = "Once per day";
-    return;
-  }
-
-  if (SYSTEM_WITHDRAW_FREQUENCY_DAYS === 7) {
-    freqRuleEl.textContent = "Once per week";
-    return;
-  }
-
-  freqRuleEl.textContent =
-    `Once every ${SYSTEM_WITHDRAW_FREQUENCY_DAYS} days`;
 }
-
-
 
 // ===== LEDGER-BASED WITHDRAW BALANCE (GLOBAL) =====
 async function loadWithdrawBalances() {
@@ -817,14 +754,20 @@ async function loadWithdrawBalances() {
 
 
 // ===== INIT =====
-window.initTransactions = function(user, clerk) {
-    if (document.querySelector('.deposit-content')) {
-        initializeDepositPage();
-        loadRecentDeposits();
-    }
+document.addEventListener('DOMContentLoaded', async function () {
 
-    if (document.querySelector('.withdraw-content')) {
-        initializeWithdrawPage();
-        loadRecentWithdrawals();
-    }
-};
+  // ===== DEPOSIT PAGE =====
+  if (document.querySelector('.deposit-content')) {
+    await loadSystemMinDeposit();
+    initializeDepositPage();
+    loadRecentDeposits();
+  }
+
+  // ===== WITHDRAW PAGE =====
+  if (document.querySelector('.withdraw-content')) {
+    await loadSystemWithdrawLimits();
+    renderWithdrawRules();
+    initializeWithdrawPage();
+    loadRecentWithdrawals();
+  }
+});
