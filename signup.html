@@ -21,7 +21,7 @@
     <script
       crossorigin="anonymous"
       data-clerk-publishable-key="pk_test_Y29taWMta2FuZ2Fyb28tMjMuY2xlcmsuYWNjb3VudHMuZGV2JA"
-      src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@4/dist/clerk.browser.js"
+      src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
     ></script>
 
     <!-- REMOVE forced overrides -->
@@ -75,19 +75,16 @@
 
     <script>
       document.addEventListener("DOMContentLoaded", function () {
-        requireGuest({
-          redirectTo: "dashboard.html",
+        window.addEventListener("load", async function () {
+          await Clerk.load();
 
-          onReady: async (user, clerk) => {
-            await clerk.load();
-
-            clerk.mountSignUp(document.getElementById("clerk-signup"), {
-              appearance: { baseTheme: "dark" }, // ⭐ native dark mode
-              afterSignUpUrl: "dashboard.html",
-              afterSignInUrl: "dashboard.html",
-              signInUrl: "login.html",
-            });
-          },
+          Clerk.mountSignUp(document.getElementById("clerk-signup"), {
+            appearance: { baseTheme: "dark" },
+            routing: "hash",
+            afterSignUpUrl: "dashboard.html",
+            afterSignInUrl: "dashboard.html",
+            signInUrl: "login.html",
+          });
         });
       });
     </script>
