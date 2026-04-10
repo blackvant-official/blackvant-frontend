@@ -27,22 +27,6 @@
       src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@4/dist/clerk.browser.js"
     ></script>
 
-    <!-- REMOVE all forced dark CSS -->
-    <style>
-      body.auth-page {
-        font-family: Inter, sans-serif;
-        background: #0f1117;
-        color: #e5e7eb;
-      }
-
-      .clerk-container {
-        max-width: 420px;
-        margin: 0 auto;
-        padding: 2rem;
-      }
-
-      /* KEEP your original page styles — DO NOT override Clerk here */
-    </style>
   </head>
 
   <body class="auth-page">
@@ -82,7 +66,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="footer">
+    <footer class="footer auth-footer">
       <div class="footer-links">
         <a href="#">Privacy</a>
         <a href="#">Terms</a>
@@ -95,16 +79,20 @@
     <script src="assets/js/auth.js"></script>
 
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        window.addEventListener("load", async function () {
-          await Clerk.load();
+      window.addEventListener("load", async function () {
+        const clerk = await waitForClerk();
 
-          Clerk.mountSignIn(document.getElementById("clerk-signin"), {
-            appearance: { baseTheme: "dark" },
-            routing: "hash",
-            afterSignInUrl: "dashboard.html",
-            afterSignUpUrl: "dashboard.html",
-          });
+        if (clerk.user && clerk.session) {
+          window.location.replace("dashboard.html");
+          return;
+        }
+
+        Clerk.mountSignIn(document.getElementById("clerk-signin"), {
+          appearance: { baseTheme: "dark" },
+          routing: "hash",
+          afterSignInUrl: "dashboard.html",
+          afterSignUpUrl: "dashboard.html",
+          redirectUrl: "dashboard.html",
         });
       });
     </script>

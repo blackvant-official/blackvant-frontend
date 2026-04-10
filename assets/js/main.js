@@ -5,8 +5,8 @@
 // ======================================================
 async function getAuthToken() {
     try {
-        // Ensure Clerk is loaded
-        await waitForClerk();
+        if (!window.Clerk) return null;
+        await window.Clerk.load();
         const clerk = window.Clerk;
 
         if (!clerk.user) return null;
@@ -24,6 +24,32 @@ async function getAuthToken() {
 
 // Expose it globally
 window.getAuthToken = getAuthToken;
+
+async function hasActiveClerkSession() {
+    try {
+        if (!window.Clerk) return false;
+        await window.Clerk.load();
+        return Boolean(window.Clerk.user && window.Clerk.session);
+    } catch (err) {
+        console.warn("Clerk session check failed:", err);
+        return false;
+    }
+}
+
+async function goToSignIn() {
+    window.location.href = await hasActiveClerkSession()
+        ? "dashboard.html"
+        : "login.html";
+}
+
+async function goToSignUp() {
+    window.location.href = await hasActiveClerkSession()
+        ? "dashboard.html"
+        : "signup.html";
+}
+
+window.goToSignIn = goToSignIn;
+window.goToSignUp = goToSignUp;
 
 // FAQ toggle functionality
 function toggleFAQ(element) {
