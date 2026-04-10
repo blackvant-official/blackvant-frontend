@@ -15,6 +15,38 @@ function signed(v) {
   return `${n >= 0 ? "+" : "-"}$${Math.abs(n).toFixed(2)}`;
 }
 
+function renderSystemBanner(summary) {
+  const dashboardContent = document.querySelector(".dashboard-content");
+  const welcomeSection = document.querySelector(".welcome-section");
+  if (!dashboardContent || !welcomeSection) return;
+
+  let banner = dashboardContent.querySelector(".operation-banner");
+  const paused = [];
+
+  if (summary.platformMaintenanceMode) {
+    paused.push("Deposits and withdrawals are temporarily unavailable while maintenance mode is active.");
+  } else {
+    if (summary.depositsEnabled === false) paused.push("Deposits are temporarily paused.");
+    if (summary.withdrawalsEnabled === false) paused.push("Withdrawals are temporarily paused.");
+  }
+
+  if (!paused.length) {
+    banner?.remove();
+    return;
+  }
+
+  if (!banner) {
+    banner = document.createElement("div");
+    welcomeSection.insertAdjacentElement("afterend", banner);
+  }
+
+  banner.className = "operation-banner warning";
+  banner.innerHTML = `
+    <strong>${summary.platformMaintenanceMode ? "Maintenance mode is on" : "Platform operations update"}</strong>
+    <span>${paused.join(" ")}</span>
+  `;
+}
+
 // ---------------- AUTH ----------------
 async function token() {
   return await getAuthToken(); // from auth.js
@@ -48,6 +80,7 @@ async function loadSummary() {
   }
 
   const d = await api("/api/v1/me/dashboard/summary");
+  renderSystemBanner(d);
 
   totalBalanceEl.textContent = usd(d.totalBalance);
   investmentBalanceEl.textContent = usd(d.activeInvestment);

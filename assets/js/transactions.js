@@ -2,20 +2,53 @@
 let SYSTEM_MIN_DEPOSIT = null;
 let SYSTEM_MIN_WITHDRAW = null;
 let SYSTEM_WITHDRAW_FREQUENCY_DAYS = null;
+let SYSTEM_WITHDRAW_FREQUENCY_ENABLED = true;
+let SYSTEM_DEPOSITS_ENABLED = true;
+let SYSTEM_WITHDRAWALS_ENABLED = true;
+let SYSTEM_MAINTENANCE_MODE = false;
 let otpVerified = false;
+
+async function loadPublicSystemSettings() {
+    const token = await getBackendToken();
+
+    const res = await fetch(
+        `${window.API_BASE_URL}/api/v1/admin/settings/system/public`,
+        { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    if (!res.ok) throw new Error("Failed to load system settings");
+
+    const data = await res.json();
+    SYSTEM_DEPOSITS_ENABLED = data.depositsEnabled !== false;
+    SYSTEM_WITHDRAWALS_ENABLED = data.withdrawalsEnabled !== false;
+    SYSTEM_MAINTENANCE_MODE = data.platformMaintenanceMode === true;
+    SYSTEM_WITHDRAW_FREQUENCY_ENABLED = data.withdrawFrequencyEnabled !== false;
+    return data;
+}
+
+function renderOperationBanner(container, { title, message, tone = "warning" }) {
+    if (!container) return;
+
+    let banner = container.querySelector(".operation-banner");
+    if (!banner) {
+        banner = document.createElement("div");
+        banner.className = "operation-banner";
+        const header = container.querySelector(".page-header, .welcome-section");
+        if (header) header.insertAdjacentElement("afterend", banner);
+        else container.prepend(banner);
+    }
+
+    banner.className = `operation-banner ${tone}`;
+    banner.innerHTML = `<strong>${title}</strong><span>${message}</span>`;
+}
+
+function clearOperationBanner(container) {
+    container?.querySelector(".operation-banner")?.remove();
+}
 
 async function loadSystemMinDeposit() {
     try {
-        const token = await getBackendToken();
-
-        const res = await fetch(
-            `${window.API_BASE_URL}/api/v1/admin/settings/system/public`,
-            { headers: { Authorization: `Bearer ${token}` } }
-        );
-
-        if (!res.ok) throw new Error("Failed to load system settings");
-
-        const data = await res.json();
+        const data = await loadPublicSystemSettings();
         const min = Number(data.minDepositAmount);
 
         SYSTEM_MIN_DEPOSIT = Number.isFinite(min) && min > 0 ? min : 100;
@@ -27,6 +60,7 @@ async function loadSystemMinDeposit() {
 }
 
 function initializeDepositPage() {
+    const depositContent = document.querySelector(".deposit-content");
     const uploadArea = document.getElementById('uploadArea');
     const fileInput = document.getElementById('fileInput');
     const filePreview = document.getElementById('filePreview');
@@ -124,10 +158,40 @@ function initializeDepositPage() {
     if (amountInput) amountInput.addEventListener('input', validateDepositForm);
 
     const submitBtn = document.getElementById('submitBtn');
+    const depositPaused = SYSTEM_MAINTENANCE_MODE || !SYSTEM_DEPOSITS_ENABLED;
+
+    if (depositPaused) {
+        renderOperationBanner(depositContent, {
+            title: SYSTEM_MAINTENANCE_MODE ? "Maintenance mode is on" : "Deposits are paused",
+            message: SYSTEM_MAINTENANCE_MODE
+                ? "Deposits and withdrawals are temporarily unavailable while maintenance mode is active."
+                : "New deposit requests are temporarily disabled.",
+        });
+        amountInput?.setAttribute("disabled", "disabled");
+        fileInput?.setAttribute("disabled", "disabled");
+        uploadArea?.classList.add("disabled");
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = SYSTEM_MAINTENANCE_MODE
+                ? "Maintenance Mode"
+                : "Deposits Disabled";
+        }
+    } else {
+        clearOperationBanner(depositContent);
+    }
 
     if (submitBtn) {
         submitBtn.addEventListener('click', async function (e) {
             e.preventDefault();
+
+            if (SYSTEM_MAINTENANCE_MODE || !SYSTEM_DEPOSITS_ENABLED) {
+                alert(
+                    SYSTEM_MAINTENANCE_MODE
+                        ? "Maintenance mode is active. Deposits are temporarily unavailable."
+                        : "Deposits are currently disabled."
+                );
+                return;
+            }
 
             const amount = parseFloat(amountInput.value) || 0;
             const file = fileInput.files[0];
@@ -246,6 +310,11 @@ function validateDepositForm() {
 
     if (!amountInput || !submitBtn) return;
 
+    if (SYSTEM_MAINTENANCE_MODE || !SYSTEM_DEPOSITS_ENABLED) {
+        submitBtn.disabled = true;
+        return;
+    }
+
     const amount = parseFloat(amountInput.value) || 0;
     const hasFile = filePreview && filePreview.classList.contains('show');
     
@@ -268,6 +337,7 @@ function validateDepositForm() {
 // ===== WITHDRAW PAGE FUNCTIONS =====
 
 function initializeWithdrawPage() {
+    const withdrawContent = document.querySelector(".withdraw-content");
     const withdrawSourceSelect = document.getElementById('withdrawSource');
     const availableBalanceEl = document.getElementById('availableBalance');
     const displayBalanceEl = document.getElementById('displayBalance');
@@ -277,10 +347,46 @@ function initializeWithdrawPage() {
     const verifyOtpBtn = document.getElementById("verifyOtpBtn");
     const otpInput = document.getElementById("otpInput");
     const otpStatus = document.getElementById("otpStatus");
+    const withdrawalPaused = SYSTEM_MAINTENANCE_MODE || !SYSTEM_WITHDRAWALS_ENABLED;
+
+    if (withdrawalPaused) {
+      renderOperationBanner(withdrawContent, {
+        title: SYSTEM_MAINTENANCE_MODE ? "Maintenance mode is on" : "Withdrawals are paused",
+        message: SYSTEM_MAINTENANCE_MODE
+          ? "Deposits and withdrawals are temporarily unavailable while maintenance mode is active."
+          : "Withdrawal requests are temporarily disabled.",
+      });
+
+      withdrawSourceSelect?.setAttribute("disabled", "disabled");
+      sendOtpBtn?.setAttribute("disabled", "disabled");
+      verifyOtpBtn?.setAttribute("disabled", "disabled");
+      otpInput?.setAttribute("disabled", "disabled");
+      document.getElementById("withdrawAmount")?.setAttribute("disabled", "disabled");
+      document.getElementById("walletAddress")?.setAttribute("disabled", "disabled");
+
+      if (otpStatus) {
+        otpStatus.style.display = "block";
+        otpStatus.style.color = "var(--accent-red)";
+        otpStatus.textContent = SYSTEM_MAINTENANCE_MODE
+          ? "Maintenance mode is active. Withdrawals are temporarily unavailable."
+          : "Withdrawals are currently disabled.";
+      }
+    } else {
+      clearOperationBanner(withdrawContent);
+    }
     
     // Reset OTP state on load
     otpVerified = false;
     sendOtpBtn?.addEventListener("click", async () => {
+      if (SYSTEM_MAINTENANCE_MODE || !SYSTEM_WITHDRAWALS_ENABLED) {
+        alert(
+          SYSTEM_MAINTENANCE_MODE
+            ? "Maintenance mode is active. Withdrawals are temporarily unavailable."
+            : "Withdrawals are currently disabled."
+        );
+        return;
+      }
+
       try {
         sendOtpBtn.disabled = true;
         sendOtpBtn.textContent = "Sending OTP...";
@@ -316,6 +422,15 @@ function initializeWithdrawPage() {
     });
 
     verifyOtpBtn?.addEventListener("click", async () => {
+      if (SYSTEM_MAINTENANCE_MODE || !SYSTEM_WITHDRAWALS_ENABLED) {
+        alert(
+          SYSTEM_MAINTENANCE_MODE
+            ? "Maintenance mode is active. Withdrawals are temporarily unavailable."
+            : "Withdrawals are currently disabled."
+        );
+        return;
+      }
+
       const otp = otpInput.value.trim();
 
       if (!otp || otp.length !== 6) {
@@ -463,6 +578,15 @@ function initializeWithdrawPage() {
             return;
         }
 
+        if (SYSTEM_MAINTENANCE_MODE || !SYSTEM_WITHDRAWALS_ENABLED) {
+            alert(
+                SYSTEM_MAINTENANCE_MODE
+                    ? "Maintenance mode is active. Withdrawals are temporarily unavailable."
+                    : "Withdrawals are currently disabled."
+            );
+            return;
+        }
+
         const amount = parseFloat(amountInput.value) || 0;
         const walletAddress = walletAddressInput.value.trim();
 
@@ -519,6 +643,11 @@ function validateWithdrawForm() {
     const submitBtn = document.getElementById('submitBtn');
 
     if (!amountInput || !submitBtn) return false;
+
+    if (SYSTEM_MAINTENANCE_MODE || !SYSTEM_WITHDRAWALS_ENABLED) {
+        submitBtn.disabled = true;
+        return false;
+    }
 
     const amount = parseFloat(amountInput.value) || 0;
     const walletAddress = walletAddressInput?.value.trim();
@@ -623,15 +752,11 @@ async function loadRecentDeposits() {
 }
 
 async function loadSystemWithdrawLimits() {
-  const token = await getBackendToken();
-  const res = await fetch(
-    `${window.API_BASE_URL}/api/v1/admin/settings/system/public`,
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
-  const data = await res.json();
+  const data = await loadPublicSystemSettings();
 
   SYSTEM_MIN_WITHDRAW = Number(data.minWithdrawAmount || 10);
   SYSTEM_WITHDRAW_FREQUENCY_DAYS = Number(data.withdrawFrequencyDays || 7);
+  SYSTEM_WITHDRAW_FREQUENCY_ENABLED = data.withdrawFrequencyEnabled !== false;
 }
 
 async function loadRecentWithdrawals() {
@@ -717,7 +842,9 @@ function renderWithdrawRules() {
     minRuleEl.textContent = `Minimum: $${SYSTEM_MIN_WITHDRAW}`;
   }
 
-  if (freqRuleEl && SYSTEM_WITHDRAW_FREQUENCY_DAYS !== null) {
+  if (freqRuleEl && SYSTEM_WITHDRAW_FREQUENCY_ENABLED === false) {
+    freqRuleEl.textContent = "Withdrawal frequency limit: Off";
+  } else if (freqRuleEl && SYSTEM_WITHDRAW_FREQUENCY_DAYS !== null) {
     freqRuleEl.textContent =
       `Once every ${SYSTEM_WITHDRAW_FREQUENCY_DAYS} day(s)`;
   }

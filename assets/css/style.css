@@ -1107,6 +1107,37 @@ body.auth-page {
     font-size: 1rem;
 }
 
+.operation-banner {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 1rem 1.25rem;
+    margin: 0 0 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+}
+
+.operation-banner strong {
+    color: var(--text-primary);
+}
+
+.operation-banner.warning {
+    border-color: rgba(255, 200, 0, 0.45);
+    background: rgba(255, 200, 0, 0.1);
+}
+
+.operation-banner.warning strong {
+    color: #ffc800;
+}
+
+.upload-area.disabled,
+.method-option.disabled {
+    opacity: 0.55;
+    pointer-events: none;
+}
+
 /* Payment Methods */
 .payment-methods {
     margin-bottom: 2rem;
