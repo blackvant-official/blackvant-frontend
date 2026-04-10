@@ -107,8 +107,8 @@ async function requireAdmin({
     return;
   }
 
-  const role = user.publicMetadata?.role;
-  if (role !== "admin") {
+  const role = String(user.publicMetadata?.role || "").toLowerCase();
+  if (!["admin", "super_admin", "superadmin"].includes(role)) {
     window.location.href = nonAdminRedirect;
     return;
   }

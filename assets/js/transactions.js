@@ -9,7 +9,7 @@ async function loadSystemMinDeposit() {
         const token = await getBackendToken();
 
         const res = await fetch(
-            `${window.API_BASE_URL}/api/v1/admin/settings/system`,
+            `${window.API_BASE_URL}/api/v1/admin/settings/system/public`,
             { headers: { Authorization: `Bearer ${token}` } }
         );
 
@@ -625,7 +625,7 @@ async function loadRecentDeposits() {
 async function loadSystemWithdrawLimits() {
   const token = await getBackendToken();
   const res = await fetch(
-    `${window.API_BASE_URL}/api/v1/admin/settings/system`,
+    `${window.API_BASE_URL}/api/v1/admin/settings/system/public`,
     { headers: { Authorization: `Bearer ${token}` } }
   );
   const data = await res.json();
